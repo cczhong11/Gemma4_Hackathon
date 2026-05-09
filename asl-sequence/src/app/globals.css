@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f3ecdf;
+  --foreground: #1e1b16;
+  --panel: rgba(255, 251, 245, 0.82);
+  --panel-strong: rgba(250, 243, 231, 0.96);
+  --line: rgba(76, 54, 28, 0.18);
+  --accent: #0d6c72;
+  --accent-strong: #0a4e52;
+  --muted: #6e6255;
+  --shadow: 0 24px 60px rgba(62, 46, 30, 0.16);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-panel: var(--panel);
+  --color-panel-strong: var(--panel-strong);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-muted: var(--muted);
+  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top left, rgba(13, 108, 114, 0.18), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(164, 96, 38, 0.16), transparent 30%),
+    linear-gradient(180deg, #f8f3ea 0%, #efe4d4 100%);
+}
+
+body {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(13, 108, 114, 0.18);
+}
