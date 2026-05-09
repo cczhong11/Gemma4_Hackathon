@@ -1,0 +1,749 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		021F6733A4EDF2972347BC4C /* MLXLocalLLMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019463838344C1EF36B9A835 /* MLXLocalLLMService.swift */; };
+		0BC60C5C188FB84782BEC159 /* Gemma4LanguageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58178C7FF7DC8E86A3F62F76 /* Gemma4LanguageModel.swift */; };
+		11883037F7B6305380B3E630 /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = C7137DC45B03BDAA50BB8769 /* MLXLLM */; };
+		1BBD2ADD79B998230C6ED275 /* DownloadObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D788F4B6DB7D538A31E2A829 /* DownloadObserver.swift */; };
+		1C3C77A7C374FC8BF04D7F3D /* MLXNN in Frameworks */ = {isa = PBXBuildFile; productRef = 95C8BB9C8F3FDC6125E736C8 /* MLXNN */; };
+		20C1BAEB2863C14A91C0D267 /* GPULifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7172664FC1B3299007A0BE8 /* GPULifecycle.swift */; };
+		216DD8CDEA16F3745ECDCE91 /* Gemma4App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C89A1D4B571DD01DE7546 /* Gemma4App.swift */; };
+		2256592443867DB33834C4B6 /* DownloadModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C19C20F31A213DA785762202 /* DownloadModels.swift */; };
+		2391675B4543FEE3987FBF33 /* Gemma4Loader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B36C8BE5CDC49F00D416594 /* Gemma4Loader.swift */; };
+		2BAFBE820DEB2FAED8273B52 /* Gemma4Registration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EA6F4F5B328963A649E0AF /* Gemma4Registration.swift */; };
+		2D770BB39A045D250FA09088 /* PCLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5926084916E0EE5E83415329 /* PCLog.swift */; };
+		302FC260E3328DE57157CF4D /* DownloadPreflight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1016B4FD345E8927DAFF36A2 /* DownloadPreflight.swift */; };
+		32CDEA00CF64BE1F790C65FA /* DownloadFailure.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC48E364F0988CF0344B9C0 /* DownloadFailure.swift */; };
+		344F602A05A19E0F83043A58 /* ModelInstallState.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC1ED698A6D428069ADD80D /* ModelInstallState.swift */; };
+		37190A04F65EA50F317D3EE8 /* MemoryStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 899BC69D7FEDD22AAE1EFAA4 /* MemoryStats.swift */; };
+		3C524F7B14AC1AD00283D5C1 /* InferenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A8F2BE7E268BC22A6F07D3C /* InferenceService.swift */; };
+		3FA5ED3F3642B1C6BCB37BF0 /* MLXLocalLLMService+KVReuse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F50EEBDC885937F7D0046CBE /* MLXLocalLLMService+KVReuse.swift */; };
+		40E41851C7B32AB209954E80 /* EmbeddedGemma4Runtime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59A00F49A5629472B3140FF7 /* EmbeddedGemma4Runtime.swift */; };
+		42B580A0DF1570C326C4483C /* MLXOptimizers in Frameworks */ = {isa = PBXBuildFile; productRef = B7683C4AF7FE15AD7CB1CCA4 /* MLXOptimizers */; };
+		43FB98084A263D3BF7A17EB3 /* Gemma4Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5B931F41566325B675D10 /* Gemma4Model.swift */; };
+		45E463EA07AD33E9AC226960 /* MLXTokenizersLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41742CBC4BCC61099D1E691C /* MLXTokenizersLoader.swift */; };
+		477DDEE9A5DDE10DAD64371A /* Gemma4Processor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 684389EF361A3BECFDCBBE77 /* Gemma4Processor.swift */; };
+		557D890EDE4ACAAA05D8D6D4 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2333578D353F9FDAC5C1CEA6 /* AppViewModel.swift */; };
+		5CD0100CC3DC3D2DACC500D1 /* Gemma4TextModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DD4B7A72E9A8F00F41EF40 /* Gemma4TextModel.swift */; };
+		6327C70DA4839CA815C5B734 /* ModelCatalogProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8918CF08BA25794D8ADB98 /* ModelCatalogProtocol.swift */; };
+		71606F9A4E2302D7D484B540 /* LiveModelDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = B511BB78168D7C7F7EB5FF1D /* LiveModelDefinition.swift */; };
+		78B8EE6EA7D262DDB01BE506 /* LiveModelInstallFinalizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E375624664EF44F64057C3 /* LiveModelInstallFinalizer.swift */; };
+		79667B55966CE162037D8178 /* AudioCaptureSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68B65E78FC9EED4E6CC39A64 /* AudioCaptureSnapshot.swift */; };
+		7A2B813202431FEF344EE3F8 /* LLMEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F21FC72422FA9933EC8CF6 /* LLMEngine.swift */; };
+		7A716DF04D2DEF20C31BC7DC /* Gemma4AudioFeatureExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A88FC46D8220D8ABBA5118 /* Gemma4AudioFeatureExtractor.swift */; };
+		811881A92A351BAB35CA0986 /* ImageRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68B307B4C257459F6B3DEDD3 /* ImageRecognitionService.swift */; };
+		85DF6812E9916B9763AAF685 /* Gemma4Adapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5AC83E5549F933CD9AA391F /* Gemma4Adapter.swift */; };
+		865C7A2C8824A48709099DC7 /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = 354952BBE88BA743BB025362 /* L10n.swift */; };
+		86F570A67D82921DD301085E /* LiveDownloadPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1CBD64B796DC6528313178 /* LiveDownloadPlanner.swift */; };
+		896327E092F3F451CD88418C /* LanguageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CAF6BDA287AF791F0D3D7EB /* LanguageService.swift */; };
+		8A57861FB8AC0F64C23AF94C /* Gemma4Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090DD566E75CD0754A0CFD94 /* Gemma4Config.swift */; };
+		8ED04D5BE29A79FBE3CBF7FB /* LiveModelDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DF459ADCECB851848CD2DC6 /* LiveModelDownloader.swift */; };
+		90D563D1829D488FFA75770F /* CameraRecognitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E094F51559691C7563DD942 /* CameraRecognitionView.swift */; };
+		9459125D2311D610C575BC89 /* MLXFast in Frameworks */ = {isa = PBXBuildFile; productRef = 924BD9E15AF6EE88BDA3AAEF /* MLXFast */; };
+		96B2C997979F9F8B386C9B87 /* MLXVLM in Frameworks */ = {isa = PBXBuildFile; productRef = FA6E456AB140076448F94CB7 /* MLXVLM */; };
+		A16914249662B7E345776088 /* ModelInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38191D37574D553D5BAC740A /* ModelInstaller.swift */; };
+		A39E994C1F54121B5E9FB849 /* LLMTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = D93DF49C14A89FB6FCD807E2 /* LLMTypes.swift */; };
+		B4BE5D79344E80985CDD916B /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19C66F7BFEC57A0C997EABC0 /* HomeView.swift */; };
+		B6C8506AB81CB3BDAFC10FB0 /* RuntimeBudgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F433FA920A31BCF39E6999 /* RuntimeBudgets.swift */; };
+		BACB9CEDB446D3DB5A2CE25C /* MLX in Frameworks */ = {isa = PBXBuildFile; productRef = 9593CFC320C373F2E570F7BC /* MLX */; };
+		BB4DC85917BFA3B4FB9E55AB /* MLXLMCommon in Frameworks */ = {isa = PBXBuildFile; productRef = 17A67B33E8D14BA44DA5A767 /* MLXLMCommon */; };
+		C23B033ADD43F17055EDAD24 /* MinTokenEOSGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D88BB8C95AF22712E32B29A /* MinTokenEOSGuard.swift */; };
+		C3163737CDCD0636040910A2 /* ResumableAssetDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2945E94D067CAB18010B44 /* ResumableAssetDownloader.swift */; };
+		C50101AB38EF35AF8DC2C829 /* Tokenizers in Frameworks */ = {isa = PBXBuildFile; productRef = 02B13C889E2C8CFF8A58F2AD /* Tokenizers */; };
+		C5FBD39731DF8E9963665BE8 /* BundledModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 231E4ADCE31D25A34C5CB872 /* BundledModel.swift */; };
+		C92CCFE337434185BFAAC8A6 /* LiveModelStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C28B76FEC951A10C5C1ECC78 /* LiveModelStore.swift */; };
+		CC0BD674031C9749C4F66209 /* ASRBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BD10FF6E5816C9223F59060 /* ASRBackend.swift */; };
+		CCB5FA19549964A55C078884 /* DownloadProgressSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59258A80BDDDE2B3E21D551E /* DownloadProgressSnapshot.swift */; };
+		CF9342F0E29F403DB89B7EF5 /* Gemma4RoPE.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9426E8F1411822AFC476CF6F /* Gemma4RoPE.swift */; };
+		D485BAEB6519E0787731FB9E /* ModelDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C214EA3C55D8F27F87F3CA3 /* ModelDownloader.swift */; };
+		E13D8A46144C6B2E0D353289 /* ModelInstallerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB38B74E4E1BAA39ADA2D7A6 /* ModelInstallerProtocol.swift */; };
+		E1A63A79E505696FDE5567E3 /* ModelPaths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE9FBE17B1D38C77ACD574B /* ModelPaths.swift */; };
+		E69D0545CC97A1C95BE23CE9 /* DownloadManifestStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 988E28DDD3FB0B2532733A3B /* DownloadManifestStore.swift */; };
+		E77F8EA8471AB7A602BF135C /* RuntimePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CA9A3536933F33ED283A66E /* RuntimePolicy.swift */; };
+		EC3CF1AC3DF2615D0BB1C0B0 /* CameraImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F537732F2C6045C4A7EBE43 /* CameraImagePicker.swift */; };
+		F853FBAD949493CB872A5782 /* TextPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80EEC614D8D42A98694B64BE /* TextPlaceholderView.swift */; };
+		FB1ED67A0CDAD489A2E4D996 /* Gemma4VisionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACFB4ABDE4DB49FD048916BD /* Gemma4VisionModel.swift */; };
+		FD5194D652E04693990657C3 /* Gemma4AudioModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502FC8CEBFB58EA08B570B43 /* Gemma4AudioModel.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		019463838344C1EF36B9A835 /* MLXLocalLLMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLXLocalLLMService.swift; sourceTree = "<group>"; };
+		02E375624664EF44F64057C3 /* LiveModelInstallFinalizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveModelInstallFinalizer.swift; sourceTree = "<group>"; };
+		07F433FA920A31BCF39E6999 /* RuntimeBudgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeBudgets.swift; sourceTree = "<group>"; };
+		090DD566E75CD0754A0CFD94 /* Gemma4Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4Config.swift; sourceTree = "<group>"; };
+		0AE9FBE17B1D38C77ACD574B /* ModelPaths.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelPaths.swift; sourceTree = "<group>"; };
+		0BC4896A8C9819F34BC02F3D /* Gemma4App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gemma4App.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1016B4FD345E8927DAFF36A2 /* DownloadPreflight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadPreflight.swift; sourceTree = "<group>"; };
+		11A88FC46D8220D8ABBA5118 /* Gemma4AudioFeatureExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4AudioFeatureExtractor.swift; sourceTree = "<group>"; };
+		19C66F7BFEC57A0C997EABC0 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		1CA9A3536933F33ED283A66E /* RuntimePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimePolicy.swift; sourceTree = "<group>"; };
+		1F537732F2C6045C4A7EBE43 /* CameraImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraImagePicker.swift; sourceTree = "<group>"; };
+		231E4ADCE31D25A34C5CB872 /* BundledModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundledModel.swift; sourceTree = "<group>"; };
+		2333578D353F9FDAC5C1CEA6 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
+		2D0AEBBC7AB81B28820CCD71 /* InferenceKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = InferenceKit; path = Vendor/InferenceKit; sourceTree = SOURCE_ROOT; };
+		331C89A1D4B571DD01DE7546 /* Gemma4App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4App.swift; sourceTree = "<group>"; };
+		354952BBE88BA743BB025362 /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
+		38191D37574D553D5BAC740A /* ModelInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelInstaller.swift; sourceTree = "<group>"; };
+		41742CBC4BCC61099D1E691C /* MLXTokenizersLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLXTokenizersLoader.swift; sourceTree = "<group>"; };
+		4BD10FF6E5816C9223F59060 /* ASRBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASRBackend.swift; sourceTree = "<group>"; };
+		502FC8CEBFB58EA08B570B43 /* Gemma4AudioModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4AudioModel.swift; sourceTree = "<group>"; };
+		58178C7FF7DC8E86A3F62F76 /* Gemma4LanguageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4LanguageModel.swift; sourceTree = "<group>"; };
+		59258A80BDDDE2B3E21D551E /* DownloadProgressSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadProgressSnapshot.swift; sourceTree = "<group>"; };
+		5926084916E0EE5E83415329 /* PCLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PCLog.swift; sourceTree = "<group>"; };
+		59A00F49A5629472B3140FF7 /* EmbeddedGemma4Runtime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbeddedGemma4Runtime.swift; sourceTree = "<group>"; };
+		5F8918CF08BA25794D8ADB98 /* ModelCatalogProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelCatalogProtocol.swift; sourceTree = "<group>"; };
+		684389EF361A3BECFDCBBE77 /* Gemma4Processor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4Processor.swift; sourceTree = "<group>"; };
+		68B307B4C257459F6B3DEDD3 /* ImageRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRecognitionService.swift; sourceTree = "<group>"; };
+		68B65E78FC9EED4E6CC39A64 /* AudioCaptureSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCaptureSnapshot.swift; sourceTree = "<group>"; };
+		6B36C8BE5CDC49F00D416594 /* Gemma4Loader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4Loader.swift; sourceTree = "<group>"; };
+		6D88BB8C95AF22712E32B29A /* MinTokenEOSGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinTokenEOSGuard.swift; sourceTree = "<group>"; };
+		7CAF6BDA287AF791F0D3D7EB /* LanguageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageService.swift; sourceTree = "<group>"; };
+		7DF459ADCECB851848CD2DC6 /* LiveModelDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveModelDownloader.swift; sourceTree = "<group>"; };
+		80EEC614D8D42A98694B64BE /* TextPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextPlaceholderView.swift; sourceTree = "<group>"; };
+		86E5B931F41566325B675D10 /* Gemma4Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4Model.swift; sourceTree = "<group>"; };
+		899BC69D7FEDD22AAE1EFAA4 /* MemoryStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryStats.swift; sourceTree = "<group>"; };
+		8E094F51559691C7563DD942 /* CameraRecognitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraRecognitionView.swift; sourceTree = "<group>"; };
+		9426E8F1411822AFC476CF6F /* Gemma4RoPE.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4RoPE.swift; sourceTree = "<group>"; };
+		988E28DDD3FB0B2532733A3B /* DownloadManifestStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManifestStore.swift; sourceTree = "<group>"; };
+		9A8F2BE7E268BC22A6F07D3C /* InferenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InferenceService.swift; sourceTree = "<group>"; };
+		9C214EA3C55D8F27F87F3CA3 /* ModelDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelDownloader.swift; sourceTree = "<group>"; };
+		A5AC83E5549F933CD9AA391F /* Gemma4Adapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4Adapter.swift; sourceTree = "<group>"; };
+		ACFB4ABDE4DB49FD048916BD /* Gemma4VisionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4VisionModel.swift; sourceTree = "<group>"; };
+		B511BB78168D7C7F7EB5FF1D /* LiveModelDefinition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveModelDefinition.swift; sourceTree = "<group>"; };
+		B9DD4B7A72E9A8F00F41EF40 /* Gemma4TextModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4TextModel.swift; sourceTree = "<group>"; };
+		BB38B74E4E1BAA39ADA2D7A6 /* ModelInstallerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelInstallerProtocol.swift; sourceTree = "<group>"; };
+		C19C20F31A213DA785762202 /* DownloadModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadModels.swift; sourceTree = "<group>"; };
+		C28B76FEC951A10C5C1ECC78 /* LiveModelStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveModelStore.swift; sourceTree = "<group>"; };
+		C3EA6F4F5B328963A649E0AF /* Gemma4Registration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4Registration.swift; sourceTree = "<group>"; };
+		D788F4B6DB7D538A31E2A829 /* DownloadObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadObserver.swift; sourceTree = "<group>"; };
+		D93DF49C14A89FB6FCD807E2 /* LLMTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMTypes.swift; sourceTree = "<group>"; };
+		DAC1ED698A6D428069ADD80D /* ModelInstallState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelInstallState.swift; sourceTree = "<group>"; };
+		E7172664FC1B3299007A0BE8 /* GPULifecycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPULifecycle.swift; sourceTree = "<group>"; };
+		EB2945E94D067CAB18010B44 /* ResumableAssetDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResumableAssetDownloader.swift; sourceTree = "<group>"; };
+		EBC48E364F0988CF0344B9C0 /* DownloadFailure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadFailure.swift; sourceTree = "<group>"; };
+		EF1CBD64B796DC6528313178 /* LiveDownloadPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveDownloadPlanner.swift; sourceTree = "<group>"; };
+		F3F21FC72422FA9933EC8CF6 /* LLMEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMEngine.swift; sourceTree = "<group>"; };
+		F50EEBDC885937F7D0046CBE /* MLXLocalLLMService+KVReuse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MLXLocalLLMService+KVReuse.swift"; sourceTree = "<group>"; };
+		FDA90E2F58EBAF8F1F9EE604 /* mlx-swift */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "mlx-swift"; path = "Vendor/mlx-swift"; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B42B0C057FEDF2E6B27473EB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BACB9CEDB446D3DB5A2CE25C /* MLX in Frameworks */,
+				1C3C77A7C374FC8BF04D7F3D /* MLXNN in Frameworks */,
+				9459125D2311D610C575BC89 /* MLXFast in Frameworks */,
+				42B580A0DF1570C326C4483C /* MLXOptimizers in Frameworks */,
+				11883037F7B6305380B3E630 /* MLXLLM in Frameworks */,
+				96B2C997979F9F8B386C9B87 /* MLXVLM in Frameworks */,
+				BB4DC85917BFA3B4FB9E55AB /* MLXLMCommon in Frameworks */,
+				C50101AB38EF35AF8DC2C829 /* Tokenizers in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		044DF70748BECAECA1925E64 = {
+			isa = PBXGroup;
+			children = (
+				9D5086A50DFD6AA4E8E7BD73 /* Gemma4App */,
+				0A7A01A0525EA18D9343365C /* Packages */,
+				439F1DD0D43C72950C794BDE /* Vendor */,
+				B0608129650ABE78C375AA42 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		0A7A01A0525EA18D9343365C /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				2D0AEBBC7AB81B28820CCD71 /* InferenceKit */,
+				FDA90E2F58EBAF8F1F9EE604 /* mlx-swift */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		19D906D76B6ADFD13C7170A7 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				231E4ADCE31D25A34C5CB872 /* BundledModel.swift */,
+				E7172664FC1B3299007A0BE8 /* GPULifecycle.swift */,
+				899BC69D7FEDD22AAE1EFAA4 /* MemoryStats.swift */,
+				6D88BB8C95AF22712E32B29A /* MinTokenEOSGuard.swift */,
+				41742CBC4BCC61099D1E691C /* MLXTokenizersLoader.swift */,
+				07F433FA920A31BCF39E6999 /* RuntimeBudgets.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		1FB14BF0C1AF07753B587902 /* Runtime */ = {
+			isa = PBXGroup;
+			children = (
+				68B65E78FC9EED4E6CC39A64 /* AudioCaptureSnapshot.swift */,
+				59A00F49A5629472B3140FF7 /* EmbeddedGemma4Runtime.swift */,
+				A5AC83E5549F933CD9AA391F /* Gemma4Adapter.swift */,
+				6B36C8BE5CDC49F00D416594 /* Gemma4Loader.swift */,
+				68B307B4C257459F6B3DEDD3 /* ImageRecognitionService.swift */,
+				F3F21FC72422FA9933EC8CF6 /* LLMEngine.swift */,
+			);
+			path = Runtime;
+			sourceTree = "<group>";
+		};
+		21099B4962652C4224BD2A27 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				2333578D353F9FDAC5C1CEA6 /* AppViewModel.swift */,
+				1F537732F2C6045C4A7EBE43 /* CameraImagePicker.swift */,
+				8E094F51559691C7563DD942 /* CameraRecognitionView.swift */,
+				19C66F7BFEC57A0C997EABC0 /* HomeView.swift */,
+				80EEC614D8D42A98694B64BE /* TextPlaceholderView.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		294BC241612BD568F44B757F /* MLX */ = {
+			isa = PBXGroup;
+			children = (
+				19D906D76B6ADFD13C7170A7 /* Core */,
+				2D02A9F85E06301EDEA6F4ED /* Gemma4 */,
+				6D88C8D381B69CD65EAC88A4 /* Installation */,
+				019463838344C1EF36B9A835 /* MLXLocalLLMService.swift */,
+				F50EEBDC885937F7D0046CBE /* MLXLocalLLMService+KVReuse.swift */,
+			);
+			path = MLX;
+			sourceTree = "<group>";
+		};
+		2D02A9F85E06301EDEA6F4ED /* Gemma4 */ = {
+			isa = PBXGroup;
+			children = (
+				11A88FC46D8220D8ABBA5118 /* Gemma4AudioFeatureExtractor.swift */,
+				502FC8CEBFB58EA08B570B43 /* Gemma4AudioModel.swift */,
+				090DD566E75CD0754A0CFD94 /* Gemma4Config.swift */,
+				58178C7FF7DC8E86A3F62F76 /* Gemma4LanguageModel.swift */,
+				86E5B931F41566325B675D10 /* Gemma4Model.swift */,
+				684389EF361A3BECFDCBBE77 /* Gemma4Processor.swift */,
+				C3EA6F4F5B328963A649E0AF /* Gemma4Registration.swift */,
+				9426E8F1411822AFC476CF6F /* Gemma4RoPE.swift */,
+				B9DD4B7A72E9A8F00F41EF40 /* Gemma4TextModel.swift */,
+				ACFB4ABDE4DB49FD048916BD /* Gemma4VisionModel.swift */,
+			);
+			path = Gemma4;
+			sourceTree = "<group>";
+		};
+		35254B9B094484CC05808D48 /* LLM */ = {
+			isa = PBXGroup;
+			children = (
+				B83B3E663737E0987494A5CA /* Core */,
+				93626FF74D630B91ECC267EC /* Installation */,
+				294BC241612BD568F44B757F /* MLX */,
+			);
+			path = LLM;
+			sourceTree = "<group>";
+		};
+		439F1DD0D43C72950C794BDE /* Vendor */ = {
+			isa = PBXGroup;
+			children = (
+				62D9E385B5AC74714C5ED311 /* Gemma4Runtime */,
+			);
+			path = Vendor;
+			sourceTree = "<group>";
+		};
+		4F57A63FE13CF694B8E53075 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				331C89A1D4B571DD01DE7546 /* Gemma4App.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		62D9E385B5AC74714C5ED311 /* Gemma4Runtime */ = {
+			isa = PBXGroup;
+			children = (
+				35254B9B094484CC05808D48 /* LLM */,
+				7512A04CBA19944609D9CCEA /* Shared */,
+			);
+			path = Gemma4Runtime;
+			sourceTree = "<group>";
+		};
+		6D88C8D381B69CD65EAC88A4 /* Installation */ = {
+			isa = PBXGroup;
+			children = (
+				EF1CBD64B796DC6528313178 /* LiveDownloadPlanner.swift */,
+				B511BB78168D7C7F7EB5FF1D /* LiveModelDefinition.swift */,
+				7DF459ADCECB851848CD2DC6 /* LiveModelDownloader.swift */,
+				02E375624664EF44F64057C3 /* LiveModelInstallFinalizer.swift */,
+				C28B76FEC951A10C5C1ECC78 /* LiveModelStore.swift */,
+				9C214EA3C55D8F27F87F3CA3 /* ModelDownloader.swift */,
+				38191D37574D553D5BAC740A /* ModelInstaller.swift */,
+				DAC1ED698A6D428069ADD80D /* ModelInstallState.swift */,
+				0AE9FBE17B1D38C77ACD574B /* ModelPaths.swift */,
+			);
+			path = Installation;
+			sourceTree = "<group>";
+		};
+		7512A04CBA19944609D9CCEA /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				9F8D516D6AFEEEDE13537716 /* Audio */,
+				354952BBE88BA743BB025362 /* L10n.swift */,
+				7CAF6BDA287AF791F0D3D7EB /* LanguageService.swift */,
+				5926084916E0EE5E83415329 /* PCLog.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		93626FF74D630B91ECC267EC /* Installation */ = {
+			isa = PBXGroup;
+			children = (
+				9BFBD7CB0593AE3137322054 /* Download */,
+			);
+			path = Installation;
+			sourceTree = "<group>";
+		};
+		9BFBD7CB0593AE3137322054 /* Download */ = {
+			isa = PBXGroup;
+			children = (
+				EBC48E364F0988CF0344B9C0 /* DownloadFailure.swift */,
+				988E28DDD3FB0B2532733A3B /* DownloadManifestStore.swift */,
+				C19C20F31A213DA785762202 /* DownloadModels.swift */,
+				D788F4B6DB7D538A31E2A829 /* DownloadObserver.swift */,
+				1016B4FD345E8927DAFF36A2 /* DownloadPreflight.swift */,
+				59258A80BDDDE2B3E21D551E /* DownloadProgressSnapshot.swift */,
+				EB2945E94D067CAB18010B44 /* ResumableAssetDownloader.swift */,
+			);
+			path = Download;
+			sourceTree = "<group>";
+		};
+		9D5086A50DFD6AA4E8E7BD73 /* Gemma4App */ = {
+			isa = PBXGroup;
+			children = (
+				4F57A63FE13CF694B8E53075 /* App */,
+				1FB14BF0C1AF07753B587902 /* Runtime */,
+				21099B4962652C4224BD2A27 /* UI */,
+			);
+			path = Gemma4App;
+			sourceTree = "<group>";
+		};
+		9F8D516D6AFEEEDE13537716 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				4BD10FF6E5816C9223F59060 /* ASRBackend.swift */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
+		B0608129650ABE78C375AA42 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0BC4896A8C9819F34BC02F3D /* Gemma4App.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B83B3E663737E0987494A5CA /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				9A8F2BE7E268BC22A6F07D3C /* InferenceService.swift */,
+				D93DF49C14A89FB6FCD807E2 /* LLMTypes.swift */,
+				5F8918CF08BA25794D8ADB98 /* ModelCatalogProtocol.swift */,
+				BB38B74E4E1BAA39ADA2D7A6 /* ModelInstallerProtocol.swift */,
+				1CA9A3536933F33ED283A66E /* RuntimePolicy.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C610D4AD036466CC0CF5EEF4 /* Gemma4App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3ECCC6D0451200E0889D47B5 /* Build configuration list for PBXNativeTarget "Gemma4App" */;
+			buildPhases = (
+				DE191FD621C54AD1A6C58EDC /* Sources */,
+				B42B0C057FEDF2E6B27473EB /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Gemma4App;
+			packageProductDependencies = (
+				9593CFC320C373F2E570F7BC /* MLX */,
+				95C8BB9C8F3FDC6125E736C8 /* MLXNN */,
+				924BD9E15AF6EE88BDA3AAEF /* MLXFast */,
+				B7683C4AF7FE15AD7CB1CCA4 /* MLXOptimizers */,
+				C7137DC45B03BDAA50BB8769 /* MLXLLM */,
+				FA6E456AB140076448F94CB7 /* MLXVLM */,
+				17A67B33E8D14BA44DA5A767 /* MLXLMCommon */,
+				02B13C889E2C8CFF8A58F2AD /* Tokenizers */,
+			);
+			productName = Gemma4App;
+			productReference = 0BC4896A8C9819F34BC02F3D /* Gemma4App.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BC869DA2B6428868AD994D50 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					C610D4AD036466CC0CF5EEF4 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = E59A8EEF706443B6F5851C8F /* Build configuration list for PBXProject "Gemma4App" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 044DF70748BECAECA1925E64;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				5DFA31AEB898EB3F6D625E05 /* XCRemoteSwiftPackageReference "swift-transformers" */,
+				81E2A57EE309891B9E026668 /* XCLocalSwiftPackageReference "Vendor/InferenceKit" */,
+				964A355CC2040C92D3972936 /* XCLocalSwiftPackageReference "Vendor/mlx-swift" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = B0608129650ABE78C375AA42 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C610D4AD036466CC0CF5EEF4 /* Gemma4App */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DE191FD621C54AD1A6C58EDC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC0BD674031C9749C4F66209 /* ASRBackend.swift in Sources */,
+				557D890EDE4ACAAA05D8D6D4 /* AppViewModel.swift in Sources */,
+				79667B55966CE162037D8178 /* AudioCaptureSnapshot.swift in Sources */,
+				C5FBD39731DF8E9963665BE8 /* BundledModel.swift in Sources */,
+				EC3CF1AC3DF2615D0BB1C0B0 /* CameraImagePicker.swift in Sources */,
+				90D563D1829D488FFA75770F /* CameraRecognitionView.swift in Sources */,
+				32CDEA00CF64BE1F790C65FA /* DownloadFailure.swift in Sources */,
+				E69D0545CC97A1C95BE23CE9 /* DownloadManifestStore.swift in Sources */,
+				2256592443867DB33834C4B6 /* DownloadModels.swift in Sources */,
+				1BBD2ADD79B998230C6ED275 /* DownloadObserver.swift in Sources */,
+				302FC260E3328DE57157CF4D /* DownloadPreflight.swift in Sources */,
+				CCB5FA19549964A55C078884 /* DownloadProgressSnapshot.swift in Sources */,
+				40E41851C7B32AB209954E80 /* EmbeddedGemma4Runtime.swift in Sources */,
+				20C1BAEB2863C14A91C0D267 /* GPULifecycle.swift in Sources */,
+				85DF6812E9916B9763AAF685 /* Gemma4Adapter.swift in Sources */,
+				216DD8CDEA16F3745ECDCE91 /* Gemma4App.swift in Sources */,
+				7A716DF04D2DEF20C31BC7DC /* Gemma4AudioFeatureExtractor.swift in Sources */,
+				FD5194D652E04693990657C3 /* Gemma4AudioModel.swift in Sources */,
+				8A57861FB8AC0F64C23AF94C /* Gemma4Config.swift in Sources */,
+				0BC60C5C188FB84782BEC159 /* Gemma4LanguageModel.swift in Sources */,
+				2391675B4543FEE3987FBF33 /* Gemma4Loader.swift in Sources */,
+				43FB98084A263D3BF7A17EB3 /* Gemma4Model.swift in Sources */,
+				477DDEE9A5DDE10DAD64371A /* Gemma4Processor.swift in Sources */,
+				2BAFBE820DEB2FAED8273B52 /* Gemma4Registration.swift in Sources */,
+				CF9342F0E29F403DB89B7EF5 /* Gemma4RoPE.swift in Sources */,
+				5CD0100CC3DC3D2DACC500D1 /* Gemma4TextModel.swift in Sources */,
+				FB1ED67A0CDAD489A2E4D996 /* Gemma4VisionModel.swift in Sources */,
+				B4BE5D79344E80985CDD916B /* HomeView.swift in Sources */,
+				811881A92A351BAB35CA0986 /* ImageRecognitionService.swift in Sources */,
+				3C524F7B14AC1AD00283D5C1 /* InferenceService.swift in Sources */,
+				865C7A2C8824A48709099DC7 /* L10n.swift in Sources */,
+				7A2B813202431FEF344EE3F8 /* LLMEngine.swift in Sources */,
+				A39E994C1F54121B5E9FB849 /* LLMTypes.swift in Sources */,
+				896327E092F3F451CD88418C /* LanguageService.swift in Sources */,
+				86F570A67D82921DD301085E /* LiveDownloadPlanner.swift in Sources */,
+				71606F9A4E2302D7D484B540 /* LiveModelDefinition.swift in Sources */,
+				8ED04D5BE29A79FBE3CBF7FB /* LiveModelDownloader.swift in Sources */,
+				78B8EE6EA7D262DDB01BE506 /* LiveModelInstallFinalizer.swift in Sources */,
+				C92CCFE337434185BFAAC8A6 /* LiveModelStore.swift in Sources */,
+				3FA5ED3F3642B1C6BCB37BF0 /* MLXLocalLLMService+KVReuse.swift in Sources */,
+				021F6733A4EDF2972347BC4C /* MLXLocalLLMService.swift in Sources */,
+				45E463EA07AD33E9AC226960 /* MLXTokenizersLoader.swift in Sources */,
+				37190A04F65EA50F317D3EE8 /* MemoryStats.swift in Sources */,
+				C23B033ADD43F17055EDAD24 /* MinTokenEOSGuard.swift in Sources */,
+				6327C70DA4839CA815C5B734 /* ModelCatalogProtocol.swift in Sources */,
+				D485BAEB6519E0787731FB9E /* ModelDownloader.swift in Sources */,
+				344F602A05A19E0F83043A58 /* ModelInstallState.swift in Sources */,
+				A16914249662B7E345776088 /* ModelInstaller.swift in Sources */,
+				E13D8A46144C6B2E0D353289 /* ModelInstallerProtocol.swift in Sources */,
+				E1A63A79E505696FDE5567E3 /* ModelPaths.swift in Sources */,
+				2D770BB39A045D250FA09088 /* PCLog.swift in Sources */,
+				C3163737CDCD0636040910A2 /* ResumableAssetDownloader.swift in Sources */,
+				B6C8506AB81CB3BDAFC10FB0 /* RuntimeBudgets.swift in Sources */,
+				E77F8EA8471AB7A602BF135C /* RuntimePolicy.swift in Sources */,
+				F853FBAD949493CB872A5782 /* TextPlaceholderView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4175A001D679C481EA17A02B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WWK6LCZ458;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		6E504E09010C3E2266DE23E7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "需要使用相机拍照并识别图片内容。";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleDefault;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tczhong.Gemma4App;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		C770A818A964C1DAA38F1A0D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "需要使用相机拍照并识别图片内容。";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleDefault;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tczhong.Gemma4App;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		D9DFF2A663B451FA48446F95 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WWK6LCZ458;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3ECCC6D0451200E0889D47B5 /* Build configuration list for PBXNativeTarget "Gemma4App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4175A001D679C481EA17A02B /* Debug */,
+				D9DFF2A663B451FA48446F95 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E59A8EEF706443B6F5851C8F /* Build configuration list for PBXProject "Gemma4App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C770A818A964C1DAA38F1A0D /* Debug */,
+				6E504E09010C3E2266DE23E7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		81E2A57EE309891B9E026668 /* XCLocalSwiftPackageReference "Vendor/InferenceKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Vendor/InferenceKit;
+		};
+		964A355CC2040C92D3972936 /* XCLocalSwiftPackageReference "Vendor/mlx-swift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "Vendor/mlx-swift";
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		5DFA31AEB898EB3F6D625E05 /* XCRemoteSwiftPackageReference "swift-transformers" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/huggingface/swift-transformers.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.9;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		02B13C889E2C8CFF8A58F2AD /* Tokenizers */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5DFA31AEB898EB3F6D625E05 /* XCRemoteSwiftPackageReference "swift-transformers" */;
+			productName = Tokenizers;
+		};
+		17A67B33E8D14BA44DA5A767 /* MLXLMCommon */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MLXLMCommon;
+		};
+		924BD9E15AF6EE88BDA3AAEF /* MLXFast */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MLXFast;
+		};
+		9593CFC320C373F2E570F7BC /* MLX */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MLX;
+		};
+		95C8BB9C8F3FDC6125E736C8 /* MLXNN */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MLXNN;
+		};
+		B7683C4AF7FE15AD7CB1CCA4 /* MLXOptimizers */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MLXOptimizers;
+		};
+		C7137DC45B03BDAA50BB8769 /* MLXLLM */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MLXLLM;
+		};
+		FA6E456AB140076448F94CB7 /* MLXVLM */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MLXVLM;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = BC869DA2B6428868AD994D50 /* Project object */;
+}

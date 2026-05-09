@@ -1,0 +1,84 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Gemma4}/ios/Vendor/mlx-swift",
+            "name": "Debug Tutorial (ios/Vendor/mlx-swift)",
+            "target": "Tutorial",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug Tutorial (ios/Vendor/mlx-swift)"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Gemma4}/ios/Vendor/mlx-swift",
+            "name": "Release Tutorial (ios/Vendor/mlx-swift)",
+            "target": "Tutorial",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release Tutorial (ios/Vendor/mlx-swift)"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Gemma4}/ios/Vendor/mlx-swift",
+            "name": "Debug Example1 (ios/Vendor/mlx-swift)",
+            "target": "Example1",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug Example1 (ios/Vendor/mlx-swift)"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Gemma4}/ios/Vendor/mlx-swift",
+            "name": "Release Example1 (ios/Vendor/mlx-swift)",
+            "target": "Example1",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release Example1 (ios/Vendor/mlx-swift)"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Gemma4}/ios/Vendor/mlx-swift",
+            "name": "Debug CustomFunctionExampleSimple (ios/Vendor/mlx-swift)",
+            "target": "CustomFunctionExampleSimple",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug CustomFunctionExampleSimple (ios/Vendor/mlx-swift)"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Gemma4}/ios/Vendor/mlx-swift",
+            "name": "Release CustomFunctionExampleSimple (ios/Vendor/mlx-swift)",
+            "target": "CustomFunctionExampleSimple",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release CustomFunctionExampleSimple (ios/Vendor/mlx-swift)"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Gemma4}/ios/Vendor/mlx-swift",
+            "name": "Debug CustomFunctionExample (ios/Vendor/mlx-swift)",
+            "target": "CustomFunctionExample",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug CustomFunctionExample (ios/Vendor/mlx-swift)"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Gemma4}/ios/Vendor/mlx-swift",
+            "name": "Release CustomFunctionExample (ios/Vendor/mlx-swift)",
+            "target": "CustomFunctionExample",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release CustomFunctionExample (ios/Vendor/mlx-swift)"
+        }
+    ]
+}
