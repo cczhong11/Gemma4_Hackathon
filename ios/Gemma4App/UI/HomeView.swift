@@ -9,33 +9,40 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    NavigationLink {
-                        CameraRecognitionView(viewModel: viewModel)
-                    } label: {
-                        Text("拍照识别")
-                            .font(.title3.weight(.semibold))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 18)
-                    }
-                    .buttonStyle(.borderedProminent)
+            ZStack {
+                Color(.systemBackground)
+                    .ignoresSafeArea()
 
-                    NavigationLink {
-                        TextPlaceholderView()
-                    } label: {
-                        Text("文字功能")
-                            .font(.title3.weight(.semibold))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 18)
-                    }
-                    .buttonStyle(.bordered)
+                ScrollView {
+                    VStack(spacing: 20) {
+                        NavigationLink {
+                            CameraRecognitionView(viewModel: viewModel)
+                        } label: {
+                            Text("拍照识别")
+                                .font(.title3.weight(.semibold))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 18)
+                        }
+                        .buttonStyle(.borderedProminent)
 
-                    modelCard
+                        NavigationLink {
+                            TextPlaceholderView()
+                        } label: {
+                            Text("文字功能")
+                                .font(.title3.weight(.semibold))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 18)
+                        }
+                        .buttonStyle(.bordered)
+
+                        modelCard
+                    }
+                    .padding(24)
                 }
-                .padding(24)
             }
             .navigationTitle("Gemma 4")
+            .toolbarBackground(Color(.systemBackground), for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .task {
                 viewModel.refreshModelStatus()
                 viewModel.ensureModelStatusPolling()
