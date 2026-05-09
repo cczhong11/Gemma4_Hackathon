@@ -1,0 +1,4 @@
+interface:
+  display_name: "iOS MLX Jetsam Debug"
+  short_description: "Debug iPhone MLX memory kills and jetsam issues."
+  default_prompt: "Use $ios-mlx-jetsam-debug to debug an iPhone app that is crashing from MLX memory pressure or jetsam."

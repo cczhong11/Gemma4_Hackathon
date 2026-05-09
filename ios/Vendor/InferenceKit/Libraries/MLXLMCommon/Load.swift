@@ -55,7 +55,12 @@ public func loadWeights(
     let parameters = ModuleParameters.unflattened(weights)
     try model.update(parameters: parameters, verify: [.all])
 
-    // eval(model) — skipped: let weights stay lazy until first inference.
-    // On Apple Silicon UMA, lazy weights are materialized on-demand per layer.
-    print("[Load] lazyLoad: skipping eval(model), weights will eval on first use")
+    // On iPhone-class jetsam limits, deferring all weight materialization to the
+    // first inference creates the worst possible peak: weights + first-use Metal
+    // compilation + multimodal activations all stack in the same turn.
+    //
+    // Materialize weights here so the first user inference only pays for runtime
+    // activations/JIT, not the entire model residency transition as well.
+    eval(model)
+    print("[Load] eagerLoad: eval(model) materialized weights during load")
 }

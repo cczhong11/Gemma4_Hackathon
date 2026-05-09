@@ -507,6 +507,26 @@ public class MLXLocalLLMService: LLMEngine, InferenceService {
         generateStream(prompt: prompt, images: [], audios: [])
     }
 
+    private func multimodalSafetyOutputCap(for model: BundledModelOption) -> Int? {
+        if model.id.contains("e2b") {
+            return 256
+        }
+        if model.id.contains("e4b") {
+            return 384
+        }
+        return nil
+    }
+
+    private func multimodalSafetyMaxKVSize(for model: BundledModelOption) -> Int? {
+        if model.id.contains("e2b") {
+            return 512
+        }
+        if model.id.contains("e4b") {
+            return 768
+        }
+        return nil
+    }
+
     public func enterLiveMode(systemPrompt: String?) async throws {
         liveModeSystemPrompt = systemPrompt
         try await prepareForLiveMode()
@@ -728,12 +748,22 @@ public class MLXLocalLLMService: LLMEngine, InferenceService {
                 defer {
                     Gemma4Processor.setRuntimeImageSoftTokenCap(nil)
                 }
+                let multimodalSafetyCap = isMultimodal
+                    ? self.multimodalSafetyOutputCap(for: currentModel)
+                    : nil
+                let multimodalSafetyMaxKVSize = isMultimodal
+                    ? self.multimodalSafetyMaxKVSize(for: currentModel)
+                    : nil
                 let effectiveMaxOutputTokens: Int = {
                     // 多模态不再有独立的静态 token 上限 — 完全依赖 headroomFloorMB 运行时检测。
                     // 只保留 thinking/text budget 的公式约束和 UI 滑块上限。
                     let thinkingCap = thinkingBudget?.maxOutputTokens ?? self.maxOutputTokens
                     let textCap = textBudget?.maxOutputTokens ?? self.maxOutputTokens
-                    return min(self.maxOutputTokens, thinkingCap, textCap)
+                    let baseCap = min(self.maxOutputTokens, thinkingCap, textCap)
+                    if let multimodalSafetyCap {
+                        return min(baseCap, multimodalSafetyCap)
+                    }
+                    return baseCap
                 }()
                 let resolvedMaxOutputTokens = effectiveMaxOutputTokens
 
@@ -755,7 +785,10 @@ public class MLXLocalLLMService: LLMEngine, InferenceService {
                     _ = try await container.perform { (context) -> Void in
                         try await self.ensureForegroundGPUExecution()
                         if isMultimodal {
-                            print("[VLM] multimodal budget — maxOutputTokens=\(resolvedMaxOutputTokens)")
+                            print(
+                                "[VLM] multimodal budget — maxOutputTokens=\(resolvedMaxOutputTokens), "
+                                    + "maxKVSize=\(multimodalSafetyMaxKVSize.map(String.init) ?? "unbounded")"
+                            )
                         } else if thinkingEnabled {
                             print("[LLM] thinking budget — baseMaxOutputTokens=\(resolvedMaxOutputTokens)")
                         }
@@ -792,6 +825,7 @@ public class MLXLocalLLMService: LLMEngine, InferenceService {
                         // 吞吐降 ~10-15% (更多 eval 间隔). 无功能损失.
                         let generateParams = GenerateParameters(
                             maxTokens: resolvedMaxOutputTokens,
+                            maxKVSize: multimodalSafetyMaxKVSize,
                             temperature: self.samplingTemperature,
                             topP: self.samplingTopP,
                             topK: self.samplingTopK,

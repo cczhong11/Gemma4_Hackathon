@@ -1,10 +1,14 @@
 import UIKit
 
 struct ImageRecognitionService {
-    private let adapter: any Gemma4ImageToTextAdapter
+    private let adapterProvider: () -> any Gemma4ImageToTextAdapter
 
-    init(adapter: (any Gemma4ImageToTextAdapter)? = nil) {
-        self.adapter = adapter ?? Gemma4Loader.load_gemma4_image_to_text()
+    init(
+        adapterProvider: @escaping () -> any Gemma4ImageToTextAdapter = {
+            Gemma4Loader.load_gemma4_image_to_text()
+        }
+    ) {
+        self.adapterProvider = adapterProvider
     }
 
     func describe(image: UIImage) async throws -> String {
@@ -18,6 +22,7 @@ struct ImageRecognitionService {
             image: image
         )
 
+        let adapter = adapterProvider()
         let response = try await adapter.generate(request: request)
         return response.text
     }

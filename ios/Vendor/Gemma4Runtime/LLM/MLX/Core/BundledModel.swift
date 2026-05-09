@@ -143,12 +143,16 @@ public enum MLXModelProfiles {
             safetyMarginMB: 150, tokensPerMB: 4.0, minTokens: 512, maxTokens: 4_096
         ),
 
-        // 多模态: E2B 不像 E4B 那么吃内存, 平表
+        // 多模态: 3.x GB jetsam 设备在 Debug + LLDB + UIKit 调试注入下可用
+        // headroom 会进一步收缩。E2B 即便比 E4B 轻, vision encoder 的瞬时峰值
+        // 仍足以在 80-96 soft tokens 区间触发 jetsam。这里进一步把默认档位
+        // 压到 64, 优先保证真机稳定性而不是视觉细节上限。
         multimodalOutputTiers: [
-            MultimodalTier(headroomMaxMB: .max, imageSoftTokenCap: 160),
+            MultimodalTier(headroomMaxMB: 500,    imageSoftTokenCap: 48),
+            MultimodalTier(headroomMaxMB: .max,   imageSoftTokenCap: 64),
         ],
-        multimodalCriticalHeadroomMB: 0,
-        headroomFloorMB: 150,
+        multimodalCriticalHeadroomMB: 400,
+        headroomFloorMB: 180,
 
         historyDepthTiers: [
             BudgetTier(headroomMaxMB: 500,    tokens: 0),

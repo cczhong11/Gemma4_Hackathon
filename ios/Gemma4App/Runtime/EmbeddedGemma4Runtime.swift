@@ -29,7 +29,8 @@ final class EmbeddedGemma4Runtime {
         self.service = MLXLocalLLMService(selectedModelID: configuration.modelID)
     }
 
-    private func ensureSafeImageInference(for model: BundledModelOption) async throws {
+    @discardableResult
+    private func ensureSafeImageInference(for model: BundledModelOption) async throws -> MultimodalBudget? {
         #if canImport(UIKit)
         let isActive = await MainActor.run {
             UIApplication.shared.applicationState == .active
@@ -40,10 +41,9 @@ final class EmbeddedGemma4Runtime {
         }
         #endif
 
+        let (footprint, jetsamLimit) = MemoryStats.footprintMB()
         let headroom = MemoryStats.headroomMB
-        log("preflight headroomMB=\(headroom), model=\(model.displayName)")
-
-        _ = try RuntimeBudgets.multimodal(
+        let budget = try RuntimeBudgets.multimodal(
             profile: model.runtimeProfile,
             headroom: headroom,
             hasImages: true,
@@ -51,6 +51,15 @@ final class EmbeddedGemma4Runtime {
             modelDisplayName: model.displayName,
             fallbackRecommendation: "请关闭后台应用、改用更小的图片，或稍后重试。"
         )
+        log(
+            "preflight headroomMB=\(headroom), "
+                + "footprintMB=\(Int(footprint)), "
+                + "jetsamLimitMB=\(Int(jetsamLimit)), "
+                + "imageSoftTokenCap=\(budget?.imageSoftTokenCap.map(String.init) ?? "n/a"), "
+                + "model=\(model.displayName)"
+        )
+
+        return budget
     }
 
     private func log(_ message: String) {
