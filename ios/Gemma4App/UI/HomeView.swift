@@ -9,36 +9,48 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                Color(.systemBackground)
-                    .ignoresSafeArea()
+            GeometryReader { proxy in
+                ZStack(alignment: .top) {
+                    Color(.systemBackground)
+                        .ignoresSafeArea()
 
-                ScrollView {
-                    VStack(spacing: 20) {
-                        NavigationLink {
-                            CameraRecognitionView(viewModel: viewModel)
-                        } label: {
-                            Text("拍照识别")
-                                .font(.title3.weight(.semibold))
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 18)
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            NavigationLink {
+                                CameraRecognitionView(viewModel: viewModel)
+                            } label: {
+                                Text("拍照识别")
+                                    .font(.title3.weight(.semibold))
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 18)
+                            }
+                            .buttonStyle(.borderedProminent)
+
+                            NavigationLink {
+                                TextPlaceholderView()
+                            } label: {
+                                Text("文字功能")
+                                    .font(.title3.weight(.semibold))
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 18)
+                            }
+                            .buttonStyle(.bordered)
+
+                            modelCard
                         }
-                        .buttonStyle(.borderedProminent)
-
-                        NavigationLink {
-                            TextPlaceholderView()
-                        } label: {
-                            Text("文字功能")
-                                .font(.title3.weight(.semibold))
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 18)
-                        }
-                        .buttonStyle(.bordered)
-
-                        modelCard
+                        .padding(24)
                     }
-                    .padding(24)
+                    .frame(
+                        width: proxy.size.width,
+                        height: proxy.size.height,
+                        alignment: .top
+                    )
                 }
+                .frame(
+                    width: proxy.size.width,
+                    height: proxy.size.height,
+                    alignment: .top
+                )
             }
             .navigationTitle("Gemma 4")
             .toolbarBackground(Color(.systemBackground), for: .navigationBar)
