@@ -8,7 +8,7 @@ import Foundation
 enum ModelPaths {
 
     static func resolve(for model: BundledModelOption) -> URL {
-        let raw: URL = bundled(for: model) ?? downloaded(for: model)
+        let raw: URL = installed(for: model) ?? downloaded(for: model)
         // 解析 symlink — iOS app sandbox 无 symlink 是 no-op,
         // Mac CLI 把 ~/Documents/models/<model> 软链转成真路径
         // (实测: MLX safetensors 加载在 symlink path 下 vision_tower
@@ -30,6 +30,14 @@ enum ModelPaths {
 
     static func partial(for model: BundledModelOption) -> URL {
         documentsRoot().appendingPathComponent("\(model.directoryName).partial", isDirectory: true)
+    }
+
+    static func installed(for model: BundledModelOption) -> URL? {
+        let downloadedURL = downloaded(for: model)
+        if hasRequiredFiles(model, at: downloadedURL) {
+            return downloadedURL
+        }
+        return bundled(for: model)
     }
 
     static func bundled(for model: BundledModelOption) -> URL? {

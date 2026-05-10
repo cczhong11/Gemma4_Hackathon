@@ -22,19 +22,23 @@ private enum LocalModelStatus {
         let partialPath = ModelPaths.partial(for: model).path
         let bundledURL = ModelPaths.bundled(for: model)
         let isDownloaded = ModelPaths.hasRequiredFiles(model, at: downloadedURL)
-        let isAvailable = bundledURL != nil || isDownloaded
-        let resolvedPath = isAvailable ? ModelPaths.resolve(for: model).path : nil
-        let missingFiles = model.requiredFiles.filter {
-            !FileManager.default.fileExists(atPath: downloadedURL.appendingPathComponent($0).path)
-        }
+        let installedURL = ModelPaths.installed(for: model)
+        let isAvailable = installedURL != nil
+        let resolvedPath = installedURL?.path
+        let missingFiles: [String]
         let installState: ModelInstallState
 
-        if bundledURL != nil {
-            installState = .bundled
-        } else if isDownloaded {
+        if isDownloaded {
             installState = .downloaded
+            missingFiles = []
+        } else if bundledURL != nil {
+            installState = .bundled
+            missingFiles = []
         } else {
             installState = .notInstalled
+            missingFiles = model.requiredFiles.filter {
+                !FileManager.default.fileExists(atPath: downloadedURL.appendingPathComponent($0).path)
+            }
         }
 
         return Gemma4ModelStatus(
@@ -57,13 +61,17 @@ final class AppViewModel: ObservableObject {
 
     @Published var capturedImage: UIImage?
     @Published var recognitionResult = ""
+    @Published var suggestedKeywords: [String] = []
+    @Published var signVideos: [ASLSignVideo] = []
     @Published var errorMessage: String?
     @Published var isLoading = false
+    @Published var isLoadingSignVideos = false
     @Published var modelStatus: Gemma4ModelStatus
     @Published var isDownloadingModel = false
 
     private var modelStatusPollingTask: Task<Void, Never>?
     private lazy var recognitionService = ImageRecognitionService()
+    private let aslVideoLookupService = ASLVideoLookupService()
     private lazy var runtime = Gemma4Loader.sharedRuntime()
 
     init() {
@@ -73,26 +81,43 @@ final class AppViewModel: ObservableObject {
     func setCapturedImage(_ image: UIImage) {
         capturedImage = image
         recognitionResult = ""
+        suggestedKeywords = []
+        signVideos = []
+        isLoadingSignVideos = false
         errorMessage = nil
     }
 
     func recognizeCapturedImage() async {
         guard let image = capturedImage else {
-            errorMessage = "请先拍一张照片。"
+            errorMessage = "Please take or choose a photo first."
             return
         }
 
         isLoading = true
+        isLoadingSignVideos = false
+        suggestedKeywords = []
+        signVideos = []
         errorMessage = nil
 
         do {
-            recognitionResult = try await recognitionService.describe(image: image)
+            let analysis = try await recognitionService.analyze(image: image)
+            recognitionResult = analysis.description
+            suggestedKeywords = analysis.keywords
+
+            if !analysis.keywords.isEmpty {
+                isLoadingSignVideos = true
+                signVideos = await aslVideoLookupService.lookup(words: analysis.keywords)
+                isLoadingSignVideos = false
+            }
         } catch {
             recognitionResult = ""
+            suggestedKeywords = []
+            signVideos = []
             errorMessage = error.localizedDescription
         }
 
         isLoading = false
+        isLoadingSignVideos = false
         refreshModelStatus()
     }
 

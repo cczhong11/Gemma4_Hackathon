@@ -37,16 +37,15 @@ extension MLXLocalLLMService {
     }
 
     public func isModelAvailable(_ model: BundledModelOption) -> Bool {
-        ModelPaths.bundled(for: model) != nil
-            || ModelPaths.hasRequiredFiles(model, at: ModelPaths.downloaded(for: model))
+        ModelPaths.installed(for: model) != nil
     }
 
     public func installState(for model: BundledModelOption) -> ModelInstallState {
-        if ModelPaths.bundled(for: model) != nil {
-            return .bundled
-        }
         if ModelPaths.hasRequiredFiles(model, at: ModelPaths.downloaded(for: model)) {
             return .downloaded
+        }
+        if ModelPaths.bundled(for: model) != nil {
+            return .bundled
         }
         return modelInstallStates[model.id] ?? .notInstalled
     }
@@ -54,10 +53,10 @@ extension MLXLocalLLMService {
     public func refreshModelInstallStates() {
         cleanupStalePartialDirectories()
         for model in Self.availableModels {
-            if ModelPaths.bundled(for: model) != nil {
-                modelInstallStates[model.id] = .bundled
-            } else if ModelPaths.hasRequiredFiles(model, at: ModelPaths.downloaded(for: model)) {
+            if ModelPaths.hasRequiredFiles(model, at: ModelPaths.downloaded(for: model)) {
                 modelInstallStates[model.id] = .downloaded
+            } else if ModelPaths.bundled(for: model) != nil {
+                modelInstallStates[model.id] = .bundled
             } else if case .checkingSource = modelInstallStates[model.id] {
                 continue
             } else if case .downloading = modelInstallStates[model.id] {

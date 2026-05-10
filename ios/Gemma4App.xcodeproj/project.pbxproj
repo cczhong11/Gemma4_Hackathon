@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		021F6733A4EDF2972347BC4C /* MLXLocalLLMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019463838344C1EF36B9A835 /* MLXLocalLLMService.swift */; };
+		0284AD5E09F6398CAF217602 /* ASLVideoLookupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E36A0AE392BD90E65FA2C39C /* ASLVideoLookupService.swift */; };
 		0BC60C5C188FB84782BEC159 /* Gemma4LanguageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58178C7FF7DC8E86A3F62F76 /* Gemma4LanguageModel.swift */; };
 		11883037F7B6305380B3E630 /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = C7137DC45B03BDAA50BB8769 /* MLXLLM */; };
 		1BBD2ADD79B998230C6ED275 /* DownloadObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D788F4B6DB7D538A31E2A829 /* DownloadObserver.swift */; };
@@ -124,6 +125,7 @@
 		D788F4B6DB7D538A31E2A829 /* DownloadObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadObserver.swift; sourceTree = "<group>"; };
 		D93DF49C14A89FB6FCD807E2 /* LLMTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMTypes.swift; sourceTree = "<group>"; };
 		DAC1ED698A6D428069ADD80D /* ModelInstallState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelInstallState.swift; sourceTree = "<group>"; };
+		E36A0AE392BD90E65FA2C39C /* ASLVideoLookupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASLVideoLookupService.swift; sourceTree = "<group>"; };
 		E7172664FC1B3299007A0BE8 /* GPULifecycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPULifecycle.swift; sourceTree = "<group>"; };
 		EB2945E94D067CAB18010B44 /* ResumableAssetDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResumableAssetDownloader.swift; sourceTree = "<group>"; };
 		EBC48E364F0988CF0344B9C0 /* DownloadFailure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadFailure.swift; sourceTree = "<group>"; };
@@ -187,6 +189,7 @@
 		1FB14BF0C1AF07753B587902 /* Runtime */ = {
 			isa = PBXGroup;
 			children = (
+				E36A0AE392BD90E65FA2C39C /* ASLVideoLookupService.swift */,
 				68B65E78FC9EED4E6CC39A64 /* AudioCaptureSnapshot.swift */,
 				59A00F49A5629472B3140FF7 /* EmbeddedGemma4Runtime.swift */,
 				A5AC83E5549F933CD9AA391F /* Gemma4Adapter.swift */,
@@ -432,6 +435,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0284AD5E09F6398CAF217602 /* ASLVideoLookupService.swift in Sources */,
 				CC0BD674031C9749C4F66209 /* ASRBackend.swift in Sources */,
 				557D890EDE4ACAAA05D8D6D4 /* AppViewModel.swift in Sources */,
 				79667B55966CE162037D8178 /* AudioCaptureSnapshot.swift in Sources */,
@@ -561,10 +565,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "需要使用相机拍照并识别图片内容。";
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -634,10 +638,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "需要使用相机拍照并识别图片内容。";
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
