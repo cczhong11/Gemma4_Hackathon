@@ -17,89 +17,70 @@ struct ASLTranslationResponse: Decodable, Equatable {
 }
 
 enum ASLTranslationError: LocalizedError {
-    case missingBaseURL
     case missingToken
-    case invalidResponse(status: Int)
-    case decodingFailed
-    case transport(Error)
+    case vocabUnavailable(ASLVocabError)
+    case router(HFRouterError)
+    case unparseableGloss
 
     var errorDescription: String? {
         switch self {
-        case .missingBaseURL:
-            return "ASL_API_BASE_URL is not configured in Info.plist."
         case .missingToken:
             return "HF_TOKEN is not configured in Info.plist."
-        case .invalidResponse(let status):
-            return "Translate API returned HTTP \(status)."
-        case .decodingFailed:
-            return "Could not decode the translate API response."
-        case .transport(let error):
-            return "Network error: \(error.localizedDescription)"
+        case .vocabUnavailable(.missingResource):
+            return "signs.txt is missing from the app bundle."
+        case .vocabUnavailable(.emptyFile):
+            return "signs.txt is empty after filtering."
+        case .router(let inner):
+            return inner.errorDescription
+        case .unparseableGloss:
+            return "Model returned no usable gloss."
         }
     }
 }
 
 struct ASLTranslationService {
-    private static let baseURLKey = "ASL_API_BASE_URL"
     private static let tokenKey = "HF_TOKEN"
 
-    private let session: URLSession
-    private let baseURL: URL
-    private let token: String
+    private let vocab: VocabIndex
+    private let client: HFRouterClient
 
     init(session: URLSession? = nil, bundle: Bundle = .main) throws {
-        let rawBaseURL = (bundle.object(forInfoDictionaryKey: Self.baseURLKey) as? String ?? "")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
         let rawToken = (bundle.object(forInfoDictionaryKey: Self.tokenKey) as? String ?? "")
             .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !rawToken.isEmpty else { throw ASLTranslationError.missingToken }
 
-        guard !rawBaseURL.isEmpty,
-              let parsed = URL(string: rawBaseURL.hasSuffix("/") ? String(rawBaseURL.dropLast()) : rawBaseURL) else {
-            throw ASLTranslationError.missingBaseURL
-        }
-        guard !rawToken.isEmpty else {
-            throw ASLTranslationError.missingToken
+        do {
+            self.vocab = try ASLVocab.load(bundle: bundle)
+        } catch let e as ASLVocabError {
+            throw ASLTranslationError.vocabUnavailable(e)
         }
 
-        self.baseURL = parsed
-        self.token = rawToken
-
-        if let session {
-            self.session = session
-        } else {
-            let configuration = URLSessionConfiguration.default
-            configuration.timeoutIntervalForRequest = 30
-            configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
-            self.session = URLSession(configuration: configuration)
-        }
+        self.client = HFRouterClient(session: session, token: rawToken)
     }
 
     func translate(text: String) async throws -> ASLTranslationResponse {
-        let endpoint = baseURL.appendingPathComponent("translate")
-        var request = URLRequest(url: endpoint)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.httpBody = try JSONEncoder().encode(["text": text])
+        let messages = ASLGlossPrompt.messages(text: text, vocab: vocab)
 
-        let data: Data
-        let response: URLResponse
+        let raw: String
         do {
-            (data, response) = try await session.data(for: request)
-        } catch {
-            throw ASLTranslationError.transport(error)
+            raw = try await client.call(messages: messages)
+        } catch let e as HFRouterError {
+            throw ASLTranslationError.router(e)
         }
 
-        guard let http = response as? HTTPURLResponse, 200..<300 ~= http.statusCode else {
-            let status = (response as? HTTPURLResponse)?.statusCode ?? -1
-            throw ASLTranslationError.invalidResponse(status: status)
-        }
-
+        let processed: ProcessedGloss
         do {
-            return try JSONDecoder().decode(ASLTranslationResponse.self, from: data)
+            processed = try ASLGlossPostprocess.process(rawModelOutput: raw, vocab: vocab)
         } catch {
-            throw ASLTranslationError.decodingFailed
+            throw ASLTranslationError.unparseableGloss
         }
+
+        return ASLTranslationResponse(
+            gloss: processed.gloss,
+            tokens: processed.tokens,
+            unknownTokens: processed.unknownTokens,
+            isQuestion: processed.isQuestion,
+            model: HFRouterClient.model
+        )
     }
 }
