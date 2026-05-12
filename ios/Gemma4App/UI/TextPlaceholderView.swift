@@ -1,3 +1,4 @@
+import AVKit
 import SwiftUI
 
 private enum TextModePalette {
@@ -6,10 +7,14 @@ private enum TextModePalette {
     static let ink = Color(red: 19 / 255, green: 50 / 255, blue: 72 / 255)
     static let muted = Color(red: 105 / 255, green: 124 / 255, blue: 139 / 255)
     static let border = Color(red: 226 / 255, green: 216 / 255, blue: 202 / 255)
+    static let green = Color(red: 38 / 255, green: 166 / 255, blue: 122 / 255)
+    static let navy = Color(red: 22 / 255, green: 52 / 255, blue: 74 / 255)
+    static let chipInactive = Color(red: 232 / 255, green: 224 / 255, blue: 210 / 255)
 }
 
 struct TextPlaceholderView: View {
     @ObservedObject var viewModel: AppViewModel
+    @StateObject private var vm = TextTranslationViewModel()
     @State private var navigateToPhotoMode = false
 
     var body: some View {
@@ -18,36 +23,28 @@ struct TextPlaceholderView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                VStack(alignment: .leading, spacing: 24) {
-                    Text("💬 Text to ASL")
-                        .font(.system(size: 32, weight: .bold, design: .rounded))
-                        .foregroundStyle(TextModePalette.ink)
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 22) {
+                        header
+                        inputCard
+                        translateButton
 
-                    Text("Text mode is still a placeholder for now.")
-                        .font(.system(size: 18, weight: .medium, design: .rounded))
-                        .foregroundStyle(TextModePalette.muted)
+                        if let errorMessage = vm.errorMessage {
+                            errorCard(text: errorMessage)
+                        }
 
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Coming Soon")
-                            .font(.system(size: 22, weight: .bold, design: .rounded))
-                            .foregroundStyle(TextModePalette.ink)
+                        if !vm.videos.isEmpty {
+                            playerCard
+                        }
 
-                        Text("We are focusing on the photo flow first.")
-                            .font(.system(size: 16, weight: .medium, design: .rounded))
-                            .foregroundStyle(TextModePalette.muted)
+                        if !vm.units.isEmpty {
+                            chipRow
+                        }
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(24)
-                    .background(TextModePalette.card)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 28, style: .continuous)
-                            .stroke(TextModePalette.border, lineWidth: 1.5)
-                    }
-                    .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                    .padding(.horizontal, 20)
+                    .padding(.top, 24)
+                    .padding(.bottom, 140)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .padding(.horizontal, 20)
-                .padding(.top, 24)
 
                 bottomTabBar
             }
@@ -60,6 +57,137 @@ struct TextPlaceholderView: View {
             .hidden()
         }
         .toolbar(.hidden, for: .navigationBar)
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("💬 Text to ASL")
+                .font(.system(size: 32, weight: .bold, design: .rounded))
+                .foregroundStyle(TextModePalette.ink)
+
+            Text("Type something. We'll sign it.")
+                .font(.system(size: 18, weight: .medium, design: .rounded))
+                .foregroundStyle(TextModePalette.muted)
+        }
+    }
+
+    private var inputCard: some View {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(TextModePalette.card)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .stroke(TextModePalette.border, lineWidth: 1.5)
+                }
+
+            if vm.inputText.isEmpty {
+                Text("Type a sentence in English")
+                    .font(.system(size: 18, weight: .medium, design: .rounded))
+                    .foregroundStyle(TextModePalette.muted)
+                    .padding(.horizontal, 22)
+                    .padding(.vertical, 22)
+                    .allowsHitTesting(false)
+            }
+
+            TextEditor(text: $vm.inputText)
+                .font(.system(size: 18, weight: .medium, design: .rounded))
+                .foregroundStyle(TextModePalette.ink)
+                .scrollContentBackground(.hidden)
+                .padding(.horizontal, 18)
+                .padding(.vertical, 16)
+                .frame(minHeight: 140, maxHeight: 220)
+        }
+    }
+
+    private var translateButton: some View {
+        Button {
+            vm.translate()
+        } label: {
+            HStack(spacing: 12) {
+                if vm.isTranslating {
+                    ProgressView()
+                        .tint(.white)
+                }
+                Text(vm.isTranslating ? "Translating..." : "Translate")
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+            }
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 24)
+            .background(canTranslate ? TextModePalette.green : TextModePalette.green.opacity(0.55))
+            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .disabled(!canTranslate)
+    }
+
+    private var canTranslate: Bool {
+        !vm.isTranslating
+            && !vm.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private func errorCard(text: String) -> some View {
+        Text(text)
+            .font(.system(size: 16, weight: .medium, design: .rounded))
+            .foregroundStyle(Color.red)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 18)
+            .background(TextModePalette.card)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(Color.red.opacity(0.35), lineWidth: 1.5)
+            }
+    }
+
+    private var playerCard: some View {
+        TextASLPlayer(viewModel: vm)
+            .aspectRatio(16.0 / 9.0, contentMode: .fit)
+            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                    .stroke(TextModePalette.border, lineWidth: 1.5)
+            }
+    }
+
+    private var chipRow: some View {
+        LazyVGrid(
+            columns: [GridItem(.adaptive(minimum: 100), spacing: 12)],
+            alignment: .leading,
+            spacing: 12
+        ) {
+            ForEach(vm.units) { unit in
+                Button {
+                    vm.jumpTo(unit: unit)
+                } label: {
+                    Text(unit.displayLabel)
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundStyle(chipForeground(for: unit))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(chipBackground(for: unit))
+                        .clipShape(Capsule())
+                        .opacity(unit.isPlayable ? 1.0 : 0.45)
+                }
+                .buttonStyle(.plain)
+                .disabled(!unit.isPlayable)
+            }
+        }
+    }
+
+    private func chipBackground(for unit: GlossUnit) -> Color {
+        if unit.id == vm.activeUnitID {
+            return TextModePalette.ink
+        }
+        return TextModePalette.chipInactive
+    }
+
+    private func chipForeground(for unit: GlossUnit) -> Color {
+        if unit.id == vm.activeUnitID {
+            return Color.white
+        }
+        return TextModePalette.ink
     }
 
     private var bottomTabBar: some View {
@@ -102,6 +230,94 @@ struct TextPlaceholderView: View {
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.plain)
+    }
+}
+
+private struct TextASLPlayer: UIViewControllerRepresentable {
+    @ObservedObject var viewModel: TextTranslationViewModel
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(viewModel: viewModel)
+    }
+
+    func makeUIViewController(context: Context) -> AVPlayerViewController {
+        let controller = AVPlayerViewController()
+        controller.player = context.coordinator.player
+        controller.showsPlaybackControls = false
+        controller.videoGravity = .resizeAspect
+        controller.view.backgroundColor = UIColor.black
+        context.coordinator.bind(to: controller)
+        context.coordinator.replaceItem(for: viewModel.currentVideoURL)
+        return controller
+    }
+
+    func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
+        context.coordinator.replaceItem(for: viewModel.currentVideoURL)
+    }
+
+    static func dismantleUIViewController(_ uiViewController: AVPlayerViewController, coordinator: Coordinator) {
+        coordinator.teardown()
+    }
+
+    @MainActor
+    final class Coordinator {
+        let player = AVPlayer()
+        private weak var viewModel: TextTranslationViewModel?
+        private var endObserver: NSObjectProtocol?
+        private var lastURL: URL?
+
+        init(viewModel: TextTranslationViewModel) {
+            self.viewModel = viewModel
+            player.actionAtItemEnd = .none
+        }
+
+        func bind(to controller: AVPlayerViewController) {
+            // No-op for now; observer is attached per-item in replaceItem.
+        }
+
+        func replaceItem(for url: URL?) {
+            guard url != lastURL else {
+                if url != nil, player.timeControlStatus != .playing {
+                    player.play()
+                }
+                return
+            }
+            lastURL = url
+
+            removeEndObserver()
+
+            guard let url else {
+                player.replaceCurrentItem(with: nil)
+                return
+            }
+
+            let item = AVPlayerItem(url: url)
+            endObserver = NotificationCenter.default.addObserver(
+                forName: .AVPlayerItemDidPlayToEndTime,
+                object: item,
+                queue: .main
+            ) { [weak self] _ in
+                Task { @MainActor in
+                    self?.viewModel?.onVideoEnded()
+                }
+            }
+
+            player.replaceCurrentItem(with: item)
+            player.seek(to: .zero)
+            player.play()
+        }
+
+        func teardown() {
+            removeEndObserver()
+            player.replaceCurrentItem(with: nil)
+        }
+
+        private func removeEndObserver() {
+            if let endObserver {
+                NotificationCenter.default.removeObserver(endObserver)
+            }
+            endObserver = nil
+        }
     }
 }
 
