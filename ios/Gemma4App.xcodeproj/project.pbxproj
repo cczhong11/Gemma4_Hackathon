@@ -52,6 +52,7 @@
 		9459125D2311D610C575BC89 /* MLXFast in Frameworks */ = {isa = PBXBuildFile; productRef = 924BD9E15AF6EE88BDA3AAEF /* MLXFast */; };
 		96B2C997979F9F8B386C9B87 /* MLXVLM in Frameworks */ = {isa = PBXBuildFile; productRef = FA6E456AB140076448F94CB7 /* MLXVLM */; };
 		9BD11BF4B3410FAC0715382F /* ASLTranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94A4EAEBBE15AB87AB1B938C /* ASLTranslationService.swift */; };
+		A124F3220D1A0EFC2D720391 /* ASLVocab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B9D3E0149942345497B98AD /* ASLVocab.swift */; };
 		A16914249662B7E345776088 /* ModelInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38191D37574D553D5BAC740A /* ModelInstaller.swift */; };
 		A39E994C1F54121B5E9FB849 /* LLMTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = D93DF49C14A89FB6FCD807E2 /* LLMTypes.swift */; };
 		B4BE5D79344E80985CDD916B /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19C66F7BFEC57A0C997EABC0 /* HomeView.swift */; };
@@ -102,6 +103,7 @@
 		59258A80BDDDE2B3E21D551E /* DownloadProgressSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadProgressSnapshot.swift; sourceTree = "<group>"; };
 		5926084916E0EE5E83415329 /* PCLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PCLog.swift; sourceTree = "<group>"; };
 		59A00F49A5629472B3140FF7 /* EmbeddedGemma4Runtime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbeddedGemma4Runtime.swift; sourceTree = "<group>"; };
+		5B9D3E0149942345497B98AD /* ASLVocab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASLVocab.swift; sourceTree = "<group>"; };
 		5F8918CF08BA25794D8ADB98 /* ModelCatalogProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelCatalogProtocol.swift; sourceTree = "<group>"; };
 		6073691EAAA4ACC03DD3A282 /* GlossUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlossUnit.swift; sourceTree = "<group>"; };
 		684389EF361A3BECFDCBBE77 /* Gemma4Processor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4Processor.swift; sourceTree = "<group>"; };
@@ -199,6 +201,7 @@
 			children = (
 				94A4EAEBBE15AB87AB1B938C /* ASLTranslationService.swift */,
 				E36A0AE392BD90E65FA2C39C /* ASLVideoLookupService.swift */,
+				5B9D3E0149942345497B98AD /* ASLVocab.swift */,
 				68B65E78FC9EED4E6CC39A64 /* AudioCaptureSnapshot.swift */,
 				59A00F49A5629472B3140FF7 /* EmbeddedGemma4Runtime.swift */,
 				A5AC83E5549F933CD9AA391F /* Gemma4Adapter.swift */,
@@ -470,6 +473,7 @@
 			files = (
 				9BD11BF4B3410FAC0715382F /* ASLTranslationService.swift in Sources */,
 				0284AD5E09F6398CAF217602 /* ASLVideoLookupService.swift in Sources */,
+				A124F3220D1A0EFC2D720391 /* ASLVocab.swift in Sources */,
 				CC0BD674031C9749C4F66209 /* ASRBackend.swift in Sources */,
 				557D890EDE4ACAAA05D8D6D4 /* AppViewModel.swift in Sources */,
 				79667B55966CE162037D8178 /* AudioCaptureSnapshot.swift in Sources */,

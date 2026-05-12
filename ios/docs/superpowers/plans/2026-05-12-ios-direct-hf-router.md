@@ -222,8 +222,8 @@ enum ASLVocab {
         let stripped = canonical
             .replacingOccurrences(of: " ", with: "")
             .replacingOccurrences(of: "-", with: "")
-        let raw: Set<String> = [canonical, spaceForm, hyphenForm, stripped]
-            .filter { !$0.isEmpty }
+        let raw = Set([canonical, spaceForm, hyphenForm, stripped]
+            .filter { !$0.isEmpty })
         var out = raw
         for form in raw {
             out.insert(form.uppercased())
