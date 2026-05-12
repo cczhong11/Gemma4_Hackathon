@@ -124,6 +124,7 @@ struct CameraRecognitionView: View {
             Spacer()
 
             Button {
+                viewModel.refreshModelStatus()
                 isModeSheetPresented = true
             } label: {
                 ZStack {
@@ -459,11 +460,13 @@ struct CameraRecognitionView: View {
             modeOption(
                 icon: "✈️",
                 title: "Offline Mode",
-                subtitle: "Use anywhere · needs download",
+                subtitle: offlineModeSubtitle,
                 badge: nil,
                 highlighted: viewModel.selectedTranslationMode == .offline,
                 action: handleOfflineModeTap
             )
+
+            modelSettingsCard
         }
         .padding(.horizontal, 22)
         .padding(.bottom, 34)
@@ -643,12 +646,130 @@ struct CameraRecognitionView: View {
     }
 
     private func handleOfflineModeTap() {
+        viewModel.refreshModelStatus()
         if viewModel.enableOfflineModeIfAvailable() {
             isDownloadPromptPresented = false
             isModeSheetPresented = false
         } else {
             isDownloadPromptPresented = true
         }
+    }
+
+    private var offlineModeSubtitle: String {
+        viewModel.modelStatus.isAvailable
+            ? "Use anywhere · model cached"
+            : "Use anywhere · needs download"
+    }
+
+    private var modelSettingsCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Model Settings")
+                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .foregroundStyle(PhotoModePalette.ink)
+
+            Text(modelStatusSummary)
+                .font(.system(size: 15, weight: .medium, design: .rounded))
+                .foregroundStyle(PhotoModePalette.muted)
+
+            if viewModel.isDownloadingModel || isModelDownloading {
+                ProgressView(value: downloadFraction)
+                    .tint(PhotoModePalette.green)
+
+                Text(downloadStatusText)
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundStyle(PhotoModePalette.muted)
+            }
+
+            HStack(spacing: 12) {
+                Button {
+                    viewModel.refreshModelStatus()
+                } label: {
+                    Text("Refresh status")
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundStyle(PhotoModePalette.ink)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(PhotoModePalette.card)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                .stroke(PhotoModePalette.border, lineWidth: 1.5)
+                        }
+                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                }
+                .buttonStyle(.plain)
+
+                Button {
+                    guard !viewModel.modelStatus.isAvailable else {
+                        viewModel.refreshModelStatus()
+                        return
+                    }
+
+                    Task {
+                        await viewModel.downloadModel()
+                    }
+                } label: {
+                    Text(modelActionTitle)
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(modelActionEnabled ? PhotoModePalette.green : PhotoModePalette.green.opacity(0.65))
+                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .disabled(!modelActionEnabled)
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 20)
+        .background(PhotoModePalette.card)
+        .overlay {
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .stroke(PhotoModePalette.border, lineWidth: 1.5)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+    }
+
+    private var isModelDownloading: Bool {
+        if case .downloading = viewModel.modelStatus.installState {
+            return true
+        }
+        return false
+    }
+
+    private var modelStatusSummary: String {
+        if viewModel.modelStatus.isAvailable {
+            return "Cached on this device. Offline mode is ready."
+        }
+
+        switch viewModel.modelStatus.installState {
+        case .checkingSource:
+            return "Checking whether an offline model is already cached."
+        case .downloading:
+            return "Downloading offline model now."
+        case .bundled:
+            return "Bundled model found and ready to use."
+        case .downloaded:
+            return "Downloaded model found and ready to use."
+        case .notInstalled:
+            return "No cached offline model found yet."
+        case .failed(let message):
+            return message
+        }
+    }
+
+    private var modelActionTitle: String {
+        if viewModel.modelStatus.isAvailable {
+            return "Cached"
+        }
+        if viewModel.isDownloadingModel || isModelDownloading {
+            return "Downloading..."
+        }
+        return "Download model"
+    }
+
+    private var modelActionEnabled: Bool {
+        !viewModel.modelStatus.isAvailable && !(viewModel.isDownloadingModel || isModelDownloading)
     }
 
     private var hasTranslationUI: Bool {
