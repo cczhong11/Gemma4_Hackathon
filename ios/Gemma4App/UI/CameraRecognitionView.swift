@@ -764,10 +764,15 @@ struct CameraRecognitionView: View {
     }
 
     private func updatePlayerRateIfNeeded() {
-        guard player.timeControlStatus == .playing else { return }
+        player.currentItem?.audioTimePitchAlgorithm = .varispeed
         player.defaultRate = playbackRate
-        player.rate = playbackRate
-        reinforcePlaybackRate()
+
+        guard player.currentItem != nil else { return }
+
+        if player.timeControlStatus == .playing {
+            player.rate = playbackRate
+            reinforcePlaybackRate()
+        }
     }
 
     private func reinforcePlaybackRate() {

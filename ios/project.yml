@@ -8,15 +8,22 @@ settings:
   base:
     PRODUCT_BUNDLE_IDENTIFIER: com.tczhong.Gemma4App
     SWIFT_VERSION: "5.0"
-    TARGETED_DEVICE_FAMILY: "1"
-    DEVELOPMENT_TEAM: ""
+    TARGETED_DEVICE_FAMILY: "1,2"
+    DEVELOPMENT_TEAM: "WWK6LCZ458"
     CODE_SIGN_STYLE: Automatic
     GENERATE_INFOPLIST_FILE: YES
+    ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    INFOPLIST_KEY_CFBundleIconName: AppIcon
     INFOPLIST_KEY_NSCameraUsageDescription: 需要使用相机拍照并识别图片内容。
     INFOPLIST_KEY_UILaunchScreen_Generation: YES
     INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
     INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone:
       - UIInterfaceOrientationPortrait
+    INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad:
+      - UIInterfaceOrientationPortrait
+      - UIInterfaceOrientationPortraitUpsideDown
+      - UIInterfaceOrientationLandscapeLeft
+      - UIInterfaceOrientationLandscapeRight
     INFOPLIST_KEY_UIStatusBarStyle: UIStatusBarStyleDefault
     CODE_SIGN_ENTITLEMENTS: Gemma4App/Gemma4App.entitlements
 packages:
@@ -40,6 +47,8 @@ targets:
       - path: Vendor/Gemma4Runtime/Shared/LanguageService.swift
       - path: Vendor/Gemma4Runtime/Shared/PCLog.swift
       - path: Vendor/Gemma4Runtime/Shared/Audio/ASRBackend.swift
+    resources:
+      - path: Gemma4App/Assets.xcassets
     dependencies:
       - package: mlx-swift
         product: MLX
@@ -61,7 +70,7 @@ targets:
       base:
         PRODUCT_NAME: $(TARGET_NAME)
         MARKETING_VERSION: "1.0"
-        CURRENT_PROJECT_VERSION: "1"
+        CURRENT_PROJECT_VERSION: "2"
         LD_RUNPATH_SEARCH_PATHS:
           - $(inherited)
           - "@executable_path/Frameworks"
