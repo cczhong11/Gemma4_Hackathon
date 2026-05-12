@@ -1,4 +1,5 @@
 import UIKit
+import Vision
 
 struct ImageRecognitionAnalysis {
     let description: String
@@ -23,6 +24,16 @@ struct ImageRecognitionService {
     }
 
     func analyze(image: UIImage) async throws -> ImageRecognitionAnalysis {
+        if let recognizedText = try recognizeVisibleText(in: image), !recognizedText.isEmpty {
+            let normalizedText = recognizedText.trimmingCharacters(in: .whitespacesAndNewlines)
+            let keywords = try await extractKeywordsFallback(from: normalizedText)
+            return ImageRecognitionAnalysis(
+                description: normalizedText,
+                keywords: keywords,
+                rawResponse: normalizedText
+            )
+        }
+
         let request = Gemma4ImageToTextRequest(
             prompt: """
             You are helping a beginner learn sign language from a photo.
@@ -52,6 +63,48 @@ struct ImageRecognitionService {
             keywords: fallbackKeywords,
             rawResponse: response.text
         )
+    }
+
+    private func recognizeVisibleText(in image: UIImage) throws -> String? {
+        guard let cgImage = image.cgImage else { return nil }
+
+        let request = VNRecognizeTextRequest()
+        request.recognitionLevel = .accurate
+        request.usesLanguageCorrection = true
+        request.minimumTextHeight = 0.02
+
+        let handler = VNImageRequestHandler(cgImage: cgImage, orientation: cgImageOrientation(for: image.imageOrientation))
+        try handler.perform([request])
+
+        let recognizedLines = (request.results ?? [])
+            .compactMap { $0.topCandidates(1).first?.string.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+
+        guard !recognizedLines.isEmpty else { return nil }
+        return recognizedLines.joined(separator: " ")
+    }
+
+    private func cgImageOrientation(for orientation: UIImage.Orientation) -> CGImagePropertyOrientation {
+        switch orientation {
+        case .up:
+            return .up
+        case .down:
+            return .down
+        case .left:
+            return .left
+        case .right:
+            return .right
+        case .upMirrored:
+            return .upMirrored
+        case .downMirrored:
+            return .downMirrored
+        case .leftMirrored:
+            return .leftMirrored
+        case .rightMirrored:
+            return .rightMirrored
+        @unknown default:
+            return .up
+        }
     }
 
     private func parse(_ raw: String) -> ImageRecognitionAnalysis {
