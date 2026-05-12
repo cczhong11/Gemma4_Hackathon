@@ -59,6 +59,11 @@ private enum LocalModelStatus {
 final class AppViewModel: ObservableObject {
     private static let defaultModelID = "gemma-4-e2b-it-4bit"
 
+    enum TranslationMode {
+        case betterSigns
+        case offline
+    }
+
     @Published var capturedImage: UIImage?
     @Published var recognitionResult = ""
     @Published var suggestedKeywords: [String] = []
@@ -68,6 +73,7 @@ final class AppViewModel: ObservableObject {
     @Published var isLoadingSignVideos = false
     @Published var modelStatus: Gemma4ModelStatus
     @Published var isDownloadingModel = false
+    @Published var selectedTranslationMode: TranslationMode = .betterSigns
 
     private var modelStatusPollingTask: Task<Void, Never>?
     private lazy var recognitionService = ImageRecognitionService()
@@ -127,6 +133,23 @@ final class AppViewModel: ObservableObject {
         } else {
             modelStatus = LocalModelStatus.snapshot(modelID: Self.defaultModelID)
         }
+    }
+
+    func isOfflineModelAvailable() -> Bool {
+        refreshModelStatus()
+        return modelStatus.isAvailable
+    }
+
+    func selectBetterSignsMode() {
+        selectedTranslationMode = .betterSigns
+    }
+
+    func enableOfflineModeIfAvailable() -> Bool {
+        let isAvailable = isOfflineModelAvailable()
+        if isAvailable {
+            selectedTranslationMode = .offline
+        }
+        return isAvailable
     }
 
     func downloadModel() async {
