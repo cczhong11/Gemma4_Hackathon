@@ -80,6 +80,7 @@ final class TextTranslationViewModel: ObservableObject {
         do {
             response = try await service.translate(text: trimmed)
         } catch {
+            if Task.isCancelled { return }
             errorMessage = error.localizedDescription
             isTranslating = false
             return
