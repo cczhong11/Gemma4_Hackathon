@@ -29,7 +29,7 @@ enum HFRouterError: LocalizedError {
 struct HFRouterClient {
     static let routerURL = URL(string: "https://router.huggingface.co/v1/chat/completions")!
     static let model = "google/gemma-4-31B-it:deepinfra"
-    static let timeout: TimeInterval = 30
+    static let timeout: TimeInterval = 10
 
     private let session: URLSession
     private let token: String
