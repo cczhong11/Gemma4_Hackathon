@@ -24,6 +24,8 @@ struct CameraRecognitionView: View {
     @State private var isModeSheetPresented = false
     @State private var isDownloadPromptPresented = false
     @State private var selectedPlaybackSpeed = "1.5x"
+    @State private var selectedSignID: String?
+    @State private var player = AVPlayer()
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -89,6 +91,12 @@ struct CameraRecognitionView: View {
         .toolbar(.hidden, for: .navigationBar)
         .animation(.spring(response: 0.35, dampingFraction: 0.92), value: isModeSheetPresented)
         .animation(.spring(response: 0.35, dampingFraction: 0.92), value: isDownloadPromptPresented)
+        .onChange(of: signVideoSelectionKey) { _ in
+            selectDefaultPlayableSignIfNeeded()
+        }
+        .onChange(of: selectedPlaybackSpeed) { _ in
+            updatePlayerRateIfNeeded()
+        }
         .fullScreenCover(isPresented: $showingCamera) {
             CameraImagePicker(sourceType: .camera) { image in
                 viewModel.setCapturedImage(image)
@@ -258,9 +266,14 @@ struct CameraRecognitionView: View {
                 .fill(PhotoModePalette.navyCard)
                 .frame(height: 320)
                 .overlay {
-                    Text("Tap PLAY or any word above")
-                        .font(.system(size: 20, weight: .semibold, design: .rounded))
-                        .foregroundStyle(Color.white.opacity(0.8))
+                    if let activeVideo = activeSignVideo, activeVideo.localVideoURL != nil {
+                        VideoPlayer(player: player)
+                            .clipShape(RoundedRectangle(cornerRadius: 34, style: .continuous))
+                    } else {
+                        Text("Tap PLAY or any word above")
+                            .font(.system(size: 20, weight: .semibold, design: .rounded))
+                            .foregroundStyle(Color.white.opacity(0.8))
+                    }
                 }
 
             Capsule()
@@ -269,6 +282,7 @@ struct CameraRecognitionView: View {
 
             HStack(spacing: 12) {
                 Button {
+                    playSelectedVideo()
                 } label: {
                     Text("PLAY")
                         .font(.system(size: 24, weight: .medium, design: .rounded))
@@ -299,6 +313,23 @@ struct CameraRecognitionView: View {
                     .buttonStyle(.plain)
                 }
             }
+
+            if let pageURL = activeSignVideo?.pageURL {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("SOURCE PAGE")
+                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                        .tracking(1.5)
+                        .foregroundStyle(Color.white.opacity(0.7))
+
+                    Link(destination: pageURL) {
+                        Text(pageURL.absoluteString)
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .foregroundStyle(Color.white.opacity(0.92))
+                            .underline()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+            }
         }
     }
 
@@ -311,13 +342,22 @@ struct CameraRecognitionView: View {
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 110), spacing: 18)], alignment: .leading, spacing: 18) {
                 ForEach(glossWords, id: \.self) { word in
-                    Text(word)
-                        .font(.system(size: 19, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 26)
-                        .background(PhotoModePalette.chip)
-                        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                    Button {
+                        selectSign(for: word)
+                    } label: {
+                        Text(word)
+                            .font(.system(size: 19, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 26)
+                            .background(chipBackground(for: word))
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                                    .stroke(chipBorder(for: word), lineWidth: chipLineWidth(for: word))
+                            }
+                            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
                 }
             }
 
@@ -652,6 +692,137 @@ struct CameraRecognitionView: View {
 
     private var glossText: String {
         glossWords.joined(separator: " ").uppercased()
+    }
+
+    private var signVideoSelectionKey: String {
+        viewModel.signVideos.map { "\($0.id)|\($0.localVideoURL?.absoluteString ?? "none")" }.joined(separator: ",")
+    }
+
+    private var activeSignVideo: ASLSignVideo? {
+        if let selectedSignID {
+            return viewModel.signVideos.first(where: { $0.id == selectedSignID })
+        }
+        return viewModel.signVideos.first(where: { $0.localVideoURL != nil })
+    }
+
+    private func selectDefaultPlayableSignIfNeeded() {
+        guard let firstPlayable = viewModel.signVideos.first(where: { $0.localVideoURL != nil }) else {
+            selectedSignID = nil
+            player.pause()
+            player.replaceCurrentItem(with: nil)
+            return
+        }
+
+        if selectedSignID != firstPlayable.id || player.currentItem == nil {
+            selectedSignID = firstPlayable.id
+            loadPlayer(for: firstPlayable, autoplay: false)
+        }
+    }
+
+    private func selectSign(for word: String) {
+        guard let sign = signForWord(word) else { return }
+        selectedSignID = sign.id
+        loadPlayer(for: sign, autoplay: true)
+    }
+
+    private func signForWord(_ word: String) -> ASLSignVideo? {
+        let normalizedWord = word.lowercased()
+        return viewModel.signVideos.first {
+            $0.normalized == normalizedWord || $0.input.lowercased() == normalizedWord
+        }
+    }
+
+    private func loadPlayer(for sign: ASLSignVideo, autoplay: Bool) {
+        guard let localVideoURL = sign.localVideoURL else { return }
+        let item = AVPlayerItem(url: localVideoURL)
+        item.audioTimePitchAlgorithm = .varispeed
+        player.replaceCurrentItem(with: item)
+        player.pause()
+        player.defaultRate = playbackRate
+
+        if autoplay {
+            player.seek(to: .zero) { _ in
+                playSelectedVideo()
+            }
+        } else {
+            player.seek(to: .zero)
+        }
+    }
+
+    private func playSelectedVideo() {
+        guard let sign = activeSignVideo else { return }
+
+        if player.currentItem == nil, let url = sign.localVideoURL {
+            let item = AVPlayerItem(url: url)
+            item.audioTimePitchAlgorithm = .varispeed
+            player.replaceCurrentItem(with: item)
+        }
+
+        player.defaultRate = playbackRate
+        player.playImmediately(atRate: playbackRate)
+        reinforcePlaybackRate()
+    }
+
+    private func updatePlayerRateIfNeeded() {
+        player.currentItem?.audioTimePitchAlgorithm = .varispeed
+        player.defaultRate = playbackRate
+
+        guard player.currentItem != nil else { return }
+
+        if player.timeControlStatus == .playing {
+            player.rate = playbackRate
+            reinforcePlaybackRate()
+        }
+    }
+
+    private func reinforcePlaybackRate() {
+        let targetRate = playbackRate
+        player.rate = targetRate
+
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 150_000_000)
+            if player.timeControlStatus == .playing {
+                player.defaultRate = targetRate
+                player.rate = targetRate
+            }
+        }
+    }
+
+    private var playbackRate: Float {
+        switch selectedPlaybackSpeed {
+        case "0.5x":
+            return 0.5
+        case "0.75x":
+            return 0.75
+        case "1.5x":
+            return 1.5
+        default:
+            return 1.0
+        }
+    }
+
+    private func chipBackground(for word: String) -> Color {
+        if signForWord(word)?.localVideoURL == nil {
+            return PhotoModePalette.chip.opacity(0.55)
+        }
+        return isSelectedWord(word) ? PhotoModePalette.green : PhotoModePalette.chip
+    }
+
+    private func chipBorder(for word: String) -> Color {
+        if signForWord(word)?.localVideoURL == nil {
+            return Color.yellow.opacity(0.9)
+        }
+        return isSelectedWord(word) ? Color.white.opacity(0.95) : Color.clear
+    }
+
+    private func chipLineWidth(for word: String) -> CGFloat {
+        signForWord(word)?.localVideoURL == nil || isSelectedWord(word) ? 2 : 0
+    }
+
+    private func isSelectedWord(_ word: String) -> Bool {
+        guard let selectedSignID,
+              let sign = signForWord(word) else { return false }
+        return sign.id == selectedSignID
     }
 }
 

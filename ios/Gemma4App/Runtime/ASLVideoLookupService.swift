@@ -65,57 +65,78 @@ struct ASLVideoLookupService {
         }
 
         do {
-            let searchURL = Self.handspeakBaseURL
-                .appending(path: "/word/app/search-dict.php")
-                .appending(queryItems: [URLQueryItem(name: "q", value: normalized)])
-            let payload: SearchPayload = try await fetchJSON(from: searchURL)
+            var lastMiss: ASLSignVideo?
 
-            guard let bestMatch = bestMatch(for: normalized, in: payload), let pageURL = absoluteHandspeakURL(path: bestMatch.url) else {
-                return ASLSignVideo(
-                    input: word,
-                    normalized: normalized,
-                    match: nil,
-                    pageURL: nil,
-                    sourceVideoURL: nil,
-                    localVideoURL: nil,
-                    skipped: false,
-                    reason: nil,
-                    error: "No matching ASL dictionary entry found."
+            for lookupTerm in fallbackLookupTerms(for: normalized) {
+                let searchURL = Self.handspeakBaseURL
+                    .appending(path: "/word/app/search-dict.php")
+                    .appending(queryItems: [URLQueryItem(name: "q", value: lookupTerm)])
+                let payload: SearchPayload = try await fetchJSON(from: searchURL)
+
+                guard let bestMatch = bestMatch(for: lookupTerm, in: payload),
+                      let pageURL = absoluteHandspeakURL(path: bestMatch.url) else {
+                    lastMiss = ASLSignVideo(
+                        input: word,
+                        normalized: normalized,
+                        match: nil,
+                        pageURL: nil,
+                        sourceVideoURL: nil,
+                        localVideoURL: nil,
+                        skipped: false,
+                        reason: nil,
+                        error: "No matching ASL dictionary entry found."
+                    )
+                    continue
+                }
+
+                let html = try await fetchText(from: pageURL)
+                let candidates = extractVideoURLs(from: html)
+                guard !candidates.isEmpty else {
+                    lastMiss = ASLSignVideo(
+                        input: word,
+                        normalized: normalized,
+                        match: bestMatch.signName,
+                        pageURL: pageURL,
+                        sourceVideoURL: nil,
+                        localVideoURL: nil,
+                        skipped: false,
+                        reason: lookupTerm == normalized ? nil : "Used singular fallback: \(lookupTerm).",
+                        error: "No MP4 found on the dictionary page."
+                    )
+                    continue
+                }
+
+                let cachedVideo = try await downloadFirstPlayableVideo(
+                    from: candidates,
+                    pageURL: pageURL,
+                    normalized: normalized
                 )
-            }
 
-            let html = try await fetchText(from: pageURL)
-            let candidates = extractVideoURLs(from: html)
-            guard !candidates.isEmpty else {
                 return ASLSignVideo(
                     input: word,
                     normalized: normalized,
                     match: bestMatch.signName,
                     pageURL: pageURL,
-                    sourceVideoURL: nil,
-                    localVideoURL: nil,
+                    sourceVideoURL: cachedVideo.sourceURL,
+                    localVideoURL: cachedVideo.localURL,
                     skipped: false,
-                    reason: nil,
-                    error: "No MP4 found on the dictionary page."
+                    reason: lookupTerm == normalized
+                        ? "Cached locally and ready to play."
+                        : "Used singular fallback '\(lookupTerm)' and cached locally.",
+                    error: nil
                 )
             }
 
-            let cachedVideo = try await downloadFirstPlayableVideo(
-                from: candidates,
-                pageURL: pageURL,
-                normalized: normalized
-            )
-
-            return ASLSignVideo(
+            return lastMiss ?? ASLSignVideo(
                 input: word,
                 normalized: normalized,
-                match: bestMatch.signName,
-                pageURL: pageURL,
-                sourceVideoURL: cachedVideo.sourceURL,
-                localVideoURL: cachedVideo.localURL,
+                match: nil,
+                pageURL: nil,
+                sourceVideoURL: nil,
+                localVideoURL: nil,
                 skipped: false,
-                reason: "Cached locally and ready to play.",
-                error: nil
+                reason: nil,
+                error: "No matching ASL dictionary entry found."
             )
         } catch {
             return ASLSignVideo(
@@ -243,6 +264,27 @@ struct ASLVideoLookupService {
         payload.word
             ?? payload.wordlist?.first(where: { $0.signName.lowercased() == normalized })
             ?? payload.wordlist?.first
+    }
+
+    private func fallbackLookupTerms(for normalized: String) -> [String] {
+        var terms = [normalized]
+
+        if normalized.count > 3, normalized.hasSuffix("ies") {
+            terms.append(String(normalized.dropLast(3)) + "y")
+        }
+
+        if normalized.count > 3, normalized.hasSuffix("es") {
+            terms.append(String(normalized.dropLast(2)))
+        }
+
+        if normalized.count > 2, normalized.hasSuffix("s"), !normalized.hasSuffix("ss") {
+            terms.append(String(normalized.dropLast()))
+        }
+
+        var seen = Set<String>()
+        return terms.filter { term in
+            !term.isEmpty && seen.insert(term).inserted
+        }
     }
 
     private func absoluteHandspeakURL(path: String) -> URL? {
