@@ -12,6 +12,7 @@
 		05D912EF5130E580DB89CE9E /* TextTranslationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE4CD75B98E554492BBB54 /* TextTranslationViewModel.swift */; };
 		0BC60C5C188FB84782BEC159 /* Gemma4LanguageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58178C7FF7DC8E86A3F62F76 /* Gemma4LanguageModel.swift */; };
 		11883037F7B6305380B3E630 /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = C7137DC45B03BDAA50BB8769 /* MLXLLM */; };
+		19BAA5E73580113AA81DCD72 /* signs.txt in Resources */ = {isa = PBXBuildFile; fileRef = 6EE23CC89C79F80D42B4D638 /* signs.txt */; };
 		1BBD2ADD79B998230C6ED275 /* DownloadObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D788F4B6DB7D538A31E2A829 /* DownloadObserver.swift */; };
 		1C3C77A7C374FC8BF04D7F3D /* MLXNN in Frameworks */ = {isa = PBXBuildFile; productRef = 95C8BB9C8F3FDC6125E736C8 /* MLXNN */; };
 		20C1BAEB2863C14A91C0D267 /* GPULifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7172664FC1B3299007A0BE8 /* GPULifecycle.swift */; };
@@ -108,6 +109,7 @@
 		68B65E78FC9EED4E6CC39A64 /* AudioCaptureSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCaptureSnapshot.swift; sourceTree = "<group>"; };
 		6B36C8BE5CDC49F00D416594 /* Gemma4Loader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4Loader.swift; sourceTree = "<group>"; };
 		6D88BB8C95AF22712E32B29A /* MinTokenEOSGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinTokenEOSGuard.swift; sourceTree = "<group>"; };
+		6EE23CC89C79F80D42B4D638 /* signs.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = signs.txt; sourceTree = "<group>"; };
 		7CAF6BDA287AF791F0D3D7EB /* LanguageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageService.swift; sourceTree = "<group>"; };
 		7DF459ADCECB851848CD2DC6 /* LiveModelDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveModelDownloader.swift; sourceTree = "<group>"; };
 		80EEC614D8D42A98694B64BE /* TextPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextPlaceholderView.swift; sourceTree = "<group>"; };
@@ -338,6 +340,7 @@
 			isa = PBXGroup;
 			children = (
 				4F57A63FE13CF694B8E53075 /* App */,
+				DD30275AED292DA987090F5B /* Resources */,
 				1FB14BF0C1AF07753B587902 /* Runtime */,
 				21099B4962652C4224BD2A27 /* UI */,
 			);
@@ -372,6 +375,14 @@
 			path = Core;
 			sourceTree = "<group>";
 		};
+		DD30275AED292DA987090F5B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				6EE23CC89C79F80D42B4D638 /* signs.txt */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -380,6 +391,7 @@
 			buildConfigurationList = 3ECCC6D0451200E0889D47B5 /* Build configuration list for PBXNativeTarget "Gemma4App" */;
 			buildPhases = (
 				DE191FD621C54AD1A6C58EDC /* Sources */,
+				4123739DE162F7FC8796E447 /* Resources */,
 				B42B0C057FEDF2E6B27473EB /* Frameworks */,
 			);
 			buildRules = (
@@ -439,6 +451,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4123739DE162F7FC8796E447 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				19BAA5E73580113AA81DCD72 /* signs.txt in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		DE191FD621C54AD1A6C58EDC /* Sources */ = {

@@ -29,6 +29,7 @@ targets:
       - path: Gemma4App/App
       - path: Gemma4App/UI
       - path: Gemma4App/Runtime
+      - path: Gemma4App/Resources
       - path: Vendor/Gemma4Runtime/LLM
       - path: Vendor/Gemma4Runtime/Shared/L10n.swift
       - path: Vendor/Gemma4Runtime/Shared/LanguageService.swift
@@ -61,10 +62,7 @@ targets:
         UISupportedInterfaceOrientations~iphone:
           - UIInterfaceOrientationPortrait
         UIStatusBarStyle: UIStatusBarStyleDefault
-        ASL_API_BASE_URL: http://127.0.0.1:8000
         HF_TOKEN: ""
-        NSAppTransportSecurity:
-          NSAllowsLocalNetworking: true
     settings:
       base:
         PRODUCT_NAME: $(TARGET_NAME)
