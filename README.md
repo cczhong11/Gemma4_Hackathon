@@ -39,3 +39,18 @@ A collection of prompts, system instructions, and tool definitions specifically 
 - **For the iOS App:** Open `ios/Gemma4App/Gemma4App.xcodeproj` in Xcode (you may need to run `xcodegen` if it uses `project.yml`).
 - **For the Web App:** Navigate to `asl-sequence/`, run `npm install`, and start the server with `npm run dev`.
 
+### iOS HF Token Setup (`.xcconfig`, local only)
+
+The iOS ASL translation flow uses `HF_TOKEN` (Hugging Face token).  
+This repo is configured so your token stays local and is not committed.
+
+1. Copy `ios/Configs/LocalSecrets.example.xcconfig` to `ios/Configs/LocalSecrets.xcconfig`.
+2. Edit `ios/Configs/LocalSecrets.xcconfig`:
+   - `HF_TOKEN = hf_your_token_here`
+3. Regenerate the Xcode project after config changes:
+   - `cd ios && xcodegen generate`
+4. Build/run in Xcode.
+
+Notes:
+- `ios/Configs/LocalSecrets.xcconfig` is gitignored.
+- `Info.plist` reads `HF_TOKEN` from build settings via `$(HF_TOKEN)`.

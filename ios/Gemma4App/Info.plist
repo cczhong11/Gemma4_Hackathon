@@ -21,7 +21,7 @@
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>HF_TOKEN</key>
-	<string></string>
+	<string>$(HF_TOKEN)</string>
 	<key>NSCameraUsageDescription</key>
 	<string>需要使用相机拍照并识别图片内容。</string>
 	<key>UIApplicationSceneManifest</key>
@@ -30,7 +30,10 @@
 		<false/>
 	</dict>
 	<key>UILaunchScreen</key>
-	<dict/>
+	<dict>
+		<key>UIImageName</key>
+		<string>Splash</string>
+	</dict>
 	<key>UIStatusBarStyle</key>
 	<string>UIStatusBarStyleDefault</string>
 	<key>UISupportedInterfaceOrientations~ipad</key>

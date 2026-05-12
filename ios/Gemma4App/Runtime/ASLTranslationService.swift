@@ -25,7 +25,7 @@ enum ASLTranslationError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .missingToken:
-            return "HF_TOKEN is not configured in Info.plist."
+            return "HF_TOKEN is not configured."
         case .vocabUnavailable(.missingResource):
             return "signs.txt is missing from the app bundle."
         case .vocabUnavailable(.emptyFile):
@@ -45,8 +45,12 @@ struct ASLTranslationService {
     private let client: HFRouterClient
 
     init(session: URLSession? = nil, bundle: Bundle = .main) throws {
-        let rawToken = (bundle.object(forInfoDictionaryKey: Self.tokenKey) as? String ?? "")
+        // Prefer runtime environment injection for local/dev security, then fallback to Info.plist.
+        let envToken = (ProcessInfo.processInfo.environment[Self.tokenKey] ?? "")
             .trimmingCharacters(in: .whitespacesAndNewlines)
+        let plistToken = (bundle.object(forInfoDictionaryKey: Self.tokenKey) as? String ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let rawToken = envToken.isEmpty ? plistToken : envToken
         guard !rawToken.isEmpty else { throw ASLTranslationError.missingToken }
 
         do {

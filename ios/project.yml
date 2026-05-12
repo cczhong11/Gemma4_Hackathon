@@ -26,6 +26,9 @@ targets:
   Gemma4App:
     type: application
     platform: iOS
+    configFiles:
+      Debug: Configs/Base.xcconfig
+      Release: Configs/Base.xcconfig
     sources:
       - path: Gemma4App/App
       - path: Gemma4App/UI
@@ -59,7 +62,8 @@ targets:
       path: Gemma4App/Info.plist
       properties:
         NSCameraUsageDescription: 需要使用相机拍照并识别图片内容。
-        UILaunchScreen: {}
+        UILaunchScreen:
+          UIImageName: Splash
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
         UISupportedInterfaceOrientations~iphone:
@@ -71,7 +75,7 @@ targets:
           - UIInterfaceOrientationLandscapeRight
         UIStatusBarStyle: UIStatusBarStyleDefault
         CFBundleIconName: AppIcon
-        HF_TOKEN: ""
+        HF_TOKEN: $(HF_TOKEN)
     settings:
       base:
         PRODUCT_NAME: $(TARGET_NAME)

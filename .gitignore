@@ -31,3 +31,4 @@ fastlane/test_output
 *.framework
 gemma-4-e2b-it-4bit
 .DS_Store
+ios/Configs/LocalSecrets.xcconfig

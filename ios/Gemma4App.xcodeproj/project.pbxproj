@@ -148,6 +148,7 @@
 		EF1CBD64B796DC6528313178 /* LiveDownloadPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveDownloadPlanner.swift; sourceTree = "<group>"; };
 		F3F21FC72422FA9933EC8CF6 /* LLMEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMEngine.swift; sourceTree = "<group>"; };
 		F50EEBDC885937F7D0046CBE /* MLXLocalLLMService+KVReuse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MLXLocalLLMService+KVReuse.swift"; sourceTree = "<group>"; };
+		F5412DC103858E5D9C9AEC74 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
 		FDA90E2F58EBAF8F1F9EE604 /* mlx-swift */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "mlx-swift"; path = "Vendor/mlx-swift"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -173,6 +174,7 @@
 		044DF70748BECAECA1925E64 = {
 			isa = PBXGroup;
 			children = (
+				16559370463459C6E5FFA63A /* Configs */,
 				9D5086A50DFD6AA4E8E7BD73 /* Gemma4App */,
 				0A7A01A0525EA18D9343365C /* Packages */,
 				439F1DD0D43C72950C794BDE /* Vendor */,
@@ -187,6 +189,14 @@
 				FDA90E2F58EBAF8F1F9EE604 /* mlx-swift */,
 			);
 			name = Packages;
+			sourceTree = "<group>";
+		};
+		16559370463459C6E5FFA63A /* Configs */ = {
+			isa = PBXGroup;
+			children = (
+				F5412DC103858E5D9C9AEC74 /* Base.xcconfig */,
+			);
+			path = Configs;
 			sourceTree = "<group>";
 		};
 		19D906D76B6ADFD13C7170A7 /* Core */ = {
@@ -551,6 +561,7 @@
 /* Begin XCBuildConfiguration section */
 		4175A001D679C481EA17A02B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = F5412DC103858E5D9C9AEC74 /* Base.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -702,6 +713,7 @@
 		};
 		D9DFF2A663B451FA48446F95 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = F5412DC103858E5D9C9AEC74 /* Base.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
