@@ -56,6 +56,7 @@
 		A124F3220D1A0EFC2D720391 /* ASLVocab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B9D3E0149942345497B98AD /* ASLVocab.swift */; };
 		A16914249662B7E345776088 /* ModelInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38191D37574D553D5BAC740A /* ModelInstaller.swift */; };
 		A39E994C1F54121B5E9FB849 /* LLMTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = D93DF49C14A89FB6FCD807E2 /* LLMTypes.swift */; };
+		A5B17F058C6DD5CEEC06632F /* ASLGlossPostprocess.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46CA515DF034B4F48BA16C35 /* ASLGlossPostprocess.swift */; };
 		B4BE5D79344E80985CDD916B /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19C66F7BFEC57A0C997EABC0 /* HomeView.swift */; };
 		B6C8506AB81CB3BDAFC10FB0 /* RuntimeBudgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F433FA920A31BCF39E6999 /* RuntimeBudgets.swift */; };
 		BACB9CEDB446D3DB5A2CE25C /* MLX in Frameworks */ = {isa = PBXBuildFile; productRef = 9593CFC320C373F2E570F7BC /* MLX */; };
@@ -100,6 +101,7 @@
 		38191D37574D553D5BAC740A /* ModelInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelInstaller.swift; sourceTree = "<group>"; };
 		3A974F59FBEDFFDDC7868CB8 /* ASLGlossPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASLGlossPrompt.swift; sourceTree = "<group>"; };
 		41742CBC4BCC61099D1E691C /* MLXTokenizersLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLXTokenizersLoader.swift; sourceTree = "<group>"; };
+		46CA515DF034B4F48BA16C35 /* ASLGlossPostprocess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASLGlossPostprocess.swift; sourceTree = "<group>"; };
 		4BD10FF6E5816C9223F59060 /* ASRBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASRBackend.swift; sourceTree = "<group>"; };
 		502FC8CEBFB58EA08B570B43 /* Gemma4AudioModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4AudioModel.swift; sourceTree = "<group>"; };
 		58178C7FF7DC8E86A3F62F76 /* Gemma4LanguageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4LanguageModel.swift; sourceTree = "<group>"; };
@@ -203,6 +205,7 @@
 		1FB14BF0C1AF07753B587902 /* Runtime */ = {
 			isa = PBXGroup;
 			children = (
+				46CA515DF034B4F48BA16C35 /* ASLGlossPostprocess.swift */,
 				3A974F59FBEDFFDDC7868CB8 /* ASLGlossPrompt.swift */,
 				94A4EAEBBE15AB87AB1B938C /* ASLTranslationService.swift */,
 				E36A0AE392BD90E65FA2C39C /* ASLVideoLookupService.swift */,
@@ -477,6 +480,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A5B17F058C6DD5CEEC06632F /* ASLGlossPostprocess.swift in Sources */,
 				3BDF39D2177B947673A15429 /* ASLGlossPrompt.swift in Sources */,
 				9BD11BF4B3410FAC0715382F /* ASLTranslationService.swift in Sources */,
 				0284AD5E09F6398CAF217602 /* ASLVideoLookupService.swift in Sources */,
