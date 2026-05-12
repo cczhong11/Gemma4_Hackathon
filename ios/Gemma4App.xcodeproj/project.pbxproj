@@ -25,6 +25,7 @@
 		32CDEA00CF64BE1F790C65FA /* DownloadFailure.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC48E364F0988CF0344B9C0 /* DownloadFailure.swift */; };
 		344F602A05A19E0F83043A58 /* ModelInstallState.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC1ED698A6D428069ADD80D /* ModelInstallState.swift */; };
 		37190A04F65EA50F317D3EE8 /* MemoryStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 899BC69D7FEDD22AAE1EFAA4 /* MemoryStats.swift */; };
+		3BDF39D2177B947673A15429 /* ASLGlossPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A974F59FBEDFFDDC7868CB8 /* ASLGlossPrompt.swift */; };
 		3C524F7B14AC1AD00283D5C1 /* InferenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A8F2BE7E268BC22A6F07D3C /* InferenceService.swift */; };
 		3FA5ED3F3642B1C6BCB37BF0 /* MLXLocalLLMService+KVReuse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F50EEBDC885937F7D0046CBE /* MLXLocalLLMService+KVReuse.swift */; };
 		40E41851C7B32AB209954E80 /* EmbeddedGemma4Runtime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59A00F49A5629472B3140FF7 /* EmbeddedGemma4Runtime.swift */; };
@@ -96,6 +97,7 @@
 		331C89A1D4B571DD01DE7546 /* Gemma4App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4App.swift; sourceTree = "<group>"; };
 		354952BBE88BA743BB025362 /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
 		38191D37574D553D5BAC740A /* ModelInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelInstaller.swift; sourceTree = "<group>"; };
+		3A974F59FBEDFFDDC7868CB8 /* ASLGlossPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASLGlossPrompt.swift; sourceTree = "<group>"; };
 		41742CBC4BCC61099D1E691C /* MLXTokenizersLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLXTokenizersLoader.swift; sourceTree = "<group>"; };
 		4BD10FF6E5816C9223F59060 /* ASRBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASRBackend.swift; sourceTree = "<group>"; };
 		502FC8CEBFB58EA08B570B43 /* Gemma4AudioModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4AudioModel.swift; sourceTree = "<group>"; };
@@ -199,6 +201,7 @@
 		1FB14BF0C1AF07753B587902 /* Runtime */ = {
 			isa = PBXGroup;
 			children = (
+				3A974F59FBEDFFDDC7868CB8 /* ASLGlossPrompt.swift */,
 				94A4EAEBBE15AB87AB1B938C /* ASLTranslationService.swift */,
 				E36A0AE392BD90E65FA2C39C /* ASLVideoLookupService.swift */,
 				5B9D3E0149942345497B98AD /* ASLVocab.swift */,
@@ -471,6 +474,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3BDF39D2177B947673A15429 /* ASLGlossPrompt.swift in Sources */,
 				9BD11BF4B3410FAC0715382F /* ASLTranslationService.swift in Sources */,
 				0284AD5E09F6398CAF217602 /* ASLVideoLookupService.swift in Sources */,
 				A124F3220D1A0EFC2D720391 /* ASLVocab.swift in Sources */,
