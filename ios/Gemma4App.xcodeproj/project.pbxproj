@@ -69,6 +69,7 @@
 		CCB5FA19549964A55C078884 /* DownloadProgressSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59258A80BDDDE2B3E21D551E /* DownloadProgressSnapshot.swift */; };
 		CF9342F0E29F403DB89B7EF5 /* Gemma4RoPE.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9426E8F1411822AFC476CF6F /* Gemma4RoPE.swift */; };
 		D485BAEB6519E0787731FB9E /* ModelDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C214EA3C55D8F27F87F3CA3 /* ModelDownloader.swift */; };
+		DCDB7E0855B1B5A1832035BC /* HFRouterClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4D6A98C0CEEE1C30381853 /* HFRouterClient.swift */; };
 		E13D8A46144C6B2E0D353289 /* ModelInstallerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB38B74E4E1BAA39ADA2D7A6 /* ModelInstallerProtocol.swift */; };
 		E1A63A79E505696FDE5567E3 /* ModelPaths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE9FBE17B1D38C77ACD574B /* ModelPaths.swift */; };
 		E69D0545CC97A1C95BE23CE9 /* DownloadManifestStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 988E28DDD3FB0B2532733A3B /* DownloadManifestStore.swift */; };
@@ -113,6 +114,7 @@
 		68B65E78FC9EED4E6CC39A64 /* AudioCaptureSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCaptureSnapshot.swift; sourceTree = "<group>"; };
 		6B36C8BE5CDC49F00D416594 /* Gemma4Loader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4Loader.swift; sourceTree = "<group>"; };
 		6D88BB8C95AF22712E32B29A /* MinTokenEOSGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinTokenEOSGuard.swift; sourceTree = "<group>"; };
+		6E4D6A98C0CEEE1C30381853 /* HFRouterClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HFRouterClient.swift; sourceTree = "<group>"; };
 		6EE23CC89C79F80D42B4D638 /* signs.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = signs.txt; sourceTree = "<group>"; };
 		7CAF6BDA287AF791F0D3D7EB /* LanguageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageService.swift; sourceTree = "<group>"; };
 		7DF459ADCECB851848CD2DC6 /* LiveModelDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveModelDownloader.swift; sourceTree = "<group>"; };
@@ -209,6 +211,7 @@
 				59A00F49A5629472B3140FF7 /* EmbeddedGemma4Runtime.swift */,
 				A5AC83E5549F933CD9AA391F /* Gemma4Adapter.swift */,
 				6B36C8BE5CDC49F00D416594 /* Gemma4Loader.swift */,
+				6E4D6A98C0CEEE1C30381853 /* HFRouterClient.swift */,
 				68B307B4C257459F6B3DEDD3 /* ImageRecognitionService.swift */,
 				F3F21FC72422FA9933EC8CF6 /* LLMEngine.swift */,
 			);
@@ -506,6 +509,7 @@
 				5CD0100CC3DC3D2DACC500D1 /* Gemma4TextModel.swift in Sources */,
 				FB1ED67A0CDAD489A2E4D996 /* Gemma4VisionModel.swift in Sources */,
 				879CC6062CEB81271CD901A8 /* GlossUnit.swift in Sources */,
+				DCDB7E0855B1B5A1832035BC /* HFRouterClient.swift in Sources */,
 				B4BE5D79344E80985CDD916B /* HomeView.swift in Sources */,
 				811881A92A351BAB35CA0986 /* ImageRecognitionService.swift in Sources */,
 				3C524F7B14AC1AD00283D5C1 /* InferenceService.swift in Sources */,
