@@ -47,6 +47,7 @@ struct TextPlaceholderView: View {
     @State private var celebrationRotation = -18.0
     @State private var sparkleLift: CGFloat = 18
     @State private var showDeleteModelAlert = false
+    @FocusState private var isInputFocused: Bool
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -76,7 +77,12 @@ struct TextPlaceholderView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 12)
                     .padding(.bottom, 140)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        isInputFocused = false
+                    }
                 }
+                .scrollDismissesKeyboard(.immediately)
 
                 if showsBottomBar {
                     bottomTabBar
@@ -204,6 +210,7 @@ struct TextPlaceholderView: View {
             }
 
             TextEditor(text: $vm.inputText)
+                .focused($isInputFocused)
                 .font(.system(size: 17, weight: .regular, design: .rounded))
                 .foregroundStyle(TextModePalette.ink)
                 .scrollContentBackground(.hidden)
@@ -239,6 +246,10 @@ struct TextPlaceholderView: View {
             }
         }
         .frame(minHeight: 200)
+        .contentShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .onTapGesture {
+            isInputFocused = false
+        }
     }
 
     private var suggestionsSection: some View {
