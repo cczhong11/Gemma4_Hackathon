@@ -64,15 +64,15 @@ struct TextPlaceholderView: View {
                             errorCard(text: errorMessage)
                         }
 
-                        if !vm.videos.isEmpty || !vm.units.isEmpty {
-                            playbackCard
-                        }
-
-                        if vm.videos.isEmpty && vm.units.isEmpty {
+                        if vm.videos.isEmpty && vm.units.isEmpty && vm.inputText.isEmpty {
                             suggestionsSection
                         }
 
                         signItButton
+
+                        if !vm.videos.isEmpty || !vm.units.isEmpty {
+                            playbackCard
+                        }
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 12)
