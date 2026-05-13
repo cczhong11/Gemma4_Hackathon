@@ -47,6 +47,16 @@ struct HFRouterClient {
     }
 
     func call(messages: [[String: String]]) async throws -> String {
+        let normalized: [[String: Any]] = messages.map { message in
+            [
+                "role": message["role"] ?? "user",
+                "content": message["content"] ?? "",
+            ]
+        }
+        return try await call(messages: normalized)
+    }
+
+    func call(messages: [[String: Any]]) async throws -> String {
         var request = URLRequest(url: Self.routerURL)
         request.httpMethod = "POST"
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")

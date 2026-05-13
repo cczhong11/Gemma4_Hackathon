@@ -77,7 +77,7 @@ final class AppViewModel: ObservableObject {
     @Published var selectedTranslationMode: TranslationMode = .betterSigns
 
     private var modelStatusPollingTask: Task<Void, Never>?
-    private lazy var recognitionService = ImageRecognitionService()
+    private lazy var offlineRecognitionService = ImageRecognitionService()
     private let aslVideoLookupService = ASLVideoLookupService()
     private lazy var runtime = Gemma4Loader.sharedRuntime()
 
@@ -109,6 +109,7 @@ final class AppViewModel: ObservableObject {
         errorMessage = nil
 
         do {
+            let recognitionService = try makeRecognitionService(for: selectedTranslationMode)
             let analysis = try await recognitionService.analyze(image: image)
             recognitionResult = analysis.description
             suggestedKeywords = analysis.keywords
@@ -143,6 +144,20 @@ final class AppViewModel: ObservableObject {
         isLoading = false
         isLoadingSignVideos = false
         refreshModelStatus()
+    }
+
+    private func makeRecognitionService(for mode: TranslationMode) throws -> ImageRecognitionService {
+        switch mode {
+        case .offline:
+            return offlineRecognitionService
+        case .betterSigns:
+            let imageAdapter = try HFImageToTextAdapter()
+            let textAdapter = try HFTextToTextAdapter()
+            return ImageRecognitionService(
+                imageAdapterProvider: { imageAdapter },
+                textAdapterProvider: { textAdapter }
+            )
+        }
     }
 
     func refreshModelStatus() {

@@ -23,11 +23,11 @@ struct PhotoModeHeader: View {
         HStack(alignment: .top, spacing: 16) {
             VStack(alignment: .leading, spacing: 10) {
                 Text("📸 Photo to ASL")
-                    .font(HearmeTypography.brand(34))
+                    .font(.system(size: 32, weight: .bold, design: .rounded))
                     .foregroundStyle(PhotoModePalette.ink)
 
                 Text("Take a picture of words. We will sign them!")
-                    .font(HearmeTypography.bodyStrong(19))
+                    .font(.system(size: 17, weight: .medium, design: .rounded))
                     .foregroundStyle(PhotoModePalette.muted)
             }
 
@@ -280,37 +280,39 @@ struct PhotoPlaybackSection: View {
                         .frame(width: max(10, geometry.size.width * playbackProgress))
                 }
             }
-            .frame(height: 10)
+            .frame(height: 6)
 
             HStack(spacing: 12) {
                 Button(action: onPlayTap) {
                     Text("PLAY")
-                        .font(HearmeTypography.section(20))
-                        .tracking(1)
+                        .font(HearmeTypography.gloss(14))
+                        .tracking(1.2)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 24)
+                        .frame(minHeight: 52)
                         .background(PhotoModePalette.green)
-                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 }
                 .buttonStyle(.plain)
 
-                ForEach(playbackSpeeds, id: \.self) { speed in
-                    Button {
-                        onSpeedTap(speed)
-                    } label: {
-                        Text(speed)
-                            .font(HearmeTypography.gloss(16))
-                            .foregroundStyle(selectedPlaybackSpeed == speed ? .white : PhotoModePalette.ink)
-                            .frame(width: 84, height: 84)
-                            .background(selectedPlaybackSpeed == speed ? PhotoModePalette.ink : PhotoModePalette.background)
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                    .stroke(selectedPlaybackSpeed == speed ? PhotoModePalette.ink : PhotoModePalette.border, lineWidth: 2)
-                            }
-                            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                HStack(spacing: 6) {
+                    ForEach(playbackSpeeds, id: \.self) { speed in
+                        Button {
+                            onSpeedTap(speed)
+                        } label: {
+                            Text(speed)
+                                .font(HearmeTypography.gloss(13))
+                                .foregroundStyle(selectedPlaybackSpeed == speed ? .white : PhotoModePalette.ink)
+                                .frame(width: 44, height: 44)
+                                .background(selectedPlaybackSpeed == speed ? PhotoModePalette.ink : Color.clear)
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .stroke(selectedPlaybackSpeed == speed ? PhotoModePalette.ink : PhotoModePalette.border, lineWidth: 1.5)
+                                }
+                                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
             }
         }
@@ -325,103 +327,95 @@ struct PhotoTranslationCard: View {
     let chipBorder: (String) -> Color
     let chipLineWidth: (String) -> CGFloat
     let chipDash: (String) -> [CGFloat]
-    let cardHeight: CGFloat
     let sourcePageURL: URL?
     let onWordTap: (String) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 12) {
             Text("TRANSLATION CARD")
-                .font(HearmeTypography.label(15))
-                .tracking(2)
-                .foregroundStyle(Color.white.opacity(0.84))
+                .font(HearmeTypography.label(11))
+                .tracking(1.2)
+                .foregroundStyle(Color.white.opacity(0.78))
 
-            ScrollView(.vertical, showsIndicators: true) {
-                VStack(alignment: .leading, spacing: 14) {
-                    infoPanel(title: "ORIGINAL", body: originalText)
-                    infoPanel(title: "ASL GLOSS", body: glossText, fill: PhotoModePalette.green)
+            VStack(alignment: .leading, spacing: 12) {
+                infoPanel(title: "ORIGINAL", body: originalText)
+                infoPanel(title: "ASL GLOSS", body: glossText, fill: PhotoModePalette.green)
 
-                    Text("Words I found")
-                        .font(HearmeTypography.section(15))
-                        .foregroundStyle(.white.opacity(0.94))
-
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: 14)], alignment: .leading, spacing: 14) {
-                        ForEach(glossWords, id: \.self) { word in
-                            Button {
-                                onWordTap(word)
-                            } label: {
-                                Text(word)
-                                    .font(HearmeTypography.gloss(16))
-                                    .foregroundStyle(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 22)
-                                    .background(chipBackground(word))
-                                    .overlay {
-                                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                            .stroke(
-                                                chipBorder(word),
-                                                style: StrokeStyle(
-                                                    lineWidth: chipLineWidth(word),
-                                                    dash: chipDash(word)
-                                                )
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 80), spacing: 10)], alignment: .leading, spacing: 10) {
+                    ForEach(glossWords, id: \.self) { word in
+                        Button {
+                            onWordTap(word)
+                        } label: {
+                            Text(word)
+                                .font(HearmeTypography.gloss(14))
+                                .textCase(.lowercase)
+                                .tracking(0.5)
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(minHeight: 44)
+                                .padding(.horizontal, 14)
+                                .background(chipBackground(word))
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .stroke(
+                                            chipBorder(word),
+                                            style: StrokeStyle(
+                                                lineWidth: chipLineWidth(word),
+                                                dash: chipDash(word)
                                             )
-                                    }
-                                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-                            }
-                            .buttonStyle(.plain)
+                                        )
+                                }
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                         }
-                    }
-
-                    Text("Yellow dashed = no ASL clip in library, auto-fingerspelled")
-                        .font(HearmeTypography.bodyStrong(13))
-                        .foregroundStyle(Color.white.opacity(0.82))
-
-                    if let sourcePageURL {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("SOURCE PAGE")
-                                .font(HearmeTypography.label(11))
-                                .tracking(1.5)
-                                .foregroundStyle(Color.white.opacity(0.7))
-
-                            Link(destination: sourcePageURL) {
-                                Text(sourcePageURL.absoluteString)
-                                    .font(HearmeTypography.bodyStrong(13))
-                                    .foregroundStyle(Color.white.opacity(0.92))
-                                    .underline()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .lineLimit(2)
-                                    .multilineTextAlignment(.leading)
-                            }
-                        }
-                        .padding(.top, 4)
+                        .buttonStyle(.plain)
                     }
                 }
-                .padding(.trailing, 6)
+
+                Text("Yellow dashed = no ASL clip in library, auto-fingerspelled")
+                    .font(HearmeTypography.body(12))
+                    .foregroundStyle(Color.white.opacity(0.82))
+
+                if let sourcePageURL {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("SOURCE PAGE")
+                            .font(HearmeTypography.label(11))
+                            .tracking(1.5)
+                            .foregroundStyle(Color.white.opacity(0.7))
+
+                        Link(destination: sourcePageURL) {
+                            Text(sourcePageURL.absoluteString)
+                                .font(HearmeTypography.bodyStrong(13))
+                                .foregroundStyle(Color.white.opacity(0.92))
+                                .underline()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .lineLimit(2)
+                                .multilineTextAlignment(.leading)
+                        }
+                    }
+                    .padding(.top, 4)
+                }
             }
-            .frame(height: cardHeight)
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 22)
+        .padding(18)
         .background(PhotoModePalette.navyCard)
-        .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
     private func infoPanel(title: String, body: String, fill: Color = PhotoModePalette.navyPanel) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(HearmeTypography.label(14))
-                .tracking(2)
-                .foregroundStyle(Color.white.opacity(0.82))
+                .font(HearmeTypography.label(11))
+                .tracking(1.2)
+                .foregroundStyle(Color.white.opacity(0.76))
 
             Text(body)
-                .font(HearmeTypography.bodyStrong(18))
+                .font(HearmeTypography.bodyStrong(16))
                 .foregroundStyle(.white)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 18)
-        .padding(.vertical, 18)
+        .padding(14)
         .background(fill)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
 
@@ -477,8 +471,8 @@ struct PhotoModeBottomTabBar: View {
             tabItem(icon: "camera", title: "Photo", isActive: isPhotoActive, action: onPhotoTap)
             Spacer()
         }
-        .padding(.top, 14)
-        .padding(.bottom, 18)
+        .padding(.top, 18)
+        .padding(.bottom, 22)
         .background(
             RoundedRectangle(cornerRadius: 0)
                 .fill(PhotoModePalette.background)
@@ -492,11 +486,11 @@ struct PhotoModeBottomTabBar: View {
 
     private func tabItem(icon: String, title: String, isActive: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            VStack(spacing: 8) {
+            VStack(spacing: 10) {
                 Image(systemName: icon)
-                    .font(.system(size: 24, weight: isActive ? .semibold : .regular))
+                    .font(.system(size: 28, weight: isActive ? .semibold : .regular))
                 Text(title)
-                    .font(HearmeTypography.gloss(13))
+                    .font(.system(size: 16, weight: isActive ? .bold : .semibold, design: .rounded))
             }
             .foregroundStyle(isActive ? PhotoModePalette.ink : PhotoModePalette.muted)
             .frame(maxWidth: .infinity)

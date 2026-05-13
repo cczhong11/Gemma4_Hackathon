@@ -2,5 +2,4 @@
 
 // Default empty token; LocalSecrets.xcconfig (gitignored) overrides this.
 HF_TOKEN =
-
 #include? "LocalSecrets.xcconfig"

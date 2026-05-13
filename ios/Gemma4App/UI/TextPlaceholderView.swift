@@ -36,8 +36,16 @@ private let maxInputCharacters = 2000
 
 struct TextPlaceholderView: View {
     @ObservedObject var viewModel: AppViewModel
+    var showsBottomBar: Bool = true
+    var onSwitchToPhoto: () -> Void = { }
     @StateObject private var vm = TextTranslationViewModel()
-    @State private var navigateToPhotoMode = false
+    @State private var isModeSheetPresented = false
+    @State private var isDownloadPromptPresented = false
+    @State private var celebratedMode: AppViewModel.TranslationMode?
+    @State private var celebrationOpacity = 0.0
+    @State private var celebrationScale: CGFloat = 0.5
+    @State private var celebrationRotation = -18.0
+    @State private var sparkleLift: CGFloat = 18
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -69,17 +77,69 @@ struct TextPlaceholderView: View {
                     .padding(.bottom, 140)
                 }
 
-                bottomTabBar
+                if showsBottomBar {
+                    bottomTabBar
+                }
             }
 
-            NavigationLink(isActive: $navigateToPhotoMode) {
-                CameraRecognitionView(viewModel: viewModel)
-            } label: {
-                EmptyView()
+            if isModeSheetPresented {
+                overlay
+                PhotoModeSheet(
+                    selectedMode: viewModel.selectedTranslationMode,
+                    offlineSubtitle: offlineModeSubtitle,
+                    onBetterSignsTap: {
+                        celebrateModeSelection(.betterSigns) {
+                            viewModel.selectBetterSignsMode()
+                        }
+                    },
+                    onOfflineTap: handleOfflineModeTap,
+                    modelSettingsCard: AnyView(modelSettingsCard)
+                )
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
-            .hidden()
+
+            if isDownloadPromptPresented {
+                overlay
+                PhotoOfflineDownloadPrompt(
+                    isDownloading: viewModel.isDownloadingModel,
+                    downloadStageEmoji: downloadStageEmoji,
+                    downloadPromptBody: downloadPromptBody,
+                    downloadFraction: downloadFraction,
+                    downloadStageText: downloadStageText,
+                    downloadStatusText: downloadStatusText,
+                    onCancel: {
+                        if !viewModel.isDownloadingModel {
+                            isDownloadPromptPresented = false
+                        }
+                    },
+                    onDownload: {
+                        Task {
+                            await viewModel.downloadModel()
+                            if viewModel.enableOfflineModeIfAvailable() {
+                                celebrateModeSelection(.offline) { }
+                            }
+                        }
+                    }
+                )
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+
+            if let celebratedMode {
+                PhotoCelebrationOverlay(
+                    mode: celebratedMode,
+                    opacity: celebrationOpacity,
+                    scale: celebrationScale,
+                    rotation: celebrationRotation,
+                    sparkleLift: sparkleLift
+                )
+                .transition(.opacity.combined(with: .scale))
+                .allowsHitTesting(false)
+            }
         }
         .toolbar(.hidden, for: .navigationBar)
+        .animation(.spring(response: 0.35, dampingFraction: 0.92), value: isModeSheetPresented)
+        .animation(.spring(response: 0.35, dampingFraction: 0.92), value: isDownloadPromptPresented)
+        .animation(.spring(response: 0.35, dampingFraction: 0.9), value: celebratedMode)
     }
 
     private var header: some View {
@@ -96,16 +156,22 @@ struct TextPlaceholderView: View {
 
             Spacer()
 
-            ZStack {
-                Circle()
-                    .fill(TextModePalette.badgeFill)
-                    .frame(width: 44, height: 44)
-                Circle()
-                    .stroke(TextModePalette.badgeBorder, lineWidth: 1.5)
-                    .frame(width: 44, height: 44)
-                Text("🤟")
-                    .font(.system(size: 22))
+            Button {
+                viewModel.refreshModelStatus()
+                isModeSheetPresented = true
+            } label: {
+                ZStack {
+                    Circle()
+                        .fill(TextModePalette.badgeFill)
+                        .frame(width: 44, height: 44)
+                    Circle()
+                        .stroke(TextModePalette.badgeBorder, lineWidth: 1.5)
+                        .frame(width: 44, height: 44)
+                    Text("🤟")
+                        .font(.system(size: 22))
+                }
             }
+            .buttonStyle(.plain)
             .padding(.top, 4)
         }
     }
@@ -500,7 +566,7 @@ struct TextPlaceholderView: View {
             tabItem(icon: "text.bubble", title: "Type", isActive: true) { }
             Spacer()
             tabItem(icon: "camera", title: "Photo", isActive: false) {
-                navigateToPhotoMode = true
+                onSwitchToPhoto()
             }
             Spacer()
         }
@@ -534,6 +600,219 @@ struct TextPlaceholderView: View {
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.plain)
+    }
+
+    private var overlay: some View {
+        Color.black.opacity(0.18)
+            .ignoresSafeArea()
+            .onTapGesture {
+                if !viewModel.isDownloadingModel {
+                    isModeSheetPresented = false
+                    isDownloadPromptPresented = false
+                }
+            }
+    }
+
+    private var downloadPromptBody: String {
+        if viewModel.modelStatus.isAvailable {
+            return "Offline ASL is already saved on this device."
+        }
+        return "We'll save the ASL signs to your phone so you can use them anywhere, even with no internet."
+    }
+
+    private var downloadFraction: Double? {
+        guard let metrics = viewModel.modelStatus.downloadMetrics,
+              let totalBytes = metrics.totalBytes,
+              totalBytes > 0 else {
+            return nil
+        }
+        return min(max(Double(metrics.bytesReceived) / Double(totalBytes), 0), 1)
+    }
+
+    private var downloadStatusText: String {
+        switch viewModel.modelStatus.installState {
+        case .downloading(let completedFiles, let totalFiles, let currentFile):
+            return "Downloading \(completedFiles)/\(totalFiles): \(currentFile)"
+        default:
+            return "Preparing offline mode..."
+        }
+    }
+
+    private func handleOfflineModeTap() {
+        viewModel.refreshModelStatus()
+        if viewModel.enableOfflineModeIfAvailable() {
+            celebrateModeSelection(.offline) { }
+        } else {
+            isDownloadPromptPresented = true
+        }
+    }
+
+    private var offlineModeSubtitle: String {
+        viewModel.modelStatus.isAvailable
+            ? "Use anywhere · model cached"
+            : "Use anywhere · needs download"
+    }
+
+    private var modelSettingsCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Model Settings")
+                .font(HearmeTypography.brand(23))
+                .foregroundStyle(PhotoModePalette.ink)
+
+            Text(modelStatusSummary)
+                .font(HearmeTypography.bodyStrong(16))
+                .foregroundStyle(PhotoModePalette.muted)
+
+            if viewModel.isDownloadingModel || isModelDownloading {
+                ProgressView(value: downloadFraction)
+                    .tint(PhotoModePalette.green)
+
+                Text(downloadStatusText)
+                    .font(HearmeTypography.bodyStrong(15))
+                    .foregroundStyle(PhotoModePalette.muted)
+            }
+
+            HStack(spacing: 12) {
+                Button {
+                    viewModel.refreshModelStatus()
+                } label: {
+                    Text("Refresh status")
+                        .font(HearmeTypography.gloss(17))
+                        .foregroundStyle(PhotoModePalette.ink)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 18)
+                        .background(PhotoModePalette.card)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .stroke(PhotoModePalette.border, lineWidth: 1.5)
+                        }
+                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                }
+                .buttonStyle(.plain)
+
+                Button {
+                    guard !viewModel.modelStatus.isAvailable else {
+                        viewModel.refreshModelStatus()
+                        return
+                    }
+
+                    Task {
+                        await viewModel.downloadModel()
+                    }
+                } label: {
+                    Text(modelActionTitle)
+                        .font(HearmeTypography.gloss(17))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 18)
+                        .background(modelActionEnabled ? PhotoModePalette.green : PhotoModePalette.green.opacity(0.65))
+                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .disabled(!modelActionEnabled)
+            }
+        }
+        .padding(.horizontal, 22)
+        .padding(.vertical, 22)
+        .background(PhotoModePalette.card)
+        .overlay {
+            RoundedRectangle(cornerRadius: 26, style: .continuous)
+                .stroke(PhotoModePalette.border, lineWidth: 1.5)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+    }
+
+    private var isModelDownloading: Bool {
+        if case .downloading = viewModel.modelStatus.installState {
+            return true
+        }
+        return false
+    }
+
+    private var modelStatusSummary: String {
+        if viewModel.modelStatus.isAvailable {
+            return "Cached on this device. Offline mode is ready."
+        }
+
+        switch viewModel.modelStatus.installState {
+        case .checkingSource:
+            return "Checking whether an offline model is already cached."
+        case .downloading:
+            return "Downloading offline model now."
+        case .bundled:
+            return "Bundled model found and ready to use."
+        case .downloaded:
+            return "Downloaded model found and ready to use."
+        case .notInstalled:
+            return "No cached offline model found yet."
+        case .failed(let message):
+            return message
+        }
+    }
+
+    private var modelActionTitle: String {
+        if viewModel.modelStatus.isAvailable {
+            return "Cached"
+        }
+        if viewModel.isDownloadingModel || isModelDownloading {
+            return "Downloading..."
+        }
+        return "Download model"
+    }
+
+    private var modelActionEnabled: Bool {
+        !viewModel.modelStatus.isAvailable && !(viewModel.isDownloadingModel || isModelDownloading)
+    }
+
+    private var downloadStageText: String {
+        if viewModel.modelStatus.isAvailable {
+            return "Ready"
+        }
+        if viewModel.isDownloadingModel || isModelDownloading {
+            return "Downloading offline model"
+        }
+        return "Prepare offline mode"
+    }
+
+    private var downloadStageEmoji: String {
+        if viewModel.modelStatus.isAvailable {
+            return "✅"
+        }
+        if viewModel.isDownloadingModel || isModelDownloading {
+            return "⬇️"
+        }
+        return "📦"
+    }
+
+    private func celebrateModeSelection(
+        _ mode: AppViewModel.TranslationMode,
+        action: @escaping () -> Void
+    ) {
+        action()
+        isModeSheetPresented = false
+        isDownloadPromptPresented = false
+
+        celebratedMode = mode
+        celebrationOpacity = 0
+        celebrationScale = 0.5
+        celebrationRotation = -18
+        sparkleLift = 18
+
+        withAnimation(.spring(response: 0.38, dampingFraction: 0.7)) {
+            celebrationOpacity = 1
+            celebrationScale = 1
+            celebrationRotation = 0
+            sparkleLift = 0
+        }
+
+        withAnimation(.easeOut(duration: 0.25).delay(1.0)) {
+            celebrationOpacity = 0
+        }
+
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 1_250_000_000)
+            celebratedMode = nil
+        }
     }
 }
 

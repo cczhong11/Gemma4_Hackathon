@@ -22,6 +22,7 @@
 		2391675B4543FEE3987FBF33 /* Gemma4Loader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B36C8BE5CDC49F00D416594 /* Gemma4Loader.swift */; };
 		2BAFBE820DEB2FAED8273B52 /* Gemma4Registration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EA6F4F5B328963A649E0AF /* Gemma4Registration.swift */; };
 		2D770BB39A045D250FA09088 /* PCLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5926084916E0EE5E83415329 /* PCLog.swift */; };
+		2DE65906F1CA5F5E974C698F /* HFRouterAdapters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36C490694245F2FB77F06042 /* HFRouterAdapters.swift */; };
 		302FC260E3328DE57157CF4D /* DownloadPreflight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1016B4FD345E8927DAFF36A2 /* DownloadPreflight.swift */; };
 		32CDEA00CF64BE1F790C65FA /* DownloadFailure.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC48E364F0988CF0344B9C0 /* DownloadFailure.swift */; };
 		344F602A05A19E0F83043A58 /* ModelInstallState.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC1ED698A6D428069ADD80D /* ModelInstallState.swift */; };
@@ -34,7 +35,6 @@
 		43FB98084A263D3BF7A17EB3 /* Gemma4Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5B931F41566325B675D10 /* Gemma4Model.swift */; };
 		45E463EA07AD33E9AC226960 /* MLXTokenizersLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41742CBC4BCC61099D1E691C /* MLXTokenizersLoader.swift */; };
 		477DDEE9A5DDE10DAD64371A /* Gemma4Processor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 684389EF361A3BECFDCBBE77 /* Gemma4Processor.swift */; };
-		4CA4DDCC9BF8CB8CA99A8DBB /* TextModeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C2494C8EFBB85D162995E7 /* TextModeComponents.swift */; };
 		557D890EDE4ACAAA05D8D6D4 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2333578D353F9FDAC5C1CEA6 /* AppViewModel.swift */; };
 		5CD0100CC3DC3D2DACC500D1 /* Gemma4TextModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DD4B7A72E9A8F00F41EF40 /* Gemma4TextModel.swift */; };
 		6327C70DA4839CA815C5B734 /* ModelCatalogProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8918CF08BA25794D8ADB98 /* ModelCatalogProtocol.swift */; };
@@ -103,6 +103,7 @@
 		2D0AEBBC7AB81B28820CCD71 /* InferenceKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = InferenceKit; path = Vendor/InferenceKit; sourceTree = SOURCE_ROOT; };
 		331C89A1D4B571DD01DE7546 /* Gemma4App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4App.swift; sourceTree = "<group>"; };
 		354952BBE88BA743BB025362 /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
+		36C490694245F2FB77F06042 /* HFRouterAdapters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HFRouterAdapters.swift; sourceTree = "<group>"; };
 		38191D37574D553D5BAC740A /* ModelInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelInstaller.swift; sourceTree = "<group>"; };
 		388624DE1FFA1CF9B9AEDDCE /* HearmeTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HearmeTypography.swift; sourceTree = "<group>"; };
 		3A974F59FBEDFFDDC7868CB8 /* ASLGlossPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASLGlossPrompt.swift; sourceTree = "<group>"; };
@@ -118,7 +119,6 @@
 		5B9D3E0149942345497B98AD /* ASLVocab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASLVocab.swift; sourceTree = "<group>"; };
 		5F8918CF08BA25794D8ADB98 /* ModelCatalogProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelCatalogProtocol.swift; sourceTree = "<group>"; };
 		6073691EAAA4ACC03DD3A282 /* GlossUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlossUnit.swift; sourceTree = "<group>"; };
-		65C2494C8EFBB85D162995E7 /* TextModeComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextModeComponents.swift; sourceTree = "<group>"; };
 		684389EF361A3BECFDCBBE77 /* Gemma4Processor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4Processor.swift; sourceTree = "<group>"; };
 		68B307B4C257459F6B3DEDD3 /* ImageRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRecognitionService.swift; sourceTree = "<group>"; };
 		68B65E78FC9EED4E6CC39A64 /* AudioCaptureSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCaptureSnapshot.swift; sourceTree = "<group>"; };
@@ -232,6 +232,7 @@
 				59A00F49A5629472B3140FF7 /* EmbeddedGemma4Runtime.swift */,
 				A5AC83E5549F933CD9AA391F /* Gemma4Adapter.swift */,
 				6B36C8BE5CDC49F00D416594 /* Gemma4Loader.swift */,
+				36C490694245F2FB77F06042 /* HFRouterAdapters.swift */,
 				6E4D6A98C0CEEE1C30381853 /* HFRouterClient.swift */,
 				68B307B4C257459F6B3DEDD3 /* ImageRecognitionService.swift */,
 				F3F21FC72422FA9933EC8CF6 /* LLMEngine.swift */,
@@ -250,7 +251,6 @@
 				19C66F7BFEC57A0C997EABC0 /* HomeView.swift */,
 				5B4F52C28A321148FC8E9D1B /* PhotoModeComponents.swift */,
 				1E97AABCFBB5331DA5EE6C77 /* PhotoRecognitionCategory.swift */,
-				65C2494C8EFBB85D162995E7 /* TextModeComponents.swift */,
 				80EEC614D8D42A98694B64BE /* TextPlaceholderView.swift */,
 				B2AE4CD75B98E554492BBB54 /* TextTranslationViewModel.swift */,
 			);
@@ -535,6 +535,7 @@
 				5CD0100CC3DC3D2DACC500D1 /* Gemma4TextModel.swift in Sources */,
 				FB1ED67A0CDAD489A2E4D996 /* Gemma4VisionModel.swift in Sources */,
 				879CC6062CEB81271CD901A8 /* GlossUnit.swift in Sources */,
+				2DE65906F1CA5F5E974C698F /* HFRouterAdapters.swift in Sources */,
 				DCDB7E0855B1B5A1832035BC /* HFRouterClient.swift in Sources */,
 				D5010D4759EF30D7963590D4 /* HearmeTypography.swift in Sources */,
 				B4BE5D79344E80985CDD916B /* HomeView.swift in Sources */,
@@ -566,7 +567,6 @@
 				C3163737CDCD0636040910A2 /* ResumableAssetDownloader.swift in Sources */,
 				B6C8506AB81CB3BDAFC10FB0 /* RuntimeBudgets.swift in Sources */,
 				E77F8EA8471AB7A602BF135C /* RuntimePolicy.swift in Sources */,
-				4CA4DDCC9BF8CB8CA99A8DBB /* TextModeComponents.swift in Sources */,
 				F853FBAD949493CB872A5782 /* TextPlaceholderView.swift in Sources */,
 				05D912EF5130E580DB89CE9E /* TextTranslationViewModel.swift in Sources */,
 			);

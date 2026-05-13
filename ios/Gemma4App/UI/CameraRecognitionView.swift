@@ -4,12 +4,13 @@ import UIKit
 
 struct CameraRecognitionView: View {
     @ObservedObject var viewModel: AppViewModel
+    var showsBottomBar: Bool = true
+    var onSwitchToType: () -> Void = { }
     @State private var showingCamera = false
     @State private var showingPhotoLibrary = false
-    @State private var navigateToTypeMode = false
     @State private var isModeSheetPresented = false
     @State private var isDownloadPromptPresented = false
-    @State private var selectedPlaybackSpeed = "1.5x"
+    @State private var selectedPlaybackSpeed = "1x"
     @State private var selectedSignID: String?
     @State private var activeCategoryIndex = 0
     @State private var player = AVPlayer()
@@ -20,87 +21,77 @@ struct CameraRecognitionView: View {
     @State private var sparkleLift: CGFloat = 18
 
     var body: some View {
-        GeometryReader { geometry in
-            ZStack(alignment: .bottom) {
-                PhotoModePalette.background
-                    .ignoresSafeArea()
+        ZStack(alignment: .bottom) {
+            PhotoModePalette.background
+                .ignoresSafeArea()
 
-                VStack(spacing: 0) {
-                    if hasTranslationUI {
-                        resultLayout(in: geometry)
-                    } else {
-                        setupLayout
-                    }
+            VStack(spacing: 0) {
+                contentLayout
 
+                if showsBottomBar {
                     PhotoModeBottomTabBar(
                         isTypeActive: false,
                         isPhotoActive: true,
-                        onTypeTap: { navigateToTypeMode = true },
+                        onTypeTap: onSwitchToType,
                         onPhotoTap: { }
                     )
                 }
+            }
 
-                if isModeSheetPresented {
-                    overlay
-                    PhotoModeSheet(
-                        selectedMode: viewModel.selectedTranslationMode,
-                        offlineSubtitle: offlineModeSubtitle,
-                        onBetterSignsTap: {
-                            celebrateModeSelection(.betterSigns) {
-                                viewModel.selectBetterSignsMode()
-                            }
-                        },
-                        onOfflineTap: handleOfflineModeTap,
-                        modelSettingsCard: AnyView(modelSettingsCard)
-                    )
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
+            if isModeSheetPresented {
+                overlay
+                PhotoModeSheet(
+                    selectedMode: viewModel.selectedTranslationMode,
+                    offlineSubtitle: offlineModeSubtitle,
+                    onBetterSignsTap: {
+                        celebrateModeSelection(.betterSigns) {
+                            viewModel.selectBetterSignsMode()
+                        }
+                    },
+                    onOfflineTap: handleOfflineModeTap,
+                    modelSettingsCard: AnyView(modelSettingsCard)
+                )
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
 
-                if isDownloadPromptPresented {
-                    overlay
-                    PhotoOfflineDownloadPrompt(
-                        isDownloading: viewModel.isDownloadingModel,
-                        downloadStageEmoji: downloadStageEmoji,
-                        downloadPromptBody: downloadPromptBody,
-                        downloadFraction: downloadFraction,
-                        downloadStageText: downloadStageText,
-                        downloadStatusText: downloadStatusText,
-                        onCancel: {
-                            if !viewModel.isDownloadingModel {
-                                isDownloadPromptPresented = false
-                            }
-                        },
-                        onDownload: {
-                            Task {
-                                await viewModel.downloadModel()
-                                if viewModel.enableOfflineModeIfAvailable() {
-                                    celebrateModeSelection(.offline) { }
-                                }
+            if isDownloadPromptPresented {
+                overlay
+                PhotoOfflineDownloadPrompt(
+                    isDownloading: viewModel.isDownloadingModel,
+                    downloadStageEmoji: downloadStageEmoji,
+                    downloadPromptBody: downloadPromptBody,
+                    downloadFraction: downloadFraction,
+                    downloadStageText: downloadStageText,
+                    downloadStatusText: downloadStatusText,
+                    onCancel: {
+                        if !viewModel.isDownloadingModel {
+                            isDownloadPromptPresented = false
+                        }
+                    },
+                    onDownload: {
+                        Task {
+                            await viewModel.downloadModel()
+                            if viewModel.enableOfflineModeIfAvailable() {
+                                celebrateModeSelection(.offline) { }
                             }
                         }
-                    )
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
-
-                if let celebratedMode {
-                    PhotoCelebrationOverlay(
-                        mode: celebratedMode,
-                        opacity: celebrationOpacity,
-                        scale: celebrationScale,
-                        rotation: celebrationRotation,
-                        sparkleLift: sparkleLift
-                    )
-                    .transition(.opacity.combined(with: .scale))
-                    .allowsHitTesting(false)
-                }
-
-                NavigationLink(isActive: $navigateToTypeMode) {
-                    TextPlaceholderView(viewModel: viewModel)
-                } label: {
-                    EmptyView()
-                }
-                .hidden()
+                    }
+                )
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
+
+            if let celebratedMode {
+                PhotoCelebrationOverlay(
+                    mode: celebratedMode,
+                    opacity: celebrationOpacity,
+                    scale: celebrationScale,
+                    rotation: celebrationRotation,
+                    sparkleLift: sparkleLift
+                )
+                .transition(.opacity.combined(with: .scale))
+                .allowsHitTesting(false)
+            }
+
         }
         .toolbar(.hidden, for: .navigationBar)
         .animation(.spring(response: 0.35, dampingFraction: 0.92), value: isModeSheetPresented)
@@ -131,7 +122,7 @@ struct CameraRecognitionView: View {
         }
     }
 
-    private var setupLayout: some View {
+    private var contentLayout: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 24) {
                 PhotoModeHeader {
@@ -174,74 +165,40 @@ struct CameraRecognitionView: View {
                 if viewModel.isLoadingSignVideos {
                     PhotoStatusCard(title: "Looking up sign videos...")
                 }
+
+                if hasTranslationUI {
+                    PhotoPlaybackSection(
+                        player: player,
+                        hasVideo: activeSignVideo?.localVideoURL != nil,
+                        isLoadingSignVideos: viewModel.isLoadingSignVideos,
+                        activeIssue: activePlaybackIssue,
+                        activeLabel: activePlaybackLabel,
+                        activeIsFingerspelled: activePlaybackIsFingerspelled,
+                        playbackProgress: playbackProgress,
+                        playbackSpeeds: playbackSpeeds,
+                        selectedPlaybackSpeed: selectedPlaybackSpeed,
+                        videoHeight: 286,
+                        onPlayTap: playSelectedVideo,
+                        onSpeedTap: { selectedPlaybackSpeed = $0 }
+                    )
+
+                    PhotoTranslationCard(
+                        originalText: originalText,
+                        glossText: glossText,
+                        glossWords: glossWords,
+                        chipBackground: chipBackground,
+                        chipBorder: chipBorder,
+                        chipLineWidth: chipLineWidth,
+                        chipDash: chipDash,
+                        sourcePageURL: activeSignVideo?.pageURL,
+                        onWordTap: selectSign
+                    )
+                }
             }
             .padding(.horizontal, 22)
             .padding(.top, 26)
             .padding(.bottom, 140)
         }
-    }
-
-    private func resultLayout(in geometry: GeometryProxy) -> some View {
-        let hasTabs = viewModel.photoCategories.count > 1
-        let videoHeight = min(max(geometry.size.height * 0.245, 228), 286)
-        let reservedChrome = geometry.safeAreaInsets.top + geometry.safeAreaInsets.bottom + 198 + (hasTabs ? 48 : 0)
-        let cardHeight = min(max(geometry.size.height - videoHeight - reservedChrome, 318), 410)
-
-        return VStack(alignment: .leading, spacing: 12) {
-            if hasTabs {
-                PhotoCategoryTabs(
-                    categories: viewModel.photoCategories,
-                    activeIndex: activeCategoryIndex,
-                    onTap: { index in
-                        activeCategoryIndex = index
-                    }
-                )
-            }
-
-            PhotoPlaybackSection(
-                player: player,
-                hasVideo: activeSignVideo?.localVideoURL != nil,
-                isLoadingSignVideos: viewModel.isLoadingSignVideos,
-                activeIssue: activePlaybackIssue,
-                activeLabel: activePlaybackLabel,
-                activeIsFingerspelled: activePlaybackIsFingerspelled,
-                playbackProgress: playbackProgress,
-                playbackSpeeds: playbackSpeeds,
-                selectedPlaybackSpeed: selectedPlaybackSpeed,
-                videoHeight: videoHeight,
-                onPlayTap: playSelectedVideo,
-                onSpeedTap: { selectedPlaybackSpeed = $0 }
-            )
-
-            PhotoTranslationCard(
-                originalText: originalText,
-                glossText: glossText,
-                glossWords: glossWords,
-                chipBackground: chipBackground,
-                chipBorder: chipBorder,
-                chipLineWidth: chipLineWidth,
-                chipDash: chipDash,
-                cardHeight: cardHeight,
-                sourcePageURL: activeSignVideo?.pageURL,
-                onWordTap: selectSign
-            )
-
-            if viewModel.isLoading {
-                PhotoStatusCard(title: "Analyzing photo...")
-            }
-
-            if let errorMessage = viewModel.errorMessage {
-                PhotoMessageCard(text: errorMessage, tint: .red)
-            }
-
-            if viewModel.isLoadingSignVideos {
-                PhotoStatusCard(title: "Looking up sign videos...")
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.horizontal, 22)
-        .padding(.top, 8)
-        .padding(.bottom, 8)
     }
 
     private var overlay: some View {
@@ -533,8 +490,16 @@ struct CameraRecognitionView: View {
         }
 
         player.defaultRate = playbackRate
-        player.playImmediately(atRate: playbackRate)
-        reinforcePlaybackRate()
+
+        if playbackHasReachedEnd {
+            player.seek(to: .zero) { _ in
+                player.playImmediately(atRate: playbackRate)
+                reinforcePlaybackRate()
+            }
+        } else {
+            player.playImmediately(atRate: playbackRate)
+            reinforcePlaybackRate()
+        }
     }
 
     private func updatePlayerRateIfNeeded() {
@@ -560,6 +525,18 @@ struct CameraRecognitionView: View {
                 player.rate = targetRate
             }
         }
+    }
+
+    private var playbackHasReachedEnd: Bool {
+        guard let item = player.currentItem else { return false }
+        let duration = item.duration.seconds
+        let current = item.currentTime().seconds
+
+        guard duration.isFinite, current.isFinite, duration > 0 else {
+            return false
+        }
+
+        return current >= duration - 0.05
     }
 
     private var playbackRate: Float {
