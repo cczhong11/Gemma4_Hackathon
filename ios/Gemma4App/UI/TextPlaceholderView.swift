@@ -150,6 +150,12 @@ struct TextPlaceholderView: View {
         .animation(.spring(response: 0.35, dampingFraction: 0.92), value: isModeSheetPresented)
         .animation(.spring(response: 0.35, dampingFraction: 0.92), value: isDownloadPromptPresented)
         .animation(.spring(response: 0.35, dampingFraction: 0.9), value: celebratedMode)
+        .onAppear {
+            vm.setTranslationMode(viewModel.selectedTranslationMode)
+        }
+        .onChange(of: viewModel.selectedTranslationMode) { newMode in
+            vm.setTranslationMode(newMode)
+        }
         .alert("Delete offline model?", isPresented: $showDeleteModelAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive) {

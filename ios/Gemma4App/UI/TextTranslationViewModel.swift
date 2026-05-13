@@ -13,7 +13,9 @@ final class TextTranslationViewModel: ObservableObject {
     @Published var isPlaying: Bool = false
     @Published var playbackSpeed: Double = 1.0
 
-    private var translationService: ASLTranslationService?
+    private var selectedMode: AppViewModel.TranslationMode = .betterSigns
+    private var remoteTranslationService: ASLTranslationService?
+    private var localTranslationService: ASLTranslationService?
     private let lookupService: ASLVideoLookupService
     private var translateTask: Task<Void, Never>?
 
@@ -21,7 +23,7 @@ final class TextTranslationViewModel: ObservableObject {
         translationService: ASLTranslationService? = nil,
         lookupService: ASLVideoLookupService = ASLVideoLookupService()
     ) {
-        self.translationService = translationService
+        self.remoteTranslationService = translationService
         self.lookupService = lookupService
     }
 
@@ -102,6 +104,10 @@ final class TextTranslationViewModel: ObservableObject {
         playbackSpeed = speed
     }
 
+    func setTranslationMode(_ mode: AppViewModel.TranslationMode) {
+        selectedMode = mode
+    }
+
     private func performTranslate() async {
         let trimmed = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
@@ -118,18 +124,12 @@ final class TextTranslationViewModel: ObservableObject {
         translatedText = trimmed
 
         let service: ASLTranslationService
-        if let translationService {
-            service = translationService
-        } else {
-            do {
-                let created = try ASLTranslationService()
-                translationService = created
-                service = created
-            } catch {
-                errorMessage = error.localizedDescription
-                isTranslating = false
-                return
-            }
+        do {
+            service = try translationService(for: selectedMode)
+        } catch {
+            errorMessage = error.localizedDescription
+            isTranslating = false
+            return
         }
 
         let response: ASLTranslationResponse
@@ -189,6 +189,25 @@ final class TextTranslationViewModel: ObservableObject {
 
         if playQueue.isEmpty {
             errorMessage = "No playable signs for this sentence."
+        }
+    }
+
+    private func translationService(for mode: AppViewModel.TranslationMode) throws -> ASLTranslationService {
+        switch mode {
+        case .betterSigns:
+            if let remoteTranslationService {
+                return remoteTranslationService
+            }
+            let created = try ASLTranslationService()
+            remoteTranslationService = created
+            return created
+        case .offline:
+            if let localTranslationService {
+                return localTranslationService
+            }
+            let created = try ASLTranslationService(localAdapter: Gemma4Loader.load_gemma4_text_to_text())
+            localTranslationService = created
+            return created
         }
     }
 

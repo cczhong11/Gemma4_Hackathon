@@ -41,8 +41,13 @@ enum ASLTranslationError: LocalizedError {
 struct ASLTranslationService {
     private static let tokenKey = "HF_TOKEN"
 
+    private enum Backend {
+        case remote(HFRouterClient)
+        case local(any Gemma4TextToTextAdapter, model: String)
+    }
+
     private let vocab: VocabIndex
-    private let client: HFRouterClient
+    private let backend: Backend
 
     init(session: URLSession? = nil, bundle: Bundle = .main) throws {
         // Prefer runtime environment injection for local/dev security, then fallback to Info.plist.
@@ -59,17 +64,36 @@ struct ASLTranslationService {
             throw ASLTranslationError.vocabUnavailable(e)
         }
 
-        self.client = HFRouterClient(session: session, token: rawToken)
+        self.backend = .remote(HFRouterClient(session: session, token: rawToken))
+    }
+
+    init(
+        localAdapter: any Gemma4TextToTextAdapter,
+        model: String = "gemma-4-e2b-it-4bit",
+        bundle: Bundle = .main
+    ) throws {
+        do {
+            self.vocab = try ASLVocab.load(bundle: bundle)
+        } catch let e as ASLVocabError {
+            throw ASLTranslationError.vocabUnavailable(e)
+        }
+
+        self.backend = .local(localAdapter, model: model)
     }
 
     func translate(text: String) async throws -> ASLTranslationResponse {
-        let messages = ASLGlossPrompt.messages(text: text, vocab: vocab)
-
         let raw: String
-        do {
-            raw = try await client.call(messages: messages)
-        } catch let e as HFRouterError {
-            throw ASLTranslationError.router(e)
+        switch backend {
+        case .remote(let client):
+            let messages = ASLGlossPrompt.messages(text: text, vocab: vocab)
+            do {
+                raw = try await client.call(messages: messages)
+            } catch let e as HFRouterError {
+                throw ASLTranslationError.router(e)
+            }
+        case .local(let adapter, _):
+            let prompt = ASLGlossPrompt.plainPrompt(text: text, vocab: vocab)
+            raw = try await adapter.generate(prompt: prompt)
         }
 
         let processed: ProcessedGloss
@@ -84,7 +108,16 @@ struct ASLTranslationService {
             tokens: processed.tokens,
             unknownTokens: processed.unknownTokens,
             isQuestion: processed.isQuestion,
-            model: HFRouterClient.model
+            model: modelName
         )
+    }
+
+    private var modelName: String {
+        switch backend {
+        case .remote:
+            return HFRouterClient.model
+        case .local(_, let model):
+            return model
+        }
     }
 }
