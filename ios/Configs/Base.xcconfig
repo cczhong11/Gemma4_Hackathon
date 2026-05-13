@@ -1,6 +1,6 @@
 // Shared build settings for Gemma4App
-// LocalSecrets.xcconfig is optional and ignored by git.
-#include? "LocalSecrets.xcconfig"
 
-// Default empty token if not overridden locally.
+// Default empty token; LocalSecrets.xcconfig (gitignored) overrides this.
 HF_TOKEN =
+
+#include? "LocalSecrets.xcconfig"
