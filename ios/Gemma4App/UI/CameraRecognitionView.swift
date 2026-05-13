@@ -19,6 +19,7 @@ struct CameraRecognitionView: View {
     @State private var celebrationScale: CGFloat = 0.5
     @State private var celebrationRotation = -18.0
     @State private var sparkleLift: CGFloat = 18
+    @State private var showDeleteModelAlert = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -119,6 +120,14 @@ struct CameraRecognitionView: View {
             CameraImagePicker(sourceType: .photoLibrary) { image in
                 viewModel.setCapturedImage(image)
             }
+        }
+        .alert("Delete offline model?", isPresented: $showDeleteModelAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                viewModel.deleteDownloadedModel()
+            }
+        } message: {
+            Text("This removes the downloaded offline model from this device.")
         }
     }
 
@@ -310,6 +319,26 @@ struct CameraRecognitionView: View {
                 .buttonStyle(.plain)
                 .disabled(!modelActionEnabled)
             }
+
+            if canDeleteDownloadedModel {
+                Button {
+                    showDeleteModelAlert = true
+                } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: "trash")
+                            .font(.system(size: 16, weight: .semibold))
+                        Text("Delete downloaded model")
+                            .font(HearmeTypography.gloss(17))
+                    }
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 18)
+                    .background(Color.red.opacity(0.88))
+                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .disabled(viewModel.isDownloadingModel || isModelDownloading)
+            }
         }
         .padding(.horizontal, 22)
         .padding(.vertical, 22)
@@ -363,6 +392,11 @@ struct CameraRecognitionView: View {
         !viewModel.modelStatus.isAvailable && !(viewModel.isDownloadingModel || isModelDownloading)
     }
 
+    private var canDeleteDownloadedModel: Bool {
+        FileManager.default.fileExists(atPath: viewModel.modelStatus.downloadedPath)
+            || FileManager.default.fileExists(atPath: viewModel.modelStatus.partialPath)
+    }
+
     private var hasTranslationUI: Bool {
         activeCategory != nil || !viewModel.recognitionResult.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !viewModel.suggestedKeywords.isEmpty
     }
@@ -409,7 +443,10 @@ struct CameraRecognitionView: View {
     }
 
     private var glossText: String {
-        glossWords.joined(separator: " ").uppercased()
+        if let activeCategory, !activeCategory.glossText.isEmpty {
+            return activeCategory.glossText
+        }
+        return glossWords.joined(separator: " ").uppercased()
     }
 
     private var signVideoSelectionKey: String {

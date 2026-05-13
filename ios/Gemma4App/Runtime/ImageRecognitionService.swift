@@ -11,12 +11,14 @@ struct ImageRecognitionAnalysis {
 struct ImageRecognitionCategory {
     let label: String
     let text: String
+    let gloss: String
     let keywords: [String]
 }
 
 struct ImageRecognitionService {
     private let imageAdapterProvider: () -> any Gemma4ImageToTextAdapter
     private let textAdapterProvider: () -> any Gemma4TextToTextAdapter
+    private let bundle: Bundle
 
     init(
         imageAdapterProvider: @escaping () -> any Gemma4ImageToTextAdapter = {
@@ -24,10 +26,12 @@ struct ImageRecognitionService {
         },
         textAdapterProvider: @escaping () -> any Gemma4TextToTextAdapter = {
             Gemma4Loader.load_gemma4_text_to_text()
-        }
+        },
+        bundle: Bundle = .main
     ) {
         self.imageAdapterProvider = imageAdapterProvider
         self.textAdapterProvider = textAdapterProvider
+        self.bundle = bundle
     }
 
     func analyze(image: UIImage) async throws -> ImageRecognitionAnalysis {
@@ -76,6 +80,7 @@ struct ImageRecognitionService {
                 ImageRecognitionCategory(
                     label: "Result",
                     text: parsed.description.isEmpty ? response.text.trimmingCharacters(in: .whitespacesAndNewlines) : parsed.description,
+                    gloss: fallbackKeywords.joined(separator: " ").uppercased(),
                     keywords: fallbackKeywords
                 )
             ]
@@ -151,6 +156,7 @@ struct ImageRecognitionService {
                 ImageRecognitionCategory(
                     label: "Result",
                     text: description.isEmpty ? trimmed : description,
+                    gloss: keywords.joined(separator: " ").uppercased(),
                     keywords: keywords
                 )
             ]
@@ -163,29 +169,45 @@ struct ImageRecognitionService {
         for (index, block) in blocks.enumerated() {
             let normalized = block.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !normalized.isEmpty else { continue }
-            let keywords = try await extractKeywordsFallback(from: normalized)
+            let translated = try await extractGlossAndTokens(from: normalized)
             categories.append(
                 ImageRecognitionCategory(
                     label: categoryLabel(for: normalized, index: index),
                     text: normalized,
-                    keywords: keywords
+                    gloss: translated.gloss,
+                    keywords: translated.tokens
                 )
             )
         }
 
         if categories.isEmpty, let first = blocks.first {
             let normalized = first.trimmingCharacters(in: .whitespacesAndNewlines)
-            let keywords = try await extractKeywordsFallback(from: normalized)
+            let translated = try await extractGlossAndTokens(from: normalized)
             categories.append(
                 ImageRecognitionCategory(
                     label: "Text 1",
                     text: normalized,
-                    keywords: keywords
+                    gloss: translated.gloss,
+                    keywords: translated.tokens
                 )
             )
         }
 
         return categories
+    }
+
+    private func extractGlossAndTokens(from text: String) async throws -> (gloss: String, tokens: [String]) {
+        do {
+            let vocab = try ASLVocab.load(bundle: bundle)
+            let prompt = ASLGlossPrompt.plainPrompt(text: text, vocab: vocab)
+            let adapter = textAdapterProvider()
+            let response = try await adapter.generate(prompt: prompt)
+            let processed = try ASLGlossPostprocess.process(rawModelOutput: response, vocab: vocab)
+            return (processed.gloss, processed.tokens)
+        } catch {
+            let keywords = try await extractKeywordsFallback(from: text)
+            return (keywords.joined(separator: " ").uppercased(), keywords)
+        }
     }
 
     private func categoryLabel(for text: String, index: Int) -> String {

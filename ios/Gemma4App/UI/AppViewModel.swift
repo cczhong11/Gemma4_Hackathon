@@ -123,6 +123,7 @@ final class AppViewModel: ObservableObject {
                         PhotoRecognitionCategory(
                             label: category.label,
                             text: category.text,
+                            gloss: category.gloss,
                             keywords: category.keywords,
                             signVideos: videos
                         )
@@ -193,6 +194,46 @@ final class AppViewModel: ObservableObject {
         refreshModelStatus()
         isDownloadingModel = false
         stopModelStatusPolling()
+    }
+
+    func deleteDownloadedModel() {
+        guard let model = MLXLocalLLMService.availableModels.first(where: { $0.id == modelStatus.modelID }) else {
+            errorMessage = "Could not find the selected model."
+            return
+        }
+
+        let fileManager = FileManager.default
+        let downloadedURL = ModelPaths.downloaded(for: model)
+        let partialURL = ModelPaths.partial(for: model)
+        var deletedAnything = false
+
+        do {
+            if fileManager.fileExists(atPath: downloadedURL.path) {
+                try fileManager.removeItem(at: downloadedURL)
+                deletedAnything = true
+            }
+
+            if fileManager.fileExists(atPath: partialURL.path) {
+                try fileManager.removeItem(at: partialURL)
+                deletedAnything = true
+            }
+        } catch {
+            errorMessage = "Failed to delete model: \(error.localizedDescription)"
+            refreshModelStatus()
+            return
+        }
+
+        if selectedTranslationMode == .offline {
+            selectedTranslationMode = .betterSigns
+        }
+
+        if !deletedAnything {
+            errorMessage = "No downloaded model was found to delete."
+        } else {
+            errorMessage = nil
+        }
+
+        refreshModelStatus()
     }
 
     func ensureModelStatusPolling() {

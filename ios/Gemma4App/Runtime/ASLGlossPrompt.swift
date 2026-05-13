@@ -22,6 +22,15 @@ enum ASLGlossPrompt {
         ]
     }
 
+    static func plainPrompt(text: String, vocab: VocabIndex) -> String {
+        """
+        \(systemPrompt(vocab: vocab))
+
+        English: "\(text)"
+        ASL gloss:
+        """
+    }
+
     private static let rules = """
         Rules:
         - ASL drops articles (a, an, the) and "to be" verbs (am, is, are, was, were)

@@ -46,6 +46,7 @@ struct TextPlaceholderView: View {
     @State private var celebrationScale: CGFloat = 0.5
     @State private var celebrationRotation = -18.0
     @State private var sparkleLift: CGFloat = 18
+    @State private var showDeleteModelAlert = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -140,6 +141,14 @@ struct TextPlaceholderView: View {
         .animation(.spring(response: 0.35, dampingFraction: 0.92), value: isModeSheetPresented)
         .animation(.spring(response: 0.35, dampingFraction: 0.92), value: isDownloadPromptPresented)
         .animation(.spring(response: 0.35, dampingFraction: 0.9), value: celebratedMode)
+        .alert("Delete offline model?", isPresented: $showDeleteModelAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                viewModel.deleteDownloadedModel()
+            }
+        } message: {
+            Text("This removes the downloaded offline model from this device.")
+        }
     }
 
     private var header: some View {
@@ -711,6 +720,26 @@ struct TextPlaceholderView: View {
                 .buttonStyle(.plain)
                 .disabled(!modelActionEnabled)
             }
+
+            if canDeleteDownloadedModel {
+                Button {
+                    showDeleteModelAlert = true
+                } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: "trash")
+                            .font(.system(size: 16, weight: .semibold))
+                        Text("Delete downloaded model")
+                            .font(HearmeTypography.gloss(17))
+                    }
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 18)
+                    .background(Color.red.opacity(0.88))
+                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .disabled(viewModel.isDownloadingModel || isModelDownloading)
+            }
         }
         .padding(.horizontal, 22)
         .padding(.vertical, 22)
@@ -762,6 +791,11 @@ struct TextPlaceholderView: View {
 
     private var modelActionEnabled: Bool {
         !viewModel.modelStatus.isAvailable && !(viewModel.isDownloadingModel || isModelDownloading)
+    }
+
+    private var canDeleteDownloadedModel: Bool {
+        FileManager.default.fileExists(atPath: viewModel.modelStatus.downloadedPath)
+            || FileManager.default.fileExists(atPath: viewModel.modelStatus.partialPath)
     }
 
     private var downloadStageText: String {
