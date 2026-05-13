@@ -232,6 +232,13 @@ final class AppViewModel: ObservableObject {
         stopModelStatusPolling()
     }
 
+    func cancelModelDownload() {
+        runtime.cancelSelectedModelDownload()
+        refreshModelStatus()
+        isDownloadingModel = false
+        stopModelStatusPolling()
+    }
+
     func deleteDownloadedModel() {
         guard let model = MLXLocalLLMService.availableModels.first(where: { $0.id == modelStatus.modelID }) else {
             errorMessage = "Could not find the selected model."

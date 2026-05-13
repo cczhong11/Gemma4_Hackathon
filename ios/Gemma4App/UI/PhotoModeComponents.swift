@@ -462,6 +462,8 @@ struct PhotoModeBottomTabBar: View {
     let isPhotoActive: Bool
     let onTypeTap: () -> Void
     let onPhotoTap: () -> Void
+    var showsTopDivider: Bool = true
+    var respectsBottomSafeArea: Bool = false
 
     var body: some View {
         HStack {
@@ -477,11 +479,13 @@ struct PhotoModeBottomTabBar: View {
             RoundedRectangle(cornerRadius: 0)
                 .fill(PhotoModePalette.background)
                 .overlay(alignment: .top) {
-                    Divider()
-                        .overlay(PhotoModePalette.border)
+                    if showsTopDivider {
+                        Divider()
+                            .overlay(PhotoModePalette.border)
+                    }
                 }
-                .ignoresSafeArea(edges: .bottom)
         )
+        .modifier(BottomSafeAreaModifier(enabled: !respectsBottomSafeArea))
     }
 
     private func tabItem(icon: String, title: String, isActive: Bool, action: @escaping () -> Void) -> some View {
@@ -499,12 +503,27 @@ struct PhotoModeBottomTabBar: View {
     }
 }
 
+private struct BottomSafeAreaModifier: ViewModifier {
+    let enabled: Bool
+
+    func body(content: Content) -> some View {
+        if enabled {
+            content.ignoresSafeArea(edges: .bottom)
+        } else {
+            content
+        }
+    }
+}
+
 struct PhotoModeSheet: View {
     let selectedMode: AppViewModel.TranslationMode
     let offlineSubtitle: String
     let onBetterSignsTap: () -> Void
     let onOfflineTap: () -> Void
     let modelSettingsCard: AnyView
+    let bottomMenu: AnyView?
+    let onDismiss: () -> Void
+    @State private var dragOffset: CGFloat = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -514,6 +533,21 @@ struct PhotoModeSheet: View {
                 .frame(maxWidth: .infinity)
                 .padding(.top, 10)
                 .padding(.bottom, 22)
+                .contentShape(Rectangle())
+                .onTapGesture(perform: onDismiss)
+                .gesture(
+                    DragGesture(minimumDistance: 8)
+                        .onChanged { value in
+                            dragOffset = max(value.translation.height, 0)
+                        }
+                        .onEnded { value in
+                            let shouldDismiss = value.translation.height > 60 || value.predictedEndTranslation.height > 120
+                            dragOffset = 0
+                            if shouldDismiss {
+                                onDismiss()
+                            }
+                        }
+                )
 
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 22) {
@@ -528,6 +562,11 @@ struct PhotoModeSheet: View {
                     option(icon: "🌟", title: "Better Signs", subtitle: "Enjoy high quality ASL with internet", badge: "RECOMMENDED", highlighted: selectedMode == .betterSigns, action: onBetterSignsTap)
                     option(icon: "✈️", title: "Offline Mode", subtitle: offlineSubtitle, badge: nil, highlighted: selectedMode == .offline, action: onOfflineTap)
                     modelSettingsCard
+
+                    if let bottomMenu {
+                        bottomMenu
+                            .padding(.top, 4)
+                    }
                 }
                 .padding(.bottom, 34)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -539,6 +578,7 @@ struct PhotoModeSheet: View {
             RoundedRectangle(cornerRadius: 34, style: .continuous)
                 .fill(PhotoModePalette.background)
         )
+        .offset(y: dragOffset)
         .ignoresSafeArea(edges: .bottom)
     }
 
@@ -551,31 +591,37 @@ struct PhotoModeSheet: View {
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
-            HStack(alignment: .center, spacing: 16) {
+            HStack(alignment: .top, spacing: 16) {
                 Text(icon)
                     .font(.system(size: 38))
+                    .padding(.top, 2)
 
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(title)
-                        .font(HearmeTypography.brand(24))
-                        .foregroundStyle(PhotoModePalette.ink)
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(alignment: .center, spacing: 10) {
+                        Text(title)
+                            .font(HearmeTypography.brand(24))
+                            .foregroundStyle(PhotoModePalette.ink)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.92)
+
+                        if let badge {
+                            Text(badge)
+                                .font(HearmeTypography.label(9))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 5)
+                                .background(PhotoModePalette.green)
+                                .clipShape(Capsule())
+                        }
+                    }
 
                     Text(subtitle)
-                        .font(HearmeTypography.bodyStrong(16))
+                        .font(HearmeTypography.bodyStrong(15))
                         .foregroundStyle(PhotoModePalette.muted)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.92)
                 }
-
-                Spacer(minLength: 12)
-
-                if let badge {
-                    Text(badge)
-                        .font(HearmeTypography.label(12))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
-                        .background(PhotoModePalette.green)
-                        .clipShape(Capsule())
-                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(.horizontal, 22)
             .padding(.vertical, 26)
@@ -640,7 +686,6 @@ struct PhotoOfflineDownloadPrompt: View {
                             .stroke(PhotoModePalette.border, lineWidth: 2)
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                    .disabled(isDownloading)
 
                 Button(action: onDownload) {
                     Text(isDownloading ? "Downloading..." : "👉 Yes, download!")

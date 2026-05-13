@@ -17,7 +17,7 @@ struct Gemma4ModelStatus: Sendable {
 final class EmbeddedGemma4Runtime {
     struct Configuration {
         var modelID = "gemma-4-e2b-it-4bit"
-        var systemPrompt = "You are a helpful multimodal assistant. Describe the image contents accurately and answer in Chinese."
+        var systemPrompt = "You are a helpful multimodal assistant. Describe the image contents accurately and answer in English."
         var maxImageDimension: CGFloat = 1280
     }
 
@@ -123,6 +123,10 @@ final class EmbeddedGemma4Runtime {
 
     func downloadSelectedModel() async {
         await service.downloadModel(id: configuration.modelID)
+    }
+
+    func cancelSelectedModelDownload() {
+        service.cancelModelDownload(id: configuration.modelID)
     }
 
     func generateImageToText(request: Gemma4ImageToTextRequest) async throws -> Gemma4ImageToTextResponse {

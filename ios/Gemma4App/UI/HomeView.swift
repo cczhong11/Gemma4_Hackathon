@@ -15,30 +15,21 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottom) {
-                Group {
-                    switch selectedTab {
-                    case .type:
-                        TextPlaceholderView(
-                            viewModel: viewModel,
-                            showsBottomBar: false,
-                            onSwitchToPhoto: { selectedTab = .photo }
-                        )
-                    case .photo:
-                        CameraRecognitionView(
-                            viewModel: viewModel,
-                            showsBottomBar: false,
-                            onSwitchToType: { selectedTab = .type }
-                        )
-                    }
+            Group {
+                switch selectedTab {
+                case .type:
+                    TextPlaceholderView(
+                        viewModel: viewModel,
+                        showsBottomBar: true,
+                        onSwitchToPhoto: { selectedTab = .photo }
+                    )
+                case .photo:
+                    CameraRecognitionView(
+                        viewModel: viewModel,
+                        showsBottomBar: true,
+                        onSwitchToType: { selectedTab = .type }
+                    )
                 }
-
-                PhotoModeBottomTabBar(
-                    isTypeActive: selectedTab == .type,
-                    isPhotoActive: selectedTab == .photo,
-                    onTypeTap: { selectedTab = .type },
-                    onPhotoTap: { selectedTab = .photo }
-                )
             }
             .task {
                 viewModel.refreshModelStatus()

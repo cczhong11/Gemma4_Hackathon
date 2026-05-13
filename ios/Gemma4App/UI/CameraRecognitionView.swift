@@ -29,7 +29,7 @@ struct CameraRecognitionView: View {
             VStack(spacing: 0) {
                 contentLayout
 
-                if showsBottomBar {
+                if showsBottomBar && !isModeSheetPresented {
                     PhotoModeBottomTabBar(
                         isTypeActive: false,
                         isPhotoActive: true,
@@ -50,7 +50,9 @@ struct CameraRecognitionView: View {
                         }
                     },
                     onOfflineTap: handleOfflineModeTap,
-                    modelSettingsCard: AnyView(modelSettingsCard)
+                    modelSettingsCard: AnyView(modelSettingsCard),
+                    bottomMenu: showsBottomBar ? AnyView(sheetBottomMenu) : nil,
+                    onDismiss: { isModeSheetPresented = false }
                 )
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
@@ -65,9 +67,10 @@ struct CameraRecognitionView: View {
                     downloadStageText: downloadStageText,
                     downloadStatusText: downloadStatusText,
                     onCancel: {
-                        if !viewModel.isDownloadingModel {
-                            isDownloadPromptPresented = false
+                        if viewModel.isDownloadingModel {
+                            viewModel.cancelModelDownload()
                         }
+                        isDownloadPromptPresented = false
                     },
                     onDownload: {
                         Task {
@@ -218,10 +221,8 @@ struct CameraRecognitionView: View {
         Color.black.opacity(0.18)
             .ignoresSafeArea()
             .onTapGesture {
-                if !viewModel.isDownloadingModel {
-                    isModeSheetPresented = false
-                    isDownloadPromptPresented = false
-                }
+                isModeSheetPresented = false
+                isDownloadPromptPresented = false
             }
     }
 
@@ -351,6 +352,21 @@ struct CameraRecognitionView: View {
             RoundedRectangle(cornerRadius: 26, style: .continuous)
                 .stroke(PhotoModePalette.border, lineWidth: 1.5)
         }
+        .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+    }
+
+    private var sheetBottomMenu: some View {
+        PhotoModeBottomTabBar(
+            isTypeActive: false,
+            isPhotoActive: true,
+            onTypeTap: {
+                isModeSheetPresented = false
+                onSwitchToType()
+            },
+            onPhotoTap: { },
+            showsTopDivider: false,
+            respectsBottomSafeArea: true
+        )
         .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
     }
 

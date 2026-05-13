@@ -84,7 +84,7 @@ struct TextPlaceholderView: View {
                 }
                 .scrollDismissesKeyboard(.immediately)
 
-                if showsBottomBar {
+                if showsBottomBar && !isModeSheetPresented {
                     bottomTabBar
                 }
             }
@@ -100,7 +100,9 @@ struct TextPlaceholderView: View {
                         }
                     },
                     onOfflineTap: handleOfflineModeTap,
-                    modelSettingsCard: AnyView(modelSettingsCard)
+                    modelSettingsCard: AnyView(modelSettingsCard),
+                    bottomMenu: showsBottomBar ? AnyView(sheetBottomMenu) : nil,
+                    onDismiss: { isModeSheetPresented = false }
                 )
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
@@ -115,9 +117,10 @@ struct TextPlaceholderView: View {
                     downloadStageText: downloadStageText,
                     downloadStatusText: downloadStatusText,
                     onCancel: {
-                        if !viewModel.isDownloadingModel {
-                            isDownloadPromptPresented = false
+                        if viewModel.isDownloadingModel {
+                            viewModel.cancelModelDownload()
                         }
+                        isDownloadPromptPresented = false
                     },
                     onDownload: {
                         Task {
@@ -581,55 +584,20 @@ struct TextPlaceholderView: View {
     }
 
     private var bottomTabBar: some View {
-        HStack {
-            Spacer()
-            tabItem(icon: "text.bubble", title: "Type", isActive: true) { }
-            Spacer()
-            tabItem(icon: "camera", title: "Photo", isActive: false) {
-                onSwitchToPhoto()
-            }
-            Spacer()
-        }
-        .padding(.top, 18)
-        .padding(.bottom, 22)
-        .background(
-            RoundedRectangle(cornerRadius: 0)
-                .fill(TextModePalette.background)
-                .overlay(alignment: .top) {
-                    Divider()
-                        .overlay(TextModePalette.border)
-                }
-                .ignoresSafeArea(edges: .bottom)
+        PhotoModeBottomTabBar(
+            isTypeActive: true,
+            isPhotoActive: false,
+            onTypeTap: { },
+            onPhotoTap: onSwitchToPhoto
         )
-    }
-
-    private func tabItem(
-        icon: String,
-        title: String,
-        isActive: Bool,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            VStack(spacing: 10) {
-                Image(systemName: icon)
-                    .font(.system(size: 28, weight: isActive ? .semibold : .regular))
-                Text(title)
-                    .font(.system(size: 16, weight: isActive ? .bold : .semibold, design: .rounded))
-            }
-            .foregroundStyle(isActive ? TextModePalette.ink : TextModePalette.muted)
-            .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.plain)
     }
 
     private var overlay: some View {
         Color.black.opacity(0.18)
             .ignoresSafeArea()
             .onTapGesture {
-                if !viewModel.isDownloadingModel {
-                    isModeSheetPresented = false
-                    isDownloadPromptPresented = false
-                }
+                isModeSheetPresented = false
+                isDownloadPromptPresented = false
             }
     }
 
@@ -759,6 +727,21 @@ struct TextPlaceholderView: View {
             RoundedRectangle(cornerRadius: 26, style: .continuous)
                 .stroke(PhotoModePalette.border, lineWidth: 1.5)
         }
+        .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+    }
+
+    private var sheetBottomMenu: some View {
+        PhotoModeBottomTabBar(
+            isTypeActive: true,
+            isPhotoActive: false,
+            onTypeTap: { isModeSheetPresented = false },
+            onPhotoTap: {
+                isModeSheetPresented = false
+                onSwitchToPhoto()
+            },
+            showsTopDivider: false,
+            respectsBottomSafeArea: true
+        )
         .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
     }
 
