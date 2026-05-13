@@ -12,6 +12,7 @@
 		05D912EF5130E580DB89CE9E /* TextTranslationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AE4CD75B98E554492BBB54 /* TextTranslationViewModel.swift */; };
 		0BC60C5C188FB84782BEC159 /* Gemma4LanguageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58178C7FF7DC8E86A3F62F76 /* Gemma4LanguageModel.swift */; };
 		11883037F7B6305380B3E630 /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = C7137DC45B03BDAA50BB8769 /* MLXLLM */; };
+		11C84B0C6DFACCD0302A1CD6 /* PhotoModeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4F52C28A321148FC8E9D1B /* PhotoModeComponents.swift */; };
 		19BAA5E73580113AA81DCD72 /* signs.txt in Resources */ = {isa = PBXBuildFile; fileRef = 6EE23CC89C79F80D42B4D638 /* signs.txt */; };
 		1BBD2ADD79B998230C6ED275 /* DownloadObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D788F4B6DB7D538A31E2A829 /* DownloadObserver.swift */; };
 		1C3C77A7C374FC8BF04D7F3D /* MLXNN in Frameworks */ = {isa = PBXBuildFile; productRef = 95C8BB9C8F3FDC6125E736C8 /* MLXNN */; };
@@ -33,6 +34,7 @@
 		43FB98084A263D3BF7A17EB3 /* Gemma4Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5B931F41566325B675D10 /* Gemma4Model.swift */; };
 		45E463EA07AD33E9AC226960 /* MLXTokenizersLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41742CBC4BCC61099D1E691C /* MLXTokenizersLoader.swift */; };
 		477DDEE9A5DDE10DAD64371A /* Gemma4Processor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 684389EF361A3BECFDCBBE77 /* Gemma4Processor.swift */; };
+		4CA4DDCC9BF8CB8CA99A8DBB /* TextModeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C2494C8EFBB85D162995E7 /* TextModeComponents.swift */; };
 		557D890EDE4ACAAA05D8D6D4 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2333578D353F9FDAC5C1CEA6 /* AppViewModel.swift */; };
 		5CD0100CC3DC3D2DACC500D1 /* Gemma4TextModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DD4B7A72E9A8F00F41EF40 /* Gemma4TextModel.swift */; };
 		6327C70DA4839CA815C5B734 /* ModelCatalogProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8918CF08BA25794D8ADB98 /* ModelCatalogProtocol.swift */; };
@@ -42,6 +44,7 @@
 		7A2B813202431FEF344EE3F8 /* LLMEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F21FC72422FA9933EC8CF6 /* LLMEngine.swift */; };
 		7A716DF04D2DEF20C31BC7DC /* Gemma4AudioFeatureExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A88FC46D8220D8ABBA5118 /* Gemma4AudioFeatureExtractor.swift */; };
 		811881A92A351BAB35CA0986 /* ImageRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68B307B4C257459F6B3DEDD3 /* ImageRecognitionService.swift */; };
+		8198B0C38D798E57549D111A /* PhotoRecognitionCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E97AABCFBB5331DA5EE6C77 /* PhotoRecognitionCategory.swift */; };
 		85DF6812E9916B9763AAF685 /* Gemma4Adapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5AC83E5549F933CD9AA391F /* Gemma4Adapter.swift */; };
 		865C7A2C8824A48709099DC7 /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = 354952BBE88BA743BB025362 /* L10n.swift */; };
 		86F570A67D82921DD301085E /* LiveDownloadPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1CBD64B796DC6528313178 /* LiveDownloadPlanner.swift */; };
@@ -70,6 +73,7 @@
 		CCB5FA19549964A55C078884 /* DownloadProgressSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59258A80BDDDE2B3E21D551E /* DownloadProgressSnapshot.swift */; };
 		CF9342F0E29F403DB89B7EF5 /* Gemma4RoPE.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9426E8F1411822AFC476CF6F /* Gemma4RoPE.swift */; };
 		D485BAEB6519E0787731FB9E /* ModelDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C214EA3C55D8F27F87F3CA3 /* ModelDownloader.swift */; };
+		D5010D4759EF30D7963590D4 /* HearmeTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 388624DE1FFA1CF9B9AEDDCE /* HearmeTypography.swift */; };
 		DCDB7E0855B1B5A1832035BC /* HFRouterClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4D6A98C0CEEE1C30381853 /* HFRouterClient.swift */; };
 		E13D8A46144C6B2E0D353289 /* ModelInstallerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB38B74E4E1BAA39ADA2D7A6 /* ModelInstallerProtocol.swift */; };
 		E1A63A79E505696FDE5567E3 /* ModelPaths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE9FBE17B1D38C77ACD574B /* ModelPaths.swift */; };
@@ -92,6 +96,7 @@
 		11A88FC46D8220D8ABBA5118 /* Gemma4AudioFeatureExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4AudioFeatureExtractor.swift; sourceTree = "<group>"; };
 		19C66F7BFEC57A0C997EABC0 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		1CA9A3536933F33ED283A66E /* RuntimePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimePolicy.swift; sourceTree = "<group>"; };
+		1E97AABCFBB5331DA5EE6C77 /* PhotoRecognitionCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoRecognitionCategory.swift; sourceTree = "<group>"; };
 		1F537732F2C6045C4A7EBE43 /* CameraImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraImagePicker.swift; sourceTree = "<group>"; };
 		231E4ADCE31D25A34C5CB872 /* BundledModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundledModel.swift; sourceTree = "<group>"; };
 		2333578D353F9FDAC5C1CEA6 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
@@ -99,6 +104,7 @@
 		331C89A1D4B571DD01DE7546 /* Gemma4App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4App.swift; sourceTree = "<group>"; };
 		354952BBE88BA743BB025362 /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
 		38191D37574D553D5BAC740A /* ModelInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelInstaller.swift; sourceTree = "<group>"; };
+		388624DE1FFA1CF9B9AEDDCE /* HearmeTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HearmeTypography.swift; sourceTree = "<group>"; };
 		3A974F59FBEDFFDDC7868CB8 /* ASLGlossPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASLGlossPrompt.swift; sourceTree = "<group>"; };
 		41742CBC4BCC61099D1E691C /* MLXTokenizersLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLXTokenizersLoader.swift; sourceTree = "<group>"; };
 		46CA515DF034B4F48BA16C35 /* ASLGlossPostprocess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASLGlossPostprocess.swift; sourceTree = "<group>"; };
@@ -108,9 +114,11 @@
 		59258A80BDDDE2B3E21D551E /* DownloadProgressSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadProgressSnapshot.swift; sourceTree = "<group>"; };
 		5926084916E0EE5E83415329 /* PCLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PCLog.swift; sourceTree = "<group>"; };
 		59A00F49A5629472B3140FF7 /* EmbeddedGemma4Runtime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbeddedGemma4Runtime.swift; sourceTree = "<group>"; };
+		5B4F52C28A321148FC8E9D1B /* PhotoModeComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoModeComponents.swift; sourceTree = "<group>"; };
 		5B9D3E0149942345497B98AD /* ASLVocab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASLVocab.swift; sourceTree = "<group>"; };
 		5F8918CF08BA25794D8ADB98 /* ModelCatalogProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelCatalogProtocol.swift; sourceTree = "<group>"; };
 		6073691EAAA4ACC03DD3A282 /* GlossUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlossUnit.swift; sourceTree = "<group>"; };
+		65C2494C8EFBB85D162995E7 /* TextModeComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextModeComponents.swift; sourceTree = "<group>"; };
 		684389EF361A3BECFDCBBE77 /* Gemma4Processor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4Processor.swift; sourceTree = "<group>"; };
 		68B307B4C257459F6B3DEDD3 /* ImageRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRecognitionService.swift; sourceTree = "<group>"; };
 		68B65E78FC9EED4E6CC39A64 /* AudioCaptureSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCaptureSnapshot.swift; sourceTree = "<group>"; };
@@ -238,7 +246,11 @@
 				1F537732F2C6045C4A7EBE43 /* CameraImagePicker.swift */,
 				8E094F51559691C7563DD942 /* CameraRecognitionView.swift */,
 				6073691EAAA4ACC03DD3A282 /* GlossUnit.swift */,
+				388624DE1FFA1CF9B9AEDDCE /* HearmeTypography.swift */,
 				19C66F7BFEC57A0C997EABC0 /* HomeView.swift */,
+				5B4F52C28A321148FC8E9D1B /* PhotoModeComponents.swift */,
+				1E97AABCFBB5331DA5EE6C77 /* PhotoRecognitionCategory.swift */,
+				65C2494C8EFBB85D162995E7 /* TextModeComponents.swift */,
 				80EEC614D8D42A98694B64BE /* TextPlaceholderView.swift */,
 				B2AE4CD75B98E554492BBB54 /* TextTranslationViewModel.swift */,
 			);
@@ -524,6 +536,7 @@
 				FB1ED67A0CDAD489A2E4D996 /* Gemma4VisionModel.swift in Sources */,
 				879CC6062CEB81271CD901A8 /* GlossUnit.swift in Sources */,
 				DCDB7E0855B1B5A1832035BC /* HFRouterClient.swift in Sources */,
+				D5010D4759EF30D7963590D4 /* HearmeTypography.swift in Sources */,
 				B4BE5D79344E80985CDD916B /* HomeView.swift in Sources */,
 				811881A92A351BAB35CA0986 /* ImageRecognitionService.swift in Sources */,
 				3C524F7B14AC1AD00283D5C1 /* InferenceService.swift in Sources */,
@@ -548,9 +561,12 @@
 				E13D8A46144C6B2E0D353289 /* ModelInstallerProtocol.swift in Sources */,
 				E1A63A79E505696FDE5567E3 /* ModelPaths.swift in Sources */,
 				2D770BB39A045D250FA09088 /* PCLog.swift in Sources */,
+				11C84B0C6DFACCD0302A1CD6 /* PhotoModeComponents.swift in Sources */,
+				8198B0C38D798E57549D111A /* PhotoRecognitionCategory.swift in Sources */,
 				C3163737CDCD0636040910A2 /* ResumableAssetDownloader.swift in Sources */,
 				B6C8506AB81CB3BDAFC10FB0 /* RuntimeBudgets.swift in Sources */,
 				E77F8EA8471AB7A602BF135C /* RuntimePolicy.swift in Sources */,
+				4CA4DDCC9BF8CB8CA99A8DBB /* TextModeComponents.swift in Sources */,
 				F853FBAD949493CB872A5782 /* TextPlaceholderView.swift in Sources */,
 				05D912EF5130E580DB89CE9E /* TextTranslationViewModel.swift in Sources */,
 			);

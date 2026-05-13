@@ -68,6 +68,7 @@ final class AppViewModel: ObservableObject {
     @Published var recognitionResult = ""
     @Published var suggestedKeywords: [String] = []
     @Published var signVideos: [ASLSignVideo] = []
+    @Published var photoCategories: [PhotoRecognitionCategory] = []
     @Published var errorMessage: String?
     @Published var isLoading = false
     @Published var isLoadingSignVideos = false
@@ -89,6 +90,7 @@ final class AppViewModel: ObservableObject {
         recognitionResult = ""
         suggestedKeywords = []
         signVideos = []
+        photoCategories = []
         isLoadingSignVideos = false
         errorMessage = nil
     }
@@ -103,22 +105,38 @@ final class AppViewModel: ObservableObject {
         isLoadingSignVideos = false
         suggestedKeywords = []
         signVideos = []
+        photoCategories = []
         errorMessage = nil
 
         do {
             let analysis = try await recognitionService.analyze(image: image)
             recognitionResult = analysis.description
             suggestedKeywords = analysis.keywords
+            var builtCategories: [PhotoRecognitionCategory] = []
 
-            if !analysis.keywords.isEmpty {
+            if !analysis.categories.isEmpty {
                 isLoadingSignVideos = true
-                signVideos = await aslVideoLookupService.lookup(words: analysis.keywords)
+                for category in analysis.categories {
+                    let videos = category.keywords.isEmpty ? [] : await aslVideoLookupService.lookup(words: category.keywords)
+                    builtCategories.append(
+                        PhotoRecognitionCategory(
+                            label: category.label,
+                            text: category.text,
+                            keywords: category.keywords,
+                            signVideos: videos
+                        )
+                    )
+                }
                 isLoadingSignVideos = false
             }
+
+            photoCategories = builtCategories
+            signVideos = builtCategories.first?.signVideos ?? []
         } catch {
             recognitionResult = ""
             suggestedKeywords = []
             signVideos = []
+            photoCategories = []
             errorMessage = error.localizedDescription
         }
 

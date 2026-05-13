@@ -2,20 +2,6 @@ import AVKit
 import SwiftUI
 import UIKit
 
-private enum PhotoModePalette {
-    static let background = Color(red: 245 / 255, green: 240 / 255, blue: 232 / 255)
-    static let card = Color.white
-    static let ink = Color(red: 19 / 255, green: 50 / 255, blue: 72 / 255)
-    static let muted = Color(red: 105 / 255, green: 124 / 255, blue: 139 / 255)
-    static let border = Color(red: 226 / 255, green: 216 / 255, blue: 202 / 255)
-    static let green = Color(red: 38 / 255, green: 166 / 255, blue: 122 / 255)
-    static let gold = Color(red: 250 / 255, green: 199 / 255, blue: 117 / 255)
-    static let goldSoft = Color(red: 1.0, green: 0.96, blue: 0.87)
-    static let navyCard = Color(red: 22 / 255, green: 52 / 255, blue: 74 / 255)
-    static let navyPanel = Color(red: 38 / 255, green: 70 / 255, blue: 96 / 255)
-    static let chip = Color(red: 29 / 255, green: 112 / 255, blue: 84 / 255)
-}
-
 struct CameraRecognitionView: View {
     @ObservedObject var viewModel: AppViewModel
     @State private var showingCamera = false
@@ -25,7 +11,13 @@ struct CameraRecognitionView: View {
     @State private var isDownloadPromptPresented = false
     @State private var selectedPlaybackSpeed = "1.5x"
     @State private var selectedSignID: String?
+    @State private var activeCategoryIndex = 0
     @State private var player = AVPlayer()
+    @State private var celebratedMode: AppViewModel.TranslationMode?
+    @State private var celebrationOpacity = 0.0
+    @State private var celebrationScale: CGFloat = 0.5
+    @State private var celebrationRotation = -18.0
+    @State private var sparkleLift: CGFloat = 18
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -34,51 +26,141 @@ struct CameraRecognitionView: View {
 
             VStack(spacing: 0) {
                 ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 22) {
-                        header
-                        actionRow
+                    VStack(alignment: .leading, spacing: 24) {
+                        PhotoModeHeader {
+                            viewModel.refreshModelStatus()
+                            isModeSheetPresented = true
+                        }
+
+                        PhotoModeActionRow(
+                            onCameraTap: { showingCamera = true },
+                            onPhotosTap: { showingPhotoLibrary = true }
+                        )
 
                         if let image = viewModel.capturedImage, !hasTranslationUI {
-                            selectedImageCard(image)
-
-                            analyzeButton
+                            PhotoSelectedImageCard(image: image)
+                            PhotoAnalyzeButton(isLoading: viewModel.isLoading) {
+                                Task {
+                                    await viewModel.recognizeCapturedImage()
+                                }
+                            }
                         }
 
                         if viewModel.isLoading {
-                            statusCard(title: "Analyzing photo...")
+                            PhotoStatusCard(title: "Analyzing photo...")
                         }
 
                         if let errorMessage = viewModel.errorMessage {
-                            messageCard(text: errorMessage, tint: .red)
+                            PhotoMessageCard(text: errorMessage, tint: .red)
                         }
 
                         if viewModel.isLoadingSignVideos {
-                            statusCard(title: "Looking up sign videos...")
+                            PhotoStatusCard(title: "Looking up sign videos...")
+                        }
+
+                        if viewModel.photoCategories.count > 1 {
+                            PhotoCategoryTabs(
+                                categories: viewModel.photoCategories,
+                                activeIndex: activeCategoryIndex,
+                                onTap: { index in
+                                    activeCategoryIndex = index
+                                }
+                            )
                         }
 
                         if hasTranslationUI {
-                            playbackSection
-                            translationCard
+                            PhotoPlaybackSection(
+                                player: player,
+                                hasVideo: activeSignVideo?.localVideoURL != nil,
+                                isLoadingSignVideos: viewModel.isLoadingSignVideos,
+                                activeIssue: activePlaybackIssue,
+                                activeLabel: activePlaybackLabel,
+                                activeIsFingerspelled: activePlaybackIsFingerspelled,
+                                playbackProgress: playbackProgress,
+                                playbackSpeeds: playbackSpeeds,
+                                selectedPlaybackSpeed: selectedPlaybackSpeed,
+                                sourcePageURL: activeSignVideo?.pageURL,
+                                onPlayTap: playSelectedVideo,
+                                onSpeedTap: { selectedPlaybackSpeed = $0 }
+                            )
+
+                            PhotoTranslationCard(
+                                originalText: originalText,
+                                glossText: glossText,
+                                glossWords: glossWords,
+                                chipBackground: chipBackground,
+                                chipBorder: chipBorder,
+                                chipLineWidth: chipLineWidth,
+                                chipDash: chipDash,
+                                onWordTap: selectSign
+                            )
                         }
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 24)
+                    .padding(.horizontal, 22)
+                    .padding(.top, 26)
                     .padding(.bottom, 140)
                 }
 
-                bottomTabBar
+                PhotoModeBottomTabBar(
+                    isTypeActive: false,
+                    isPhotoActive: true,
+                    onTypeTap: { navigateToTypeMode = true },
+                    onPhotoTap: { }
+                )
             }
 
             if isModeSheetPresented {
                 overlay
-                modeSheet
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                PhotoModeSheet(
+                    selectedMode: viewModel.selectedTranslationMode,
+                    offlineSubtitle: offlineModeSubtitle,
+                    onBetterSignsTap: {
+                        celebrateModeSelection(.betterSigns) {
+                            viewModel.selectBetterSignsMode()
+                        }
+                    },
+                    onOfflineTap: handleOfflineModeTap,
+                    modelSettingsCard: AnyView(modelSettingsCard)
+                )
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
 
             if isDownloadPromptPresented {
                 overlay
-                offlineDownloadPrompt
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                PhotoOfflineDownloadPrompt(
+                    isDownloading: viewModel.isDownloadingModel,
+                    downloadStageEmoji: downloadStageEmoji,
+                    downloadPromptBody: downloadPromptBody,
+                    downloadFraction: downloadFraction,
+                    downloadStageText: downloadStageText,
+                    downloadStatusText: downloadStatusText,
+                    onCancel: {
+                        if !viewModel.isDownloadingModel {
+                            isDownloadPromptPresented = false
+                        }
+                    },
+                    onDownload: {
+                        Task {
+                            await viewModel.downloadModel()
+                            if viewModel.enableOfflineModeIfAvailable() {
+                                celebrateModeSelection(.offline) { }
+                            }
+                        }
+                    }
+                )
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+
+            if let celebratedMode {
+                PhotoCelebrationOverlay(
+                    mode: celebratedMode,
+                    opacity: celebrationOpacity,
+                    scale: celebrationScale,
+                    rotation: celebrationRotation,
+                    sparkleLift: sparkleLift
+                )
+                .transition(.opacity.combined(with: .scale))
+                .allowsHitTesting(false)
             }
 
             NavigationLink(isActive: $navigateToTypeMode) {
@@ -91,7 +173,15 @@ struct CameraRecognitionView: View {
         .toolbar(.hidden, for: .navigationBar)
         .animation(.spring(response: 0.35, dampingFraction: 0.92), value: isModeSheetPresented)
         .animation(.spring(response: 0.35, dampingFraction: 0.92), value: isDownloadPromptPresented)
+        .animation(.spring(response: 0.35, dampingFraction: 0.9), value: celebratedMode)
         .onChange(of: signVideoSelectionKey) { _ in
+            selectDefaultPlayableSignIfNeeded()
+        }
+        .onChange(of: activeCategoryIndex) { _ in
+            selectDefaultPlayableSignIfNeeded()
+        }
+        .onChange(of: photoCategorySelectionKey) { _ in
+            activeCategoryIndex = 0
             selectDefaultPlayableSignIfNeeded()
         }
         .onChange(of: selectedPlaybackSpeed) { _ in
@@ -109,515 +199,15 @@ struct CameraRecognitionView: View {
         }
     }
 
-    private var header: some View {
-        HStack(alignment: .top, spacing: 16) {
-            VStack(alignment: .leading, spacing: 10) {
-                Text("📸 Photo to ASL")
-                    .font(.system(size: 32, weight: .bold, design: .rounded))
-                    .foregroundStyle(PhotoModePalette.ink)
-
-                Text("Take a picture of words. We will sign them!")
-                    .font(.system(size: 18, weight: .medium, design: .rounded))
-                    .foregroundStyle(PhotoModePalette.muted)
-            }
-
-            Spacer()
-
-            Button {
-                viewModel.refreshModelStatus()
-                isModeSheetPresented = true
-            } label: {
-                ZStack {
-                    Circle()
-                        .fill(PhotoModePalette.goldSoft)
-                        .frame(width: 58, height: 58)
-
-                    Circle()
-                        .stroke(PhotoModePalette.gold, lineWidth: 2)
-                        .frame(width: 58, height: 58)
-
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(Color.white.opacity(0.84))
-                        .frame(width: 34, height: 34)
-                        .overlay {
-                            Text("🤟")
-                                .font(.system(size: 22))
-                        }
-                }
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Choose translation mode")
-        }
-    }
-
-    private var actionRow: some View {
-        HStack(spacing: 18) {
-            Button {
-                showingCamera = true
-            } label: {
-                HStack(spacing: 14) {
-                    Text("📷")
-                        .font(.system(size: 26))
-                    Text("Camera")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
-                }
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 32)
-                .background(PhotoModePalette.green)
-                .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-            }
-            .buttonStyle(.plain)
-
-            Button {
-                showingPhotoLibrary = true
-            } label: {
-                HStack(spacing: 14) {
-                    Text("🖼️")
-                        .font(.system(size: 26))
-                    Text("Photos")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
-                }
-                .foregroundStyle(PhotoModePalette.ink)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 32)
-                .background(PhotoModePalette.card)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .stroke(PhotoModePalette.ink, lineWidth: 2.5)
-                }
-                .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-            }
-            .buttonStyle(.plain)
-        }
-    }
-
-    private func selectedImageCard(_ image: UIImage) -> some View {
-        Image(uiImage: image)
-            .resizable()
-            .scaledToFit()
-            .frame(maxWidth: .infinity)
-            .background(PhotoModePalette.card)
-            .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: 30, style: .continuous)
-                    .stroke(PhotoModePalette.border, lineWidth: 1.5)
-            }
-    }
-
-    private var analyzeButton: some View {
-        Button {
-            Task {
-                await viewModel.recognizeCapturedImage()
-            }
-        } label: {
-            HStack(spacing: 12) {
-                Text("🤟")
-                    .font(.system(size: 28))
-                Text("Sign it!")
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
-            }
-            .foregroundStyle(.white.opacity(viewModel.isLoading ? 0.72 : 1))
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 28)
-            .background(viewModel.isLoading ? PhotoModePalette.green.opacity(0.55) : PhotoModePalette.green)
-            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-        }
-        .buttonStyle(.plain)
-        .disabled(viewModel.isLoading)
-    }
-
-    private func statusCard(title: String) -> some View {
-        HStack(spacing: 12) {
-            ProgressView()
-                .tint(PhotoModePalette.green)
-            Text(title)
-                .font(.system(size: 18, weight: .semibold, design: .rounded))
-                .foregroundStyle(PhotoModePalette.ink)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 20)
-        .padding(.vertical, 18)
-        .background(PhotoModePalette.card)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .stroke(PhotoModePalette.border, lineWidth: 1.5)
-        }
-    }
-
-    private func messageCard(text: String, tint: Color) -> some View {
-        Text(text)
-            .font(.system(size: 16, weight: .medium, design: .rounded))
-            .foregroundStyle(tint)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 18)
-            .background(PhotoModePalette.card)
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(PhotoModePalette.border, lineWidth: 1.5)
-            }
-    }
-
-    private var playbackSection: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            RoundedRectangle(cornerRadius: 34, style: .continuous)
-                .fill(PhotoModePalette.navyCard)
-                .frame(height: 320)
-                .overlay {
-                    if let activeVideo = activeSignVideo, activeVideo.localVideoURL != nil {
-                        VideoPlayer(player: player)
-                            .clipShape(RoundedRectangle(cornerRadius: 34, style: .continuous))
-                    } else {
-                        Text("Tap PLAY or any word above")
-                            .font(.system(size: 20, weight: .semibold, design: .rounded))
-                            .foregroundStyle(Color.white.opacity(0.8))
-                    }
-                }
-
-            Capsule()
-                .fill(PhotoModePalette.border)
-                .frame(height: 10)
-
-            HStack(spacing: 12) {
-                Button {
-                    playSelectedVideo()
-                } label: {
-                    Text("PLAY")
-                        .font(.system(size: 24, weight: .medium, design: .rounded))
-                        .tracking(1)
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 28)
-                        .background(PhotoModePalette.green)
-                        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-                }
-                .buttonStyle(.plain)
-
-                ForEach(playbackSpeeds, id: \.self) { speed in
-                    Button {
-                        selectedPlaybackSpeed = speed
-                    } label: {
-                        Text(speed)
-                            .font(.system(size: 18, weight: .bold, design: .rounded))
-                            .foregroundStyle(selectedPlaybackSpeed == speed ? .white : PhotoModePalette.ink)
-                            .frame(width: 86, height: 86)
-                            .background(selectedPlaybackSpeed == speed ? PhotoModePalette.ink : PhotoModePalette.background)
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                                    .stroke(selectedPlaybackSpeed == speed ? PhotoModePalette.ink : PhotoModePalette.border, lineWidth: 2)
-                            }
-                            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-
-            if let pageURL = activeSignVideo?.pageURL {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("SOURCE PAGE")
-                        .font(.system(size: 12, weight: .bold, design: .rounded))
-                        .tracking(1.5)
-                        .foregroundStyle(Color.white.opacity(0.7))
-
-                    Link(destination: pageURL) {
-                        Text(pageURL.absoluteString)
-                            .font(.system(size: 14, weight: .medium, design: .rounded))
-                            .foregroundStyle(Color.white.opacity(0.92))
-                            .underline()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                }
-            }
-        }
-    }
-
-    private var translationCard: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            sectionLabel("Translation Card")
-
-            infoPanel(title: "ORIGINAL", body: originalText)
-            infoPanel(title: "ASL GLOSS", body: glossText, fill: PhotoModePalette.green)
-
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 110), spacing: 18)], alignment: .leading, spacing: 18) {
-                ForEach(glossWords, id: \.self) { word in
-                    Button {
-                        selectSign(for: word)
-                    } label: {
-                        Text(word)
-                            .font(.system(size: 19, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 26)
-                            .background(chipBackground(for: word))
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                                    .stroke(chipBorder(for: word), lineWidth: chipLineWidth(for: word))
-                            }
-                            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-
-            Text("Yellow dashed = no ASL clip in library, auto-fingerspelled")
-                .font(.system(size: 14, weight: .medium, design: .rounded))
-                .foregroundStyle(Color.white.opacity(0.82))
-        }
-        .padding(.horizontal, 22)
-        .padding(.vertical, 26)
-        .background(PhotoModePalette.navyCard)
-        .clipShape(RoundedRectangle(cornerRadius: 34, style: .continuous))
-    }
-
-    private func sectionLabel(_ title: String) -> some View {
-        Text(title.uppercased())
-            .font(.system(size: 18, weight: .bold, design: .rounded))
-            .tracking(2)
-            .foregroundStyle(Color.white.opacity(0.84))
-    }
-
-    private func infoPanel(title: String, body: String, fill: Color = PhotoModePalette.navyPanel) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(title)
-                .font(.system(size: 17, weight: .bold, design: .rounded))
-                .tracking(2)
-                .foregroundStyle(Color.white.opacity(0.82))
-
-            Text(body)
-                .font(.system(size: 24, weight: .medium, design: .rounded))
-                .foregroundStyle(.white)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 20)
-        .padding(.vertical, 22)
-        .background(fill)
-        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-    }
-
-    private var bottomTabBar: some View {
-        HStack {
-            Spacer()
-            tabItem(icon: "text.bubble", title: "Type", isActive: false) {
-                navigateToTypeMode = true
-            }
-            Spacer()
-            tabItem(icon: "camera", title: "Photo", isActive: true) { }
-            Spacer()
-        }
-        .padding(.top, 18)
-        .padding(.bottom, 22)
-        .background(
-            RoundedRectangle(cornerRadius: 0)
-                .fill(PhotoModePalette.background)
-                .overlay(alignment: .top) {
-                    Divider()
-                        .overlay(PhotoModePalette.border)
-                }
-                .ignoresSafeArea(edges: .bottom)
-        )
-    }
-
     private var overlay: some View {
         Color.black.opacity(0.18)
             .ignoresSafeArea()
             .onTapGesture {
-                isModeSheetPresented = false
-            }
-    }
-
-    private var modeSheet: some View {
-        VStack(alignment: .leading, spacing: 22) {
-            Capsule()
-                .fill(PhotoModePalette.border)
-                .frame(width: 88, height: 8)
-                .frame(maxWidth: .infinity)
-                .padding(.top, 10)
-
-            Text("Translation mode")
-                .font(.system(size: 30, weight: .bold, design: .rounded))
-                .foregroundStyle(PhotoModePalette.ink)
-
-            Text("Pick how Hearme makes the sign for each word.")
-                .font(.system(size: 18, weight: .medium, design: .rounded))
-                .foregroundStyle(PhotoModePalette.muted)
-
-            modeOption(
-                icon: "🌟",
-                title: "Better Signs",
-                subtitle: "Enjoy high quality ASL with internet",
-                badge: "RECOMMENDED",
-                highlighted: viewModel.selectedTranslationMode == .betterSigns,
-                action: {
-                    viewModel.selectBetterSignsMode()
-                    isDownloadPromptPresented = false
+                if !viewModel.isDownloadingModel {
                     isModeSheetPresented = false
-                }
-            )
-
-            modeOption(
-                icon: "✈️",
-                title: "Offline Mode",
-                subtitle: offlineModeSubtitle,
-                badge: nil,
-                highlighted: viewModel.selectedTranslationMode == .offline,
-                action: handleOfflineModeTap
-            )
-
-            modelSettingsCard
-        }
-        .padding(.horizontal, 22)
-        .padding(.bottom, 34)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 34, style: .continuous)
-                .fill(PhotoModePalette.background)
-        )
-        .ignoresSafeArea(edges: .bottom)
-    }
-
-    private func modeOption(
-        icon: String,
-        title: String,
-        subtitle: String,
-        badge: String?,
-        highlighted: Bool,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            HStack(alignment: .center, spacing: 16) {
-                Text(icon)
-                    .font(.system(size: 38))
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(title)
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
-                        .foregroundStyle(PhotoModePalette.ink)
-
-                    Text(subtitle)
-                        .font(.system(size: 16, weight: .medium, design: .rounded))
-                        .foregroundStyle(PhotoModePalette.muted)
-                }
-
-                Spacer(minLength: 12)
-
-                if let badge {
-                    Text(badge)
-                        .font(.system(size: 12, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
-                        .background(PhotoModePalette.green)
-                        .clipShape(Capsule())
+                    isDownloadPromptPresented = false
                 }
             }
-            .padding(.horizontal, 22)
-            .padding(.vertical, 26)
-            .background(PhotoModePalette.card)
-            .overlay {
-                RoundedRectangle(cornerRadius: 26, style: .continuous)
-                    .stroke(highlighted ? PhotoModePalette.green : PhotoModePalette.border, lineWidth: highlighted ? 4 : 1.5)
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func tabItem(
-        icon: String,
-        title: String,
-        isActive: Bool,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            VStack(spacing: 10) {
-                Image(systemName: icon)
-                    .font(.system(size: 28, weight: isActive ? .semibold : .regular))
-                Text(title)
-                    .font(.system(size: 16, weight: isActive ? .bold : .semibold, design: .rounded))
-            }
-            .foregroundStyle(isActive ? PhotoModePalette.ink : PhotoModePalette.muted)
-            .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var offlineDownloadPrompt: some View {
-        VStack(spacing: 18) {
-            Text("📥")
-                .font(.system(size: 54))
-
-            Text("Ready to download?")
-                .font(.system(size: 28, weight: .bold, design: .rounded))
-                .foregroundStyle(PhotoModePalette.ink)
-
-            Text(downloadPromptBody)
-                .font(.system(size: 17, weight: .medium, design: .rounded))
-                .foregroundStyle(PhotoModePalette.muted)
-                .multilineTextAlignment(.center)
-
-            if viewModel.isDownloadingModel {
-                ProgressView(value: downloadFraction)
-                    .tint(PhotoModePalette.green)
-                    .padding(.top, 4)
-
-                Text(downloadStatusText)
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                    .foregroundStyle(PhotoModePalette.muted)
-            }
-
-            HStack(spacing: 16) {
-                Button("Not now") {
-                    if !viewModel.isDownloadingModel {
-                        isDownloadPromptPresented = false
-                    }
-                }
-                .font(.system(size: 18, weight: .bold, design: .rounded))
-                .foregroundStyle(PhotoModePalette.ink)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 24)
-                .background(PhotoModePalette.card)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .stroke(PhotoModePalette.border, lineWidth: 2)
-                }
-                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                .disabled(viewModel.isDownloadingModel)
-
-                Button {
-                    Task {
-                        await viewModel.downloadModel()
-                        if viewModel.enableOfflineModeIfAvailable() {
-                            isDownloadPromptPresented = false
-                            isModeSheetPresented = false
-                        }
-                    }
-                } label: {
-                    Text(viewModel.isDownloadingModel ? "Downloading..." : "👉 Yes, download!")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 24)
-                        .background(PhotoModePalette.green)
-                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                }
-                .buttonStyle(.plain)
-                .disabled(viewModel.isDownloadingModel)
-            }
-            .padding(.top, 6)
-        }
-        .padding(.horizontal, 26)
-        .padding(.top, 28)
-        .padding(.bottom, 34)
-        .frame(maxWidth: .infinity)
-        .background(
-            RoundedRectangle(cornerRadius: 34, style: .continuous)
-                .fill(PhotoModePalette.background)
-        )
-        .padding(.horizontal, 12)
-        .padding(.bottom, 12)
     }
 
     private var downloadPromptBody: String {
@@ -648,8 +238,7 @@ struct CameraRecognitionView: View {
     private func handleOfflineModeTap() {
         viewModel.refreshModelStatus()
         if viewModel.enableOfflineModeIfAvailable() {
-            isDownloadPromptPresented = false
-            isModeSheetPresented = false
+            celebrateModeSelection(.offline) { }
         } else {
             isDownloadPromptPresented = true
         }
@@ -664,11 +253,11 @@ struct CameraRecognitionView: View {
     private var modelSettingsCard: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Model Settings")
-                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .font(HearmeTypography.brand(23))
                 .foregroundStyle(PhotoModePalette.ink)
 
             Text(modelStatusSummary)
-                .font(.system(size: 15, weight: .medium, design: .rounded))
+                .font(HearmeTypography.bodyStrong(16))
                 .foregroundStyle(PhotoModePalette.muted)
 
             if viewModel.isDownloadingModel || isModelDownloading {
@@ -676,7 +265,7 @@ struct CameraRecognitionView: View {
                     .tint(PhotoModePalette.green)
 
                 Text(downloadStatusText)
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .font(HearmeTypography.bodyStrong(15))
                     .foregroundStyle(PhotoModePalette.muted)
             }
 
@@ -685,16 +274,16 @@ struct CameraRecognitionView: View {
                     viewModel.refreshModelStatus()
                 } label: {
                     Text("Refresh status")
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .font(HearmeTypography.gloss(17))
                         .foregroundStyle(PhotoModePalette.ink)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
+                        .padding(.vertical, 18)
                         .background(PhotoModePalette.card)
                         .overlay {
-                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
                                 .stroke(PhotoModePalette.border, lineWidth: 1.5)
                         }
-                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                 }
                 .buttonStyle(.plain)
 
@@ -709,25 +298,25 @@ struct CameraRecognitionView: View {
                     }
                 } label: {
                     Text(modelActionTitle)
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .font(HearmeTypography.gloss(17))
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
+                        .padding(.vertical, 18)
                         .background(modelActionEnabled ? PhotoModePalette.green : PhotoModePalette.green.opacity(0.65))
-                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                 }
                 .buttonStyle(.plain)
                 .disabled(!modelActionEnabled)
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 20)
+        .padding(.horizontal, 22)
+        .padding(.vertical, 22)
         .background(PhotoModePalette.card)
         .overlay {
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
+            RoundedRectangle(cornerRadius: 26, style: .continuous)
                 .stroke(PhotoModePalette.border, lineWidth: 1.5)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
     }
 
     private var isModelDownloading: Bool {
@@ -773,7 +362,7 @@ struct CameraRecognitionView: View {
     }
 
     private var hasTranslationUI: Bool {
-        !viewModel.recognitionResult.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !viewModel.suggestedKeywords.isEmpty
+        activeCategory != nil || !viewModel.recognitionResult.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !viewModel.suggestedKeywords.isEmpty
     }
 
     private var playbackSpeeds: [String] {
@@ -781,6 +370,9 @@ struct CameraRecognitionView: View {
     }
 
     private var originalText: String {
+        if let activeCategory {
+            return activeCategory.text
+        }
         if let descriptionRange = viewModel.recognitionResult.range(of: "Description:", options: .caseInsensitive) {
             let descriptionPortion = String(viewModel.recognitionResult[descriptionRange.upperBound...])
             if let keywordsRange = descriptionPortion.range(of: "Keywords:", options: .caseInsensitive) {
@@ -798,6 +390,9 @@ struct CameraRecognitionView: View {
     }
 
     private var glossWords: [String] {
+        if let activeCategory, !activeCategory.keywords.isEmpty {
+            return activeCategory.keywords
+        }
         if !viewModel.suggestedKeywords.isEmpty {
             return viewModel.suggestedKeywords
         }
@@ -816,18 +411,31 @@ struct CameraRecognitionView: View {
     }
 
     private var signVideoSelectionKey: String {
-        viewModel.signVideos.map { "\($0.id)|\($0.localVideoURL?.absoluteString ?? "none")" }.joined(separator: ",")
+        currentSignVideos.map { "\($0.id)|\($0.localVideoURL?.absoluteString ?? "none")" }.joined(separator: ",")
     }
 
     private var activeSignVideo: ASLSignVideo? {
         if let selectedSignID {
-            return viewModel.signVideos.first(where: { $0.id == selectedSignID })
+            return currentSignVideos.first(where: { $0.id == selectedSignID })
         }
-        return viewModel.signVideos.first(where: { $0.localVideoURL != nil })
+        return currentSignVideos.first(where: { $0.localVideoURL != nil })
+    }
+
+    private var activeCategory: PhotoRecognitionCategory? {
+        guard viewModel.photoCategories.indices.contains(activeCategoryIndex) else { return nil }
+        return viewModel.photoCategories[activeCategoryIndex]
+    }
+
+    private var currentSignVideos: [ASLSignVideo] {
+        activeCategory?.signVideos ?? viewModel.signVideos
+    }
+
+    private var photoCategorySelectionKey: String {
+        viewModel.photoCategories.map { "\($0.id.uuidString)|\($0.label)" }.joined(separator: ",")
     }
 
     private func selectDefaultPlayableSignIfNeeded() {
-        guard let firstPlayable = viewModel.signVideos.first(where: { $0.localVideoURL != nil }) else {
+        guard let firstPlayable = currentSignVideos.first(where: { $0.localVideoURL != nil }) else {
             selectedSignID = nil
             player.pause()
             player.replaceCurrentItem(with: nil)
@@ -848,7 +456,7 @@ struct CameraRecognitionView: View {
 
     private func signForWord(_ word: String) -> ASLSignVideo? {
         let normalizedWord = word.lowercased()
-        return viewModel.signVideos.first {
+        return currentSignVideos.first {
             $0.normalized == normalizedWord || $0.input.lowercased() == normalizedWord
         }
     }
@@ -940,52 +548,113 @@ struct CameraRecognitionView: View {
         signForWord(word)?.localVideoURL == nil || isSelectedWord(word) ? 2 : 0
     }
 
+    private func chipDash(for word: String) -> [CGFloat] {
+        signForWord(word)?.localVideoURL == nil ? [8, 6] : []
+    }
+
     private func isSelectedWord(_ word: String) -> Bool {
         guard let selectedSignID,
               let sign = signForWord(word) else { return false }
         return sign.id == selectedSignID
     }
-}
 
-private struct ASLSignVideoCard: View {
-    let sign: ASLSignVideo
+    private var activePlaybackLabel: String? {
+        guard let sign = activeSignVideo else { return nil }
+        return sign.localVideoURL == nil ? "\(sign.normalized.uppercased()) · SPELL" : sign.normalized.uppercased()
+    }
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(sign.normalized)
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
+    private var activePlaybackIsFingerspelled: Bool {
+        activeSignVideo?.localVideoURL == nil
+    }
 
-                if let match = sign.match, match.lowercased() != sign.normalized {
-                    Text("Matched \(match)")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
-                        .foregroundStyle(Color.white.opacity(0.75))
-                }
+    private var activePlaybackIssue: (title: String, body: String)? {
+        guard let sign = activeSignVideo else { return nil }
+        if let error = sign.error {
+            return ("SIGN UNAVAILABLE", error)
+        }
+        if sign.localVideoURL == nil {
+            return ("FINGERSPELLING", sign.reason ?? "No direct clip found, so this word is treated as fingerspelling.")
+        }
+        return nil
+    }
+
+    private var playbackProgress: CGFloat {
+        guard let activeSignVideo,
+              let index = currentSignVideos.firstIndex(where: { $0.id == activeSignVideo.id }),
+              !currentSignVideos.isEmpty else {
+            return 0
+        }
+        return CGFloat(index + 1) / CGFloat(max(currentSignVideos.count, 1))
+    }
+
+    private func celebrateModeSelection(
+        _ mode: AppViewModel.TranslationMode,
+        apply: @escaping () -> Void
+    ) {
+        apply()
+        celebratedMode = mode
+        celebrationOpacity = 0
+        celebrationScale = 0.5
+        celebrationRotation = -18
+        sparkleLift = 18
+
+        withAnimation(.easeOut(duration: 0.18)) {
+            celebrationOpacity = 1
+        }
+        withAnimation(.interpolatingSpring(stiffness: 180, damping: 11)) {
+            celebrationScale = 1
+            celebrationRotation = 0
+            sparkleLift = 0
+        }
+
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 1_350_000_000)
+            withAnimation(.easeOut(duration: 0.24)) {
+                celebrationOpacity = 0
             }
-
-            if let localVideoURL = sign.localVideoURL {
-                VideoPlayer(player: AVPlayer(url: localVideoURL))
-                    .frame(height: 220)
-                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-            }
-
-            if let reason = sign.reason {
-                Text(reason)
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
-                    .foregroundStyle(Color.white.opacity(0.8))
-            }
-
-            if let error = sign.error {
-                Text(error)
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
-                    .foregroundStyle(Color.red.opacity(0.9))
+            isModeSheetPresented = false
+            isDownloadPromptPresented = false
+            try? await Task.sleep(nanoseconds: 250_000_000)
+            if celebratedMode == mode {
+                celebratedMode = nil
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(18)
-        .background(PhotoModePalette.navyPanel)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+    }
+
+    private var downloadStageText: String {
+        let progress = downloadFraction ?? 0
+        switch progress {
+        case ..<0.15:
+            return "Getting ready..."
+        case ..<0.35:
+            return "Packing the signs..."
+        case ..<0.55:
+            return "Adding ASL words..."
+        case ..<0.8:
+            return "Loading videos..."
+        case ..<0.98:
+            return "Almost done!"
+        default:
+            return "All set!"
+        }
+    }
+
+    private var downloadStageEmoji: String {
+        let progress = downloadFraction ?? 0
+        switch progress {
+        case ..<0.15:
+            return "✨"
+        case ..<0.35:
+            return "📦"
+        case ..<0.55:
+            return "🤟"
+        case ..<0.8:
+            return "🎬"
+        case ..<0.98:
+            return "🎉"
+        default:
+            return "✅"
+        }
     }
 }
 

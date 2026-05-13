@@ -5,6 +5,13 @@ struct ImageRecognitionAnalysis {
     let description: String
     let keywords: [String]
     let rawResponse: String
+    let categories: [ImageRecognitionCategory]
+}
+
+struct ImageRecognitionCategory {
+    let label: String
+    let text: String
+    let keywords: [String]
 }
 
 struct ImageRecognitionService {
@@ -24,13 +31,16 @@ struct ImageRecognitionService {
     }
 
     func analyze(image: UIImage) async throws -> ImageRecognitionAnalysis {
-        if let recognizedText = try recognizeVisibleText(in: image), !recognizedText.isEmpty {
-            let normalizedText = recognizedText.trimmingCharacters(in: .whitespacesAndNewlines)
-            let keywords = try await extractKeywordsFallback(from: normalizedText)
+        let recognizedBlocks = try recognizeVisibleTextBlocks(in: image)
+        if !recognizedBlocks.isEmpty {
+            let normalizedText = recognizedBlocks.joined(separator: " ").trimmingCharacters(in: .whitespacesAndNewlines)
+            let categories = try await buildCategories(from: recognizedBlocks)
+            let keywords = categories.flatMap(\.keywords).uniquePrefix(5)
             return ImageRecognitionAnalysis(
                 description: normalizedText,
                 keywords: keywords,
-                rawResponse: normalizedText
+                rawResponse: normalizedText,
+                categories: categories
             )
         }
 
@@ -61,12 +71,19 @@ struct ImageRecognitionService {
         return ImageRecognitionAnalysis(
             description: parsed.description.isEmpty ? response.text.trimmingCharacters(in: .whitespacesAndNewlines) : parsed.description,
             keywords: fallbackKeywords,
-            rawResponse: response.text
+            rawResponse: response.text,
+            categories: [
+                ImageRecognitionCategory(
+                    label: "Result",
+                    text: parsed.description.isEmpty ? response.text.trimmingCharacters(in: .whitespacesAndNewlines) : parsed.description,
+                    keywords: fallbackKeywords
+                )
+            ]
         )
     }
 
-    private func recognizeVisibleText(in image: UIImage) throws -> String? {
-        guard let cgImage = image.cgImage else { return nil }
+    private func recognizeVisibleTextBlocks(in image: UIImage) throws -> [String] {
+        guard let cgImage = image.cgImage else { return [] }
 
         let request = VNRecognizeTextRequest()
         request.recognitionLevel = .accurate
@@ -79,9 +96,9 @@ struct ImageRecognitionService {
         let recognizedLines = (request.results ?? [])
             .compactMap { $0.topCandidates(1).first?.string.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
+            .uniquePrefix(6)
 
-        guard !recognizedLines.isEmpty else { return nil }
-        return recognizedLines.joined(separator: " ")
+        return recognizedLines
     }
 
     private func cgImageOrientation(for orientation: UIImage.Orientation) -> CGImagePropertyOrientation {
@@ -129,8 +146,58 @@ struct ImageRecognitionService {
         return ImageRecognitionAnalysis(
             description: description.isEmpty ? trimmed : description,
             keywords: keywords,
-            rawResponse: raw
+            rawResponse: raw,
+            categories: [
+                ImageRecognitionCategory(
+                    label: "Result",
+                    text: description.isEmpty ? trimmed : description,
+                    keywords: keywords
+                )
+            ]
         )
+    }
+
+    private func buildCategories(from blocks: [String]) async throws -> [ImageRecognitionCategory] {
+        var categories: [ImageRecognitionCategory] = []
+
+        for (index, block) in blocks.enumerated() {
+            let normalized = block.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !normalized.isEmpty else { continue }
+            let keywords = try await extractKeywordsFallback(from: normalized)
+            categories.append(
+                ImageRecognitionCategory(
+                    label: categoryLabel(for: normalized, index: index),
+                    text: normalized,
+                    keywords: keywords
+                )
+            )
+        }
+
+        if categories.isEmpty, let first = blocks.first {
+            let normalized = first.trimmingCharacters(in: .whitespacesAndNewlines)
+            let keywords = try await extractKeywordsFallback(from: normalized)
+            categories.append(
+                ImageRecognitionCategory(
+                    label: "Text 1",
+                    text: normalized,
+                    keywords: keywords
+                )
+            )
+        }
+
+        return categories
+    }
+
+    private func categoryLabel(for text: String, index: Int) -> String {
+        let cleaned = text
+            .replacingOccurrences(of: "\n", with: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let preview = cleaned.split(separator: " ").prefix(2).joined(separator: " ")
+        if preview.isEmpty {
+            return "Text \(index + 1)"
+        }
+        let capped = String(preview.prefix(18))
+        return capped.count < cleaned.count ? "\(capped)..." : capped
     }
 
     private func extractKeywordsFallback(from description: String) async throws -> [String] {
@@ -174,5 +241,22 @@ struct ImageRecognitionService {
             return text.dropFirst(prefix.count).trimmingCharacters(in: .whitespacesAndNewlines)
         }
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
+
+private extension Array where Element == String {
+    func uniquePrefix(_ count: Int) -> [String] {
+        var seen = Set<String>()
+        var output: [String] = []
+
+        for value in self {
+            guard seen.insert(value).inserted else { continue }
+            output.append(value)
+            if output.count == count {
+                break
+            }
+        }
+
+        return output
     }
 }
