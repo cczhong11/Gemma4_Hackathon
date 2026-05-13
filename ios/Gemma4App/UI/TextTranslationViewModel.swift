@@ -9,6 +9,9 @@ final class TextTranslationViewModel: ObservableObject {
     @Published var units: [GlossUnit] = []
     @Published var videos: [ASLSignVideo] = []
     @Published var currentVideoIndex: Int = 0
+    @Published var translatedText: String = ""
+    @Published var isPlaying: Bool = false
+    @Published var playbackSpeed: Double = 1.0
 
     private var translationService: ASLTranslationService?
     private let lookupService: ASLVideoLookupService
@@ -31,6 +34,19 @@ final class TextTranslationViewModel: ObservableObject {
         return videos[currentVideoIndex].localVideoURL
     }
 
+    var glossText: String {
+        units.map(\.displayLabel).joined(separator: " ")
+    }
+
+    var playbackProgress: Double {
+        guard !videos.isEmpty else { return 0 }
+        return Double(currentVideoIndex + 1) / Double(videos.count)
+    }
+
+    var activeUnit: GlossUnit? {
+        units.first(where: { $0.videoRange.contains(currentVideoIndex) })
+    }
+
     func translate() {
         translateTask?.cancel()
         translateTask = Task { [weak self] in
@@ -38,14 +54,52 @@ final class TextTranslationViewModel: ObservableObject {
         }
     }
 
+    func clear() {
+        translateTask?.cancel()
+        translateTask = nil
+        inputText = ""
+        units = []
+        videos = []
+        currentVideoIndex = 0
+        errorMessage = nil
+        isTranslating = false
+        translatedText = ""
+        isPlaying = false
+        playbackSpeed = 1.0
+    }
+
     func onVideoEnded() {
         guard !videos.isEmpty else { return }
-        currentVideoIndex = (currentVideoIndex + 1) % videos.count
+        let nextIndex = currentVideoIndex + 1
+        if nextIndex >= videos.count {
+            currentVideoIndex = 0
+            isPlaying = false
+        } else {
+            currentVideoIndex = nextIndex
+        }
     }
 
     func jumpTo(unit: GlossUnit) {
         guard !unit.videoRange.isEmpty else { return }
         currentVideoIndex = unit.videoRange.lowerBound
+        isPlaying = true
+    }
+
+    func play() {
+        guard !videos.isEmpty else { return }
+        isPlaying = true
+    }
+
+    func stop() {
+        isPlaying = false
+    }
+
+    func togglePlayback() {
+        if isPlaying { stop() } else { play() }
+    }
+
+    func setSpeed(_ speed: Double) {
+        playbackSpeed = speed
     }
 
     private func performTranslate() async {
@@ -60,6 +114,8 @@ final class TextTranslationViewModel: ObservableObject {
         units = []
         videos = []
         currentVideoIndex = 0
+        isPlaying = false
+        translatedText = trimmed
 
         let service: ASLTranslationService
         if let translationService {
@@ -129,6 +185,7 @@ final class TextTranslationViewModel: ObservableObject {
         videos = playQueue
         currentVideoIndex = 0
         isTranslating = false
+        isPlaying = !playQueue.isEmpty
 
         if playQueue.isEmpty {
             errorMessage = "No playable signs for this sentence."

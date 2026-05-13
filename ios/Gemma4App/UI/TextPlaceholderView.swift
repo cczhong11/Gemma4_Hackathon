@@ -4,13 +4,19 @@ import SwiftUI
 private enum TextModePalette {
     static let background = Color(red: 245 / 255, green: 240 / 255, blue: 232 / 255)
     static let card = Color.white
-    static let ink = Color(red: 19 / 255, green: 50 / 255, blue: 72 / 255)
-    static let muted = Color(red: 105 / 255, green: 124 / 255, blue: 139 / 255)
-    static let border = Color(red: 226 / 255, green: 216 / 255, blue: 202 / 255)
-    static let signButton = Color(red: 232 / 255, green: 220 / 255, blue: 197 / 255)
-    static let signButtonText = Color(red: 105 / 255, green: 92 / 255, blue: 75 / 255)
-    static let badgeFill = Color(red: 255 / 255, green: 232 / 255, blue: 184 / 255)
+    static let ink = Color(red: 15 / 255, green: 43 / 255, blue: 61 / 255)
+    static let muted = Color(red: 107 / 255, green: 124 / 255, blue: 134 / 255)
+    static let border = Color(red: 228 / 255, green: 220 / 255, blue: 207 / 255)
+    static let accent = Color(red: 29 / 255, green: 158 / 255, blue: 117 / 255)
+    static let accentSoft = Color(red: 23 / 255, green: 107 / 255, blue: 83 / 255)
+    static let mutedFill = Color(red: 236 / 255, green: 227 / 255, blue: 210 / 255)
+    static let destructive = Color(red: 196 / 255, green: 72 / 255, blue: 72 / 255)
+    static let badgeFill = Color(red: 255 / 255, green: 231 / 255, blue: 176 / 255)
+    static let badgeBorder = Color(red: 250 / 255, green: 199 / 255, blue: 117 / 255)
     static let chipInactive = Color(red: 232 / 255, green: 224 / 255, blue: 210 / 255)
+    static let highlight = Color(red: 250 / 255, green: 199 / 255, blue: 117 / 255)
+    static let primarySoft = Color(red: 27 / 255, green: 58 / 255, blue: 80 / 255)
+    static let primaryForegroundMuted = Color(red: 200 / 255, green: 214 / 255, blue: 223 / 255)
 }
 
 private struct SuggestionSentence: Identifiable {
@@ -25,7 +31,8 @@ private let suggestionSentences: [SuggestionSentence] = [
     SuggestionSentence(emoji: "🐶", text: "Today we will learn about animals."),
 ]
 
-private let maxInputCharacters = 500
+private let recommendedInputCharacters = 500
+private let maxInputCharacters = 2000
 
 struct TextPlaceholderView: View {
     @ObservedObject var viewModel: AppViewModel
@@ -47,12 +54,8 @@ struct TextPlaceholderView: View {
                             errorCard(text: errorMessage)
                         }
 
-                        if !vm.videos.isEmpty {
-                            playerCard
-                        }
-
-                        if !vm.units.isEmpty {
-                            chipRow
+                        if !vm.videos.isEmpty || !vm.units.isEmpty {
+                            playbackCard
                         }
 
                         if vm.videos.isEmpty && vm.units.isEmpty {
@@ -96,9 +99,12 @@ struct TextPlaceholderView: View {
             ZStack {
                 Circle()
                     .fill(TextModePalette.badgeFill)
-                    .frame(width: 54, height: 54)
+                    .frame(width: 44, height: 44)
+                Circle()
+                    .stroke(TextModePalette.badgeBorder, lineWidth: 1.5)
+                    .frame(width: 44, height: 44)
                 Text("🤟")
-                    .font(.system(size: 28))
+                    .font(.system(size: 22))
             }
             .padding(.top, 4)
         }
@@ -106,29 +112,29 @@ struct TextPlaceholderView: View {
 
     private var inputCard: some View {
         ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .fill(TextModePalette.card)
                 .overlay {
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .stroke(TextModePalette.border, lineWidth: 1.5)
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(TextModePalette.border, lineWidth: 1)
                 }
 
             if vm.inputText.isEmpty {
                 Text("Type a word or sentence...")
-                    .font(.system(size: 19, weight: .medium, design: .rounded))
+                    .font(.system(size: 17, weight: .regular, design: .rounded))
                     .foregroundStyle(TextModePalette.muted)
-                    .padding(.horizontal, 22)
-                    .padding(.vertical, 22)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 18)
                     .allowsHitTesting(false)
             }
 
             TextEditor(text: $vm.inputText)
-                .font(.system(size: 19, weight: .medium, design: .rounded))
+                .font(.system(size: 17, weight: .regular, design: .rounded))
                 .foregroundStyle(TextModePalette.ink)
                 .scrollContentBackground(.hidden)
-                .padding(.horizontal, 18)
-                .padding(.vertical, 16)
-                .frame(minHeight: 200, maxHeight: 240)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .frame(minHeight: 160, maxHeight: 220)
                 .onChange(of: vm.inputText) { newValue in
                     if newValue.count > maxInputCharacters {
                         vm.inputText = String(newValue.prefix(maxInputCharacters))
@@ -138,44 +144,55 @@ struct TextPlaceholderView: View {
             VStack {
                 Spacer()
                 HStack {
-                    Text("\(vm.inputText.count)/\(maxInputCharacters)")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
-                        .foregroundStyle(TextModePalette.muted)
+                    Text("\(vm.inputText.count)/\(recommendedInputCharacters)")
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .foregroundStyle(vm.inputText.count > recommendedInputCharacters ? TextModePalette.destructive : TextModePalette.muted)
                     Spacer()
+                    if !vm.inputText.isEmpty {
+                        Button {
+                            vm.clear()
+                        } label: {
+                            Text("✕ Clear")
+                                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                                .foregroundStyle(TextModePalette.accent)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
-                .padding(.horizontal, 22)
-                .padding(.bottom, 16)
+                .padding(.horizontal, 18)
+                .padding(.bottom, 14)
             }
         }
-        .frame(minHeight: 240)
+        .frame(minHeight: 200)
     }
 
     private var suggestionsSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 10) {
             Text("✨ Try these:")
-                .font(.system(size: 19, weight: .bold, design: .rounded))
+                .font(.system(size: 16, weight: .bold, design: .rounded))
                 .foregroundStyle(TextModePalette.ink)
 
-            VStack(spacing: 12) {
+            VStack(spacing: 10) {
                 ForEach(suggestionSentences) { suggestion in
                     Button {
                         vm.inputText = suggestion.text
                     } label: {
-                        HStack(spacing: 14) {
+                        HStack(spacing: 12) {
                             Text(suggestion.emoji)
                                 .font(.system(size: 22))
                             Text(suggestion.text)
-                                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                                .font(.system(size: 15, weight: .regular, design: .rounded))
                                 .foregroundStyle(TextModePalette.ink)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 18)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 12)
+                        .frame(minHeight: 56)
                         .background(TextModePalette.card)
-                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         .overlay {
-                            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                .stroke(TextModePalette.border, lineWidth: 1.2)
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .stroke(TextModePalette.border, lineWidth: 1)
                         }
                     }
                     .buttonStyle(.plain)
@@ -188,22 +205,22 @@ struct TextPlaceholderView: View {
         Button {
             vm.translate()
         } label: {
-            HStack(spacing: 12) {
+            HStack(spacing: 10) {
                 if vm.isTranslating {
                     ProgressView()
-                        .tint(TextModePalette.signButtonText)
+                        .tint(.white)
                 } else {
                     Text("🤟")
-                        .font(.system(size: 24))
+                        .font(.system(size: 22))
                 }
                 Text(vm.isTranslating ? "Translating..." : "Sign it!")
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
             }
-            .foregroundStyle(TextModePalette.signButtonText)
+            .foregroundStyle(canTranslate ? Color.white : TextModePalette.muted)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 22)
-            .background(canTranslate ? TextModePalette.signButton : TextModePalette.signButton.opacity(0.6))
-            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .frame(minHeight: 64)
+            .background(canTranslate ? TextModePalette.accent : TextModePalette.mutedFill)
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
         .buttonStyle(.plain)
         .disabled(!canTranslate)
@@ -215,48 +232,227 @@ struct TextPlaceholderView: View {
     }
 
     private func errorCard(text: String) -> some View {
-        Text(text)
-            .font(.system(size: 16, weight: .medium, design: .rounded))
-            .foregroundStyle(Color.red)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 18)
-            .background(TextModePalette.card)
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .stroke(Color.red.opacity(0.35), lineWidth: 1.5)
-            }
+        VStack(alignment: .leading, spacing: 4) {
+            Text("😕 Oops!")
+                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .foregroundStyle(TextModePalette.destructive)
+            Text(text)
+                .font(.system(size: 13, weight: .regular, design: .rounded))
+                .foregroundStyle(TextModePalette.muted)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .background(TextModePalette.card)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(TextModePalette.destructive, lineWidth: 1)
+        }
     }
 
-    private var playerCard: some View {
-        TextASLPlayer(viewModel: vm)
-            .aspectRatio(16.0 / 9.0, contentMode: .fit)
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(TextModePalette.border, lineWidth: 1.5)
+    private var playbackCard: some View {
+        VStack(spacing: 16) {
+            videoViewer
+            progressTrack
+            playbackControls
+
+            if !vm.units.isEmpty {
+                translationCard
             }
+        }
     }
 
-    private var chipRow: some View {
+    private var videoViewer: some View {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(TextModePalette.ink)
+                .aspectRatio(4.0 / 3.0, contentMode: .fit)
+
+            if vm.currentVideoURL != nil {
+                TextASLPlayer(viewModel: vm)
+                    .aspectRatio(4.0 / 3.0, contentMode: .fit)
+                    .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            } else {
+                Text("Tap PLAY or any word above")
+                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                    .foregroundStyle(TextModePalette.primaryForegroundMuted)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                    .aspectRatio(4.0 / 3.0, contentMode: .fit)
+            }
+
+            if let active = vm.activeUnit {
+                Text(activeWordBadgeText(for: active))
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .tracking(1)
+                    .textCase(.uppercase)
+                    .foregroundStyle(activeBadgeForeground(for: active))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(activeBadgeBackground(for: active))
+                    .clipShape(Capsule())
+                    .padding(12)
+            }
+        }
+    }
+
+    private func activeWordBadgeText(for unit: GlossUnit) -> String {
+        switch unit.kind {
+        case .fingerspell:
+            return "\(unit.displayLabel) · spell"
+        case .sign:
+            return unit.displayLabel
+        }
+    }
+
+    private func activeBadgeBackground(for unit: GlossUnit) -> Color {
+        switch unit.kind {
+        case .fingerspell: return TextModePalette.highlight
+        case .sign: return TextModePalette.accent
+        }
+    }
+
+    private func activeBadgeForeground(for unit: GlossUnit) -> Color {
+        switch unit.kind {
+        case .fingerspell: return TextModePalette.ink
+        case .sign: return Color.white
+        }
+    }
+
+    private var progressTrack: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(TextModePalette.border)
+                Capsule()
+                    .fill(TextModePalette.accent)
+                    .frame(width: max(0, geo.size.width * CGFloat(vm.playbackProgress)))
+            }
+        }
+        .frame(height: 6)
+    }
+
+    private var playbackControls: some View {
+        HStack(spacing: 12) {
+            Button {
+                vm.togglePlayback()
+            } label: {
+                Text(vm.isPlaying ? "STOP" : "PLAY")
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .tracking(1.2)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 52)
+                    .background(vm.isPlaying ? TextModePalette.ink : TextModePalette.accent)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            }
+            .buttonStyle(.plain)
+            .disabled(vm.videos.isEmpty)
+
+            HStack(spacing: 6) {
+                ForEach(Self.playbackSpeeds, id: \.self) { speed in
+                    Button {
+                        vm.setSpeed(speed)
+                    } label: {
+                        Text(Self.formatSpeed(speed))
+                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .foregroundStyle(vm.playbackSpeed == speed ? .white : TextModePalette.ink)
+                            .frame(width: 44, height: 44)
+                            .background(vm.playbackSpeed == speed ? TextModePalette.ink : Color.clear)
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .stroke(vm.playbackSpeed == speed ? TextModePalette.ink : TextModePalette.border, lineWidth: 1.5)
+                            }
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private static let playbackSpeeds: [Double] = [0.5, 0.75, 1.0, 1.5]
+
+    private static func formatSpeed(_ speed: Double) -> String {
+        if speed == floor(speed) {
+            return "\(Int(speed))x"
+        }
+        let trimmed = String(format: "%g", speed)
+        return "\(trimmed)x"
+    }
+
+    private var translationCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("TRANSLATION CARD")
+                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .tracking(1.2)
+                .foregroundStyle(TextModePalette.primaryForegroundMuted)
+
+            translationSubCard(label: "ORIGINAL", body: vm.translatedText, fill: TextModePalette.primarySoft, bodyColor: .white)
+            translationSubCard(label: "ASL GLOSS", body: vm.glossText, fill: TextModePalette.accent, bodyColor: .white, bodyTracking: 0.5, isBold: true)
+
+            chipsWrap
+
+            Text("Yellow dashed = no ASL clip in library, auto-fingerspelled")
+                .font(.system(size: 12, weight: .regular, design: .rounded))
+                .foregroundStyle(TextModePalette.primaryForegroundMuted)
+                .padding(.top, 2)
+        }
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(TextModePalette.ink)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+
+    private func translationSubCard(
+        label: String,
+        body: String,
+        fill: Color,
+        bodyColor: Color,
+        bodyTracking: CGFloat = 0,
+        isBold: Bool = false
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .tracking(1.2)
+                .foregroundStyle(TextModePalette.primaryForegroundMuted)
+
+            Text(body)
+                .font(.system(size: 16, weight: isBold ? .bold : .regular, design: .rounded))
+                .tracking(bodyTracking)
+                .foregroundStyle(bodyColor)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(fill)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    private var chipsWrap: some View {
         LazyVGrid(
-            columns: [GridItem(.adaptive(minimum: 100), spacing: 12)],
+            columns: [GridItem(.adaptive(minimum: 80), spacing: 10)],
             alignment: .leading,
-            spacing: 12
+            spacing: 10
         ) {
             ForEach(vm.units) { unit in
                 Button {
                     vm.jumpTo(unit: unit)
                 } label: {
                     Text(unit.displayLabel)
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .textCase(.lowercase)
+                        .tracking(0.5)
                         .foregroundStyle(chipForeground(for: unit))
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
+                        .frame(minHeight: 44)
+                        .padding(.horizontal, 14)
                         .background(chipBackground(for: unit))
-                        .clipShape(Capsule())
-                        .opacity(unit.isPlayable ? 1.0 : 0.45)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .stroke(chipBorder(for: unit), style: chipStrokeStyle(for: unit))
+                        }
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
                 .buttonStyle(.plain)
                 .disabled(!unit.isPlayable)
@@ -264,18 +460,38 @@ struct TextPlaceholderView: View {
         }
     }
 
+    private func chipIsActive(_ unit: GlossUnit) -> Bool {
+        unit.id == vm.activeUnit?.id
+    }
+
     private func chipBackground(for unit: GlossUnit) -> Color {
-        if unit.id == vm.activeUnitID {
-            return TextModePalette.ink
+        if chipIsActive(unit) { return TextModePalette.highlight }
+        switch unit.kind {
+        case .fingerspell: return .clear
+        case .sign: return TextModePalette.accentSoft
         }
-        return TextModePalette.chipInactive
     }
 
     private func chipForeground(for unit: GlossUnit) -> Color {
-        if unit.id == vm.activeUnitID {
-            return Color.white
+        if chipIsActive(unit) { return TextModePalette.ink }
+        return .white
+    }
+
+    private func chipBorder(for unit: GlossUnit) -> Color {
+        if chipIsActive(unit) { return TextModePalette.highlight }
+        switch unit.kind {
+        case .fingerspell: return TextModePalette.highlight
+        case .sign: return TextModePalette.accentSoft
         }
-        return TextModePalette.ink
+    }
+
+    private func chipStrokeStyle(for unit: GlossUnit) -> StrokeStyle {
+        switch unit.kind {
+        case .fingerspell where !chipIsActive(unit):
+            return StrokeStyle(lineWidth: 1.5, dash: [4, 3])
+        default:
+            return StrokeStyle(lineWidth: 1.5)
+        }
     }
 
     private var bottomTabBar: some View {
@@ -335,12 +551,20 @@ private struct TextASLPlayer: UIViewControllerRepresentable {
         controller.videoGravity = .resizeAspect
         controller.view.backgroundColor = UIColor.black
         context.coordinator.bind(to: controller)
-        context.coordinator.replaceItem(for: viewModel.currentVideoURL)
+        context.coordinator.sync(
+            url: viewModel.currentVideoURL,
+            isPlaying: viewModel.isPlaying,
+            rate: Float(viewModel.playbackSpeed)
+        )
         return controller
     }
 
     func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
-        context.coordinator.replaceItem(for: viewModel.currentVideoURL)
+        context.coordinator.sync(
+            url: viewModel.currentVideoURL,
+            isPlaying: viewModel.isPlaying,
+            rate: Float(viewModel.playbackSpeed)
+        )
     }
 
     static func dismantleUIViewController(_ uiViewController: AVPlayerViewController, coordinator: Coordinator) {
@@ -363,36 +587,43 @@ private struct TextASLPlayer: UIViewControllerRepresentable {
             // No-op for now; observer is attached per-item in replaceItem.
         }
 
-        func replaceItem(for url: URL?) {
-            guard url != lastURL else {
-                if url != nil, player.timeControlStatus != .playing {
+        func sync(url: URL?, isPlaying: Bool, rate: Float) {
+            if url != lastURL {
+                lastURL = url
+                removeEndObserver()
+
+                guard let url else {
+                    player.replaceCurrentItem(with: nil)
+                    return
+                }
+
+                let item = AVPlayerItem(url: url)
+                endObserver = NotificationCenter.default.addObserver(
+                    forName: .AVPlayerItemDidPlayToEndTime,
+                    object: item,
+                    queue: .main
+                ) { [weak self] _ in
+                    Task { @MainActor in
+                        self?.viewModel?.onVideoEnded()
+                    }
+                }
+
+                player.replaceCurrentItem(with: item)
+                player.seek(to: .zero)
+            }
+
+            guard player.currentItem != nil else { return }
+
+            if isPlaying {
+                if player.timeControlStatus != .playing {
                     player.play()
                 }
-                return
-            }
-            lastURL = url
-
-            removeEndObserver()
-
-            guard let url else {
-                player.replaceCurrentItem(with: nil)
-                return
-            }
-
-            let item = AVPlayerItem(url: url)
-            endObserver = NotificationCenter.default.addObserver(
-                forName: .AVPlayerItemDidPlayToEndTime,
-                object: item,
-                queue: .main
-            ) { [weak self] _ in
-                Task { @MainActor in
-                    self?.viewModel?.onVideoEnded()
+                if player.rate != rate {
+                    player.rate = rate
                 }
+            } else if player.timeControlStatus == .playing {
+                player.pause()
             }
-
-            player.replaceCurrentItem(with: item)
-            player.seek(to: .zero)
-            player.play()
         }
 
         func teardown() {
