@@ -36,6 +36,11 @@ final class TextTranslationViewModel: ObservableObject {
         return videos[currentVideoIndex].localVideoURL
     }
 
+    var currentSourcePageURL: URL? {
+        guard videos.indices.contains(currentVideoIndex) else { return nil }
+        return videos[currentVideoIndex].pageURL
+    }
+
     var glossText: String {
         units.map(\.displayLabel).joined(separator: " ")
     }

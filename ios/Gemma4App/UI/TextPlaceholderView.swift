@@ -491,6 +491,26 @@ struct TextPlaceholderView: View {
                 .font(.system(size: 12, weight: .regular, design: .rounded))
                 .foregroundStyle(TextModePalette.primaryForegroundMuted)
                 .padding(.top, 2)
+
+            if let sourcePageURL = vm.currentSourcePageURL {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("SOURCE PAGE")
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .tracking(1.5)
+                        .foregroundStyle(TextModePalette.primaryForegroundMuted)
+
+                    Link(destination: sourcePageURL) {
+                        Text(sourcePageURL.absoluteString)
+                            .font(.system(size: 13, weight: .semibold, design: .rounded))
+                            .foregroundStyle(Color.white.opacity(0.92))
+                            .underline()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
+                    }
+                }
+                .padding(.top, 4)
+            }
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
