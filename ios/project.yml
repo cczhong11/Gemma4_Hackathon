@@ -13,6 +13,7 @@ settings:
     CODE_SIGN_STYLE: Automatic
     GENERATE_INFOPLIST_FILE: NO
     ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    INFOPLIST_KEY_CFBundleIconName: AppIcon
     CODE_SIGN_ENTITLEMENTS: Gemma4App/Gemma4App.entitlements
 packages:
   mlx-swift:
@@ -39,7 +40,6 @@ targets:
       - path: Vendor/Gemma4Runtime/Shared/LanguageService.swift
       - path: Vendor/Gemma4Runtime/Shared/PCLog.swift
       - path: Vendor/Gemma4Runtime/Shared/Audio/ASRBackend.swift
-    resources:
       - path: Gemma4App/Assets.xcassets
     dependencies:
       - package: mlx-swift

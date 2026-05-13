@@ -21,6 +21,7 @@
 		2256592443867DB33834C4B6 /* DownloadModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C19C20F31A213DA785762202 /* DownloadModels.swift */; };
 		2391675B4543FEE3987FBF33 /* Gemma4Loader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B36C8BE5CDC49F00D416594 /* Gemma4Loader.swift */; };
 		2BAFBE820DEB2FAED8273B52 /* Gemma4Registration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EA6F4F5B328963A649E0AF /* Gemma4Registration.swift */; };
+		2D079F94841CB7F54BB77108 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2366919B07F62F0B23A50FE4 /* Assets.xcassets */; };
 		2D770BB39A045D250FA09088 /* PCLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5926084916E0EE5E83415329 /* PCLog.swift */; };
 		2DE65906F1CA5F5E974C698F /* HFRouterAdapters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36C490694245F2FB77F06042 /* HFRouterAdapters.swift */; };
 		302FC260E3328DE57157CF4D /* DownloadPreflight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1016B4FD345E8927DAFF36A2 /* DownloadPreflight.swift */; };
@@ -100,6 +101,7 @@
 		1F537732F2C6045C4A7EBE43 /* CameraImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraImagePicker.swift; sourceTree = "<group>"; };
 		231E4ADCE31D25A34C5CB872 /* BundledModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundledModel.swift; sourceTree = "<group>"; };
 		2333578D353F9FDAC5C1CEA6 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
+		2366919B07F62F0B23A50FE4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2D0AEBBC7AB81B28820CCD71 /* InferenceKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = InferenceKit; path = Vendor/InferenceKit; sourceTree = SOURCE_ROOT; };
 		331C89A1D4B571DD01DE7546 /* Gemma4App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4App.swift; sourceTree = "<group>"; };
 		354952BBE88BA743BB025362 /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
@@ -377,6 +379,7 @@
 				DD30275AED292DA987090F5B /* Resources */,
 				1FB14BF0C1AF07753B587902 /* Runtime */,
 				21099B4962652C4224BD2A27 /* UI */,
+				2366919B07F62F0B23A50FE4 /* Assets.xcassets */,
 			);
 			path = Gemma4App;
 			sourceTree = "<group>";
@@ -491,6 +494,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2D079F94841CB7F54BB77108 /* Assets.xcassets in Resources */,
 				19BAA5E73580113AA81DCD72 /* signs.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -587,7 +591,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -644,6 +648,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_KEY_CFBundleIconName = AppIcon;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -713,6 +718,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_KEY_CFBundleIconName = AppIcon;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -739,7 +745,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
