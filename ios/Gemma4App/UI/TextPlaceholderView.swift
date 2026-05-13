@@ -7,10 +7,25 @@ private enum TextModePalette {
     static let ink = Color(red: 19 / 255, green: 50 / 255, blue: 72 / 255)
     static let muted = Color(red: 105 / 255, green: 124 / 255, blue: 139 / 255)
     static let border = Color(red: 226 / 255, green: 216 / 255, blue: 202 / 255)
-    static let green = Color(red: 38 / 255, green: 166 / 255, blue: 122 / 255)
-    static let navy = Color(red: 22 / 255, green: 52 / 255, blue: 74 / 255)
+    static let signButton = Color(red: 232 / 255, green: 220 / 255, blue: 197 / 255)
+    static let signButtonText = Color(red: 105 / 255, green: 92 / 255, blue: 75 / 255)
+    static let badgeFill = Color(red: 255 / 255, green: 232 / 255, blue: 184 / 255)
     static let chipInactive = Color(red: 232 / 255, green: 224 / 255, blue: 210 / 255)
 }
+
+private struct SuggestionSentence: Identifiable {
+    let id = UUID()
+    let emoji: String
+    let text: String
+}
+
+private let suggestionSentences: [SuggestionSentence] = [
+    SuggestionSentence(emoji: "👋", text: "Hello! What is your name?"),
+    SuggestionSentence(emoji: "📖", text: "I want to read a book with you."),
+    SuggestionSentence(emoji: "🐶", text: "Today we will learn about animals."),
+]
+
+private let maxInputCharacters = 500
 
 struct TextPlaceholderView: View {
     @ObservedObject var viewModel: AppViewModel
@@ -27,7 +42,6 @@ struct TextPlaceholderView: View {
                     VStack(alignment: .leading, spacing: 22) {
                         header
                         inputCard
-                        translateButton
 
                         if let errorMessage = vm.errorMessage {
                             errorCard(text: errorMessage)
@@ -40,9 +54,15 @@ struct TextPlaceholderView: View {
                         if !vm.units.isEmpty {
                             chipRow
                         }
+
+                        if vm.videos.isEmpty && vm.units.isEmpty {
+                            suggestionsSection
+                        }
+
+                        signItButton
                     }
                     .padding(.horizontal, 20)
-                    .padding(.top, 24)
+                    .padding(.top, 12)
                     .padding(.bottom, 140)
                 }
 
@@ -60,29 +80,42 @@ struct TextPlaceholderView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("💬 Text to ASL")
-                .font(.system(size: 32, weight: .bold, design: .rounded))
-                .foregroundStyle(TextModePalette.ink)
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("💬 Text to ASL")
+                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    .foregroundStyle(TextModePalette.ink)
 
-            Text("Type something. We'll sign it.")
-                .font(.system(size: 18, weight: .medium, design: .rounded))
-                .foregroundStyle(TextModePalette.muted)
+                Text("Type some words. We will sign them!")
+                    .font(.system(size: 17, weight: .medium, design: .rounded))
+                    .foregroundStyle(TextModePalette.muted)
+            }
+
+            Spacer()
+
+            ZStack {
+                Circle()
+                    .fill(TextModePalette.badgeFill)
+                    .frame(width: 54, height: 54)
+                Text("🤟")
+                    .font(.system(size: 28))
+            }
+            .padding(.top, 4)
         }
     }
 
     private var inputCard: some View {
         ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
                 .fill(TextModePalette.card)
                 .overlay {
-                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
                         .stroke(TextModePalette.border, lineWidth: 1.5)
                 }
 
             if vm.inputText.isEmpty {
-                Text("Type a sentence in English")
-                    .font(.system(size: 18, weight: .medium, design: .rounded))
+                Text("Type a word or sentence...")
+                    .font(.system(size: 19, weight: .medium, design: .rounded))
                     .foregroundStyle(TextModePalette.muted)
                     .padding(.horizontal, 22)
                     .padding(.vertical, 22)
@@ -90,32 +123,87 @@ struct TextPlaceholderView: View {
             }
 
             TextEditor(text: $vm.inputText)
-                .font(.system(size: 18, weight: .medium, design: .rounded))
+                .font(.system(size: 19, weight: .medium, design: .rounded))
                 .foregroundStyle(TextModePalette.ink)
                 .scrollContentBackground(.hidden)
                 .padding(.horizontal, 18)
                 .padding(.vertical, 16)
-                .frame(minHeight: 140, maxHeight: 220)
+                .frame(minHeight: 200, maxHeight: 240)
+                .onChange(of: vm.inputText) { newValue in
+                    if newValue.count > maxInputCharacters {
+                        vm.inputText = String(newValue.prefix(maxInputCharacters))
+                    }
+                }
+
+            VStack {
+                Spacer()
+                HStack {
+                    Text("\(vm.inputText.count)/\(maxInputCharacters)")
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .foregroundStyle(TextModePalette.muted)
+                    Spacer()
+                }
+                .padding(.horizontal, 22)
+                .padding(.bottom, 16)
+            }
+        }
+        .frame(minHeight: 240)
+    }
+
+    private var suggestionsSection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("✨ Try these:")
+                .font(.system(size: 19, weight: .bold, design: .rounded))
+                .foregroundStyle(TextModePalette.ink)
+
+            VStack(spacing: 12) {
+                ForEach(suggestionSentences) { suggestion in
+                    Button {
+                        vm.inputText = suggestion.text
+                    } label: {
+                        HStack(spacing: 14) {
+                            Text(suggestion.emoji)
+                                .font(.system(size: 22))
+                            Text(suggestion.text)
+                                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                                .foregroundStyle(TextModePalette.ink)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 18)
+                        .background(TextModePalette.card)
+                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                .stroke(TextModePalette.border, lineWidth: 1.2)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
         }
     }
 
-    private var translateButton: some View {
+    private var signItButton: some View {
         Button {
             vm.translate()
         } label: {
             HStack(spacing: 12) {
                 if vm.isTranslating {
                     ProgressView()
-                        .tint(.white)
+                        .tint(TextModePalette.signButtonText)
+                } else {
+                    Text("🤟")
+                        .font(.system(size: 24))
                 }
-                Text(vm.isTranslating ? "Translating..." : "Translate")
+                Text(vm.isTranslating ? "Translating..." : "Sign it!")
                     .font(.system(size: 22, weight: .bold, design: .rounded))
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(TextModePalette.signButtonText)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 24)
-            .background(canTranslate ? TextModePalette.green : TextModePalette.green.opacity(0.55))
-            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+            .padding(.vertical, 22)
+            .background(canTranslate ? TextModePalette.signButton : TextModePalette.signButton.opacity(0.6))
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         }
         .buttonStyle(.plain)
         .disabled(!canTranslate)
@@ -134,9 +222,9 @@ struct TextPlaceholderView: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 18)
             .background(TextModePalette.card)
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
             .overlay {
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .stroke(Color.red.opacity(0.35), lineWidth: 1.5)
             }
     }
@@ -144,9 +232,9 @@ struct TextPlaceholderView: View {
     private var playerCard: some View {
         TextASLPlayer(viewModel: vm)
             .aspectRatio(16.0 / 9.0, contentMode: .fit)
-            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .overlay {
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
                     .stroke(TextModePalette.border, lineWidth: 1.5)
             }
     }
