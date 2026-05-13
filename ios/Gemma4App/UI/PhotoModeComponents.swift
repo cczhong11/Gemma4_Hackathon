@@ -193,25 +193,25 @@ struct PhotoPlaybackSection: View {
     let playbackProgress: CGFloat
     let playbackSpeeds: [String]
     let selectedPlaybackSpeed: String
-    let sourcePageURL: URL?
+    let videoHeight: CGFloat
     let onPlayTap: () -> Void
     let onSpeedTap: (String) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 14) {
             ZStack(alignment: .topTrailing) {
                 RoundedRectangle(cornerRadius: 34, style: .continuous)
                     .fill(PhotoModePalette.navyCard)
-                    .frame(height: 360)
+                    .frame(height: videoHeight)
 
                 if hasVideo {
                     VideoPlayer(player: player)
                         .clipShape(RoundedRectangle(cornerRadius: 34, style: .continuous))
-                        .frame(height: 360)
+                        .frame(height: videoHeight)
                 } else {
                     VStack(spacing: 10) {
                         Text("Tap PLAY or any word above")
-                            .font(HearmeTypography.section(21))
+                            .font(HearmeTypography.section(18))
                             .foregroundStyle(Color.white.opacity(0.82))
 
                         if isLoadingSignVideos {
@@ -220,13 +220,13 @@ struct PhotoPlaybackSection: View {
                                 .foregroundStyle(Color.white.opacity(0.68))
                         }
                     }
-                    .frame(maxWidth: .infinity, maxHeight: 360)
+                    .frame(maxWidth: .infinity, maxHeight: videoHeight)
                 }
 
                 if isLoadingSignVideos {
                     RoundedRectangle(cornerRadius: 34, style: .continuous)
                         .fill(Color.black.opacity(0.18))
-                        .frame(height: 360)
+                        .frame(height: videoHeight)
                         .overlay {
                             VStack(spacing: 10) {
                                 ProgressView()
@@ -285,13 +285,13 @@ struct PhotoPlaybackSection: View {
             HStack(spacing: 12) {
                 Button(action: onPlayTap) {
                     Text("PLAY")
-                        .font(HearmeTypography.section(25))
+                        .font(HearmeTypography.section(20))
                         .tracking(1)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 30)
+                        .padding(.vertical, 24)
                         .background(PhotoModePalette.green)
-                        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                 }
                 .buttonStyle(.plain)
 
@@ -300,34 +300,17 @@ struct PhotoPlaybackSection: View {
                         onSpeedTap(speed)
                     } label: {
                         Text(speed)
-                            .font(HearmeTypography.gloss(19))
+                            .font(HearmeTypography.gloss(16))
                             .foregroundStyle(selectedPlaybackSpeed == speed ? .white : PhotoModePalette.ink)
-                            .frame(width: 96, height: 96)
+                            .frame(width: 84, height: 84)
                             .background(selectedPlaybackSpeed == speed ? PhotoModePalette.ink : PhotoModePalette.background)
                             .overlay {
-                                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
                                     .stroke(selectedPlaybackSpeed == speed ? PhotoModePalette.ink : PhotoModePalette.border, lineWidth: 2)
                             }
-                            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                     }
                     .buttonStyle(.plain)
-                }
-            }
-
-            if let sourcePageURL {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("SOURCE PAGE")
-                        .font(HearmeTypography.label(12))
-                        .tracking(1.5)
-                        .foregroundStyle(Color.white.opacity(0.7))
-
-                    Link(destination: sourcePageURL) {
-                        Text(sourcePageURL.absoluteString)
-                            .font(HearmeTypography.bodyStrong(15))
-                            .foregroundStyle(Color.white.opacity(0.92))
-                            .underline()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
                 }
             }
         }
@@ -342,37 +325,39 @@ struct PhotoTranslationCard: View {
     let chipBorder: (String) -> Color
     let chipLineWidth: (String) -> CGFloat
     let chipDash: (String) -> [CGFloat]
+    let cardHeight: CGFloat
+    let sourcePageURL: URL?
     let onWordTap: (String) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("TRANSLATION CARD")
-                .font(HearmeTypography.label(19))
+                .font(HearmeTypography.label(15))
                 .tracking(2)
                 .foregroundStyle(Color.white.opacity(0.84))
 
-            ScrollView(showsIndicators: false) {
+            ScrollView(.vertical, showsIndicators: true) {
                 VStack(alignment: .leading, spacing: 14) {
                     infoPanel(title: "ORIGINAL", body: originalText)
                     infoPanel(title: "ASL GLOSS", body: glossText, fill: PhotoModePalette.green)
 
                     Text("Words I found")
-                        .font(HearmeTypography.section(18))
+                        .font(HearmeTypography.section(15))
                         .foregroundStyle(.white.opacity(0.94))
 
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 126), spacing: 18)], alignment: .leading, spacing: 18) {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: 14)], alignment: .leading, spacing: 14) {
                         ForEach(glossWords, id: \.self) { word in
                             Button {
                                 onWordTap(word)
                             } label: {
                                 Text(word)
-                                    .font(HearmeTypography.gloss(20))
+                                    .font(HearmeTypography.gloss(16))
                                     .foregroundStyle(.white)
                                     .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 28)
+                                    .padding(.vertical, 22)
                                     .background(chipBackground(word))
                                     .overlay {
-                                        RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                        RoundedRectangle(cornerRadius: 20, style: .continuous)
                                             .stroke(
                                                 chipBorder(word),
                                                 style: StrokeStyle(
@@ -381,41 +366,62 @@ struct PhotoTranslationCard: View {
                                                 )
                                             )
                                     }
-                                    .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                             }
                             .buttonStyle(.plain)
                         }
                     }
 
                     Text("Yellow dashed = no ASL clip in library, auto-fingerspelled")
-                        .font(HearmeTypography.bodyStrong(15))
+                        .font(HearmeTypography.bodyStrong(13))
                         .foregroundStyle(Color.white.opacity(0.82))
+
+                    if let sourcePageURL {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("SOURCE PAGE")
+                                .font(HearmeTypography.label(11))
+                                .tracking(1.5)
+                                .foregroundStyle(Color.white.opacity(0.7))
+
+                            Link(destination: sourcePageURL) {
+                                Text(sourcePageURL.absoluteString)
+                                    .font(HearmeTypography.bodyStrong(13))
+                                    .foregroundStyle(Color.white.opacity(0.92))
+                                    .underline()
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .lineLimit(2)
+                                    .multilineTextAlignment(.leading)
+                            }
+                        }
+                        .padding(.top, 4)
+                    }
                 }
+                .padding(.trailing, 6)
             }
-            .frame(maxHeight: 430)
+            .frame(height: cardHeight)
         }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 28)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 22)
         .background(PhotoModePalette.navyCard)
-        .clipShape(RoundedRectangle(cornerRadius: 36, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
     }
 
     private func infoPanel(title: String, body: String, fill: Color = PhotoModePalette.navyPanel) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
-                .font(HearmeTypography.label(18))
+                .font(HearmeTypography.label(14))
                 .tracking(2)
                 .foregroundStyle(Color.white.opacity(0.82))
 
             Text(body)
-                .font(HearmeTypography.bodyStrong(25))
+                .font(HearmeTypography.bodyStrong(18))
                 .foregroundStyle(.white)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 22)
-        .padding(.vertical, 24)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 18)
         .background(fill)
-        .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 }
 
@@ -471,8 +477,8 @@ struct PhotoModeBottomTabBar: View {
             tabItem(icon: "camera", title: "Photo", isActive: isPhotoActive, action: onPhotoTap)
             Spacer()
         }
-        .padding(.top, 18)
-        .padding(.bottom, 22)
+        .padding(.top, 14)
+        .padding(.bottom, 18)
         .background(
             RoundedRectangle(cornerRadius: 0)
                 .fill(PhotoModePalette.background)
@@ -486,11 +492,11 @@ struct PhotoModeBottomTabBar: View {
 
     private func tabItem(icon: String, title: String, isActive: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            VStack(spacing: 10) {
+            VStack(spacing: 8) {
                 Image(systemName: icon)
-                    .font(.system(size: 28, weight: isActive ? .semibold : .regular))
+                    .font(.system(size: 24, weight: isActive ? .semibold : .regular))
                 Text(title)
-                    .font(HearmeTypography.gloss(16))
+                    .font(HearmeTypography.gloss(13))
             }
             .foregroundStyle(isActive ? PhotoModePalette.ink : PhotoModePalette.muted)
             .frame(maxWidth: .infinity)

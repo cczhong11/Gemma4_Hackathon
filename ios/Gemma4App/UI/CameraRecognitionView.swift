@@ -20,155 +20,87 @@ struct CameraRecognitionView: View {
     @State private var sparkleLift: CGFloat = 18
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            PhotoModePalette.background
-                .ignoresSafeArea()
+        GeometryReader { geometry in
+            ZStack(alignment: .bottom) {
+                PhotoModePalette.background
+                    .ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 24) {
-                        PhotoModeHeader {
-                            viewModel.refreshModelStatus()
-                            isModeSheetPresented = true
-                        }
-
-                        PhotoModeActionRow(
-                            onCameraTap: { showingCamera = true },
-                            onPhotosTap: { showingPhotoLibrary = true }
-                        )
-
-                        if let image = viewModel.capturedImage, !hasTranslationUI {
-                            PhotoSelectedImageCard(image: image)
-                            PhotoAnalyzeButton(isLoading: viewModel.isLoading) {
-                                Task {
-                                    await viewModel.recognizeCapturedImage()
-                                }
-                            }
-                        }
-
-                        if viewModel.isLoading {
-                            PhotoStatusCard(title: "Analyzing photo...")
-                        }
-
-                        if let errorMessage = viewModel.errorMessage {
-                            PhotoMessageCard(text: errorMessage, tint: .red)
-                        }
-
-                        if viewModel.isLoadingSignVideos {
-                            PhotoStatusCard(title: "Looking up sign videos...")
-                        }
-
-                        if viewModel.photoCategories.count > 1 {
-                            PhotoCategoryTabs(
-                                categories: viewModel.photoCategories,
-                                activeIndex: activeCategoryIndex,
-                                onTap: { index in
-                                    activeCategoryIndex = index
-                                }
-                            )
-                        }
-
-                        if hasTranslationUI {
-                            PhotoPlaybackSection(
-                                player: player,
-                                hasVideo: activeSignVideo?.localVideoURL != nil,
-                                isLoadingSignVideos: viewModel.isLoadingSignVideos,
-                                activeIssue: activePlaybackIssue,
-                                activeLabel: activePlaybackLabel,
-                                activeIsFingerspelled: activePlaybackIsFingerspelled,
-                                playbackProgress: playbackProgress,
-                                playbackSpeeds: playbackSpeeds,
-                                selectedPlaybackSpeed: selectedPlaybackSpeed,
-                                sourcePageURL: activeSignVideo?.pageURL,
-                                onPlayTap: playSelectedVideo,
-                                onSpeedTap: { selectedPlaybackSpeed = $0 }
-                            )
-
-                            PhotoTranslationCard(
-                                originalText: originalText,
-                                glossText: glossText,
-                                glossWords: glossWords,
-                                chipBackground: chipBackground,
-                                chipBorder: chipBorder,
-                                chipLineWidth: chipLineWidth,
-                                chipDash: chipDash,
-                                onWordTap: selectSign
-                            )
-                        }
+                VStack(spacing: 0) {
+                    if hasTranslationUI {
+                        resultLayout(in: geometry)
+                    } else {
+                        setupLayout
                     }
-                    .padding(.horizontal, 22)
-                    .padding(.top, 26)
-                    .padding(.bottom, 140)
+
+                    PhotoModeBottomTabBar(
+                        isTypeActive: false,
+                        isPhotoActive: true,
+                        onTypeTap: { navigateToTypeMode = true },
+                        onPhotoTap: { }
+                    )
                 }
 
-                PhotoModeBottomTabBar(
-                    isTypeActive: false,
-                    isPhotoActive: true,
-                    onTypeTap: { navigateToTypeMode = true },
-                    onPhotoTap: { }
-                )
-            }
+                if isModeSheetPresented {
+                    overlay
+                    PhotoModeSheet(
+                        selectedMode: viewModel.selectedTranslationMode,
+                        offlineSubtitle: offlineModeSubtitle,
+                        onBetterSignsTap: {
+                            celebrateModeSelection(.betterSigns) {
+                                viewModel.selectBetterSignsMode()
+                            }
+                        },
+                        onOfflineTap: handleOfflineModeTap,
+                        modelSettingsCard: AnyView(modelSettingsCard)
+                    )
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
 
-            if isModeSheetPresented {
-                overlay
-                PhotoModeSheet(
-                    selectedMode: viewModel.selectedTranslationMode,
-                    offlineSubtitle: offlineModeSubtitle,
-                    onBetterSignsTap: {
-                        celebrateModeSelection(.betterSigns) {
-                            viewModel.selectBetterSignsMode()
-                        }
-                    },
-                    onOfflineTap: handleOfflineModeTap,
-                    modelSettingsCard: AnyView(modelSettingsCard)
-                )
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
-
-            if isDownloadPromptPresented {
-                overlay
-                PhotoOfflineDownloadPrompt(
-                    isDownloading: viewModel.isDownloadingModel,
-                    downloadStageEmoji: downloadStageEmoji,
-                    downloadPromptBody: downloadPromptBody,
-                    downloadFraction: downloadFraction,
-                    downloadStageText: downloadStageText,
-                    downloadStatusText: downloadStatusText,
-                    onCancel: {
-                        if !viewModel.isDownloadingModel {
-                            isDownloadPromptPresented = false
-                        }
-                    },
-                    onDownload: {
-                        Task {
-                            await viewModel.downloadModel()
-                            if viewModel.enableOfflineModeIfAvailable() {
-                                celebrateModeSelection(.offline) { }
+                if isDownloadPromptPresented {
+                    overlay
+                    PhotoOfflineDownloadPrompt(
+                        isDownloading: viewModel.isDownloadingModel,
+                        downloadStageEmoji: downloadStageEmoji,
+                        downloadPromptBody: downloadPromptBody,
+                        downloadFraction: downloadFraction,
+                        downloadStageText: downloadStageText,
+                        downloadStatusText: downloadStatusText,
+                        onCancel: {
+                            if !viewModel.isDownloadingModel {
+                                isDownloadPromptPresented = false
+                            }
+                        },
+                        onDownload: {
+                            Task {
+                                await viewModel.downloadModel()
+                                if viewModel.enableOfflineModeIfAvailable() {
+                                    celebrateModeSelection(.offline) { }
+                                }
                             }
                         }
-                    }
-                )
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
+                    )
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
 
-            if let celebratedMode {
-                PhotoCelebrationOverlay(
-                    mode: celebratedMode,
-                    opacity: celebrationOpacity,
-                    scale: celebrationScale,
-                    rotation: celebrationRotation,
-                    sparkleLift: sparkleLift
-                )
-                .transition(.opacity.combined(with: .scale))
-                .allowsHitTesting(false)
-            }
+                if let celebratedMode {
+                    PhotoCelebrationOverlay(
+                        mode: celebratedMode,
+                        opacity: celebrationOpacity,
+                        scale: celebrationScale,
+                        rotation: celebrationRotation,
+                        sparkleLift: sparkleLift
+                    )
+                    .transition(.opacity.combined(with: .scale))
+                    .allowsHitTesting(false)
+                }
 
-            NavigationLink(isActive: $navigateToTypeMode) {
-                TextPlaceholderView(viewModel: viewModel)
-            } label: {
-                EmptyView()
+                NavigationLink(isActive: $navigateToTypeMode) {
+                    TextPlaceholderView(viewModel: viewModel)
+                } label: {
+                    EmptyView()
+                }
+                .hidden()
             }
-            .hidden()
         }
         .toolbar(.hidden, for: .navigationBar)
         .animation(.spring(response: 0.35, dampingFraction: 0.92), value: isModeSheetPresented)
@@ -197,6 +129,119 @@ struct CameraRecognitionView: View {
                 viewModel.setCapturedImage(image)
             }
         }
+    }
+
+    private var setupLayout: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 24) {
+                PhotoModeHeader {
+                    viewModel.refreshModelStatus()
+                    isModeSheetPresented = true
+                }
+
+                PhotoModeActionRow(
+                    onCameraTap: { showingCamera = true },
+                    onPhotosTap: { showingPhotoLibrary = true }
+                )
+
+                if let image = viewModel.capturedImage {
+                    PhotoSelectedImageCard(image: image)
+                    PhotoAnalyzeButton(isLoading: viewModel.isLoading) {
+                        Task {
+                            await viewModel.recognizeCapturedImage()
+                        }
+                    }
+                }
+
+                if viewModel.photoCategories.count > 1 {
+                    PhotoCategoryTabs(
+                        categories: viewModel.photoCategories,
+                        activeIndex: activeCategoryIndex,
+                        onTap: { index in
+                            activeCategoryIndex = index
+                        }
+                    )
+                }
+
+                if viewModel.isLoading {
+                    PhotoStatusCard(title: "Analyzing photo...")
+                }
+
+                if let errorMessage = viewModel.errorMessage {
+                    PhotoMessageCard(text: errorMessage, tint: .red)
+                }
+
+                if viewModel.isLoadingSignVideos {
+                    PhotoStatusCard(title: "Looking up sign videos...")
+                }
+            }
+            .padding(.horizontal, 22)
+            .padding(.top, 26)
+            .padding(.bottom, 140)
+        }
+    }
+
+    private func resultLayout(in geometry: GeometryProxy) -> some View {
+        let hasTabs = viewModel.photoCategories.count > 1
+        let videoHeight = min(max(geometry.size.height * 0.245, 228), 286)
+        let reservedChrome = geometry.safeAreaInsets.top + geometry.safeAreaInsets.bottom + 198 + (hasTabs ? 48 : 0)
+        let cardHeight = min(max(geometry.size.height - videoHeight - reservedChrome, 318), 410)
+
+        return VStack(alignment: .leading, spacing: 12) {
+            if hasTabs {
+                PhotoCategoryTabs(
+                    categories: viewModel.photoCategories,
+                    activeIndex: activeCategoryIndex,
+                    onTap: { index in
+                        activeCategoryIndex = index
+                    }
+                )
+            }
+
+            PhotoPlaybackSection(
+                player: player,
+                hasVideo: activeSignVideo?.localVideoURL != nil,
+                isLoadingSignVideos: viewModel.isLoadingSignVideos,
+                activeIssue: activePlaybackIssue,
+                activeLabel: activePlaybackLabel,
+                activeIsFingerspelled: activePlaybackIsFingerspelled,
+                playbackProgress: playbackProgress,
+                playbackSpeeds: playbackSpeeds,
+                selectedPlaybackSpeed: selectedPlaybackSpeed,
+                videoHeight: videoHeight,
+                onPlayTap: playSelectedVideo,
+                onSpeedTap: { selectedPlaybackSpeed = $0 }
+            )
+
+            PhotoTranslationCard(
+                originalText: originalText,
+                glossText: glossText,
+                glossWords: glossWords,
+                chipBackground: chipBackground,
+                chipBorder: chipBorder,
+                chipLineWidth: chipLineWidth,
+                chipDash: chipDash,
+                cardHeight: cardHeight,
+                sourcePageURL: activeSignVideo?.pageURL,
+                onWordTap: selectSign
+            )
+
+            if viewModel.isLoading {
+                PhotoStatusCard(title: "Analyzing photo...")
+            }
+
+            if let errorMessage = viewModel.errorMessage {
+                PhotoMessageCard(text: errorMessage, tint: .red)
+            }
+
+            if viewModel.isLoadingSignVideos {
+                PhotoStatusCard(title: "Looking up sign videos...")
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .padding(.horizontal, 22)
+        .padding(.top, 8)
+        .padding(.bottom, 8)
     }
 
     private var overlay: some View {
