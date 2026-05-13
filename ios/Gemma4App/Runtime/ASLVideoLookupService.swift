@@ -1,6 +1,7 @@
 import Foundation
 
 struct ASLSignVideo: Identifiable, Sendable {
+    let id: String
     let input: String
     let normalized: String
     let match: String?
@@ -10,8 +11,7 @@ struct ASLSignVideo: Identifiable, Sendable {
     let skipped: Bool
     let reason: String?
     let error: String?
-
-    var id: String { normalized }
+    var group: String? = nil
 }
 
 struct ASLVideoLookupService {
@@ -52,6 +52,7 @@ struct ASLVideoLookupService {
     private func lookup(word: String, normalized: String) async -> ASLSignVideo {
         if Self.omittedWords.contains(normalized) {
             return ASLSignVideo(
+                id: UUID().uuidString,
                 input: word,
                 normalized: normalized,
                 match: nil,
@@ -76,6 +77,7 @@ struct ASLVideoLookupService {
                 guard let bestMatch = bestMatch(for: lookupTerm, in: payload),
                       let pageURL = absoluteHandspeakURL(path: bestMatch.url) else {
                     lastMiss = ASLSignVideo(
+                        id: UUID().uuidString,
                         input: word,
                         normalized: normalized,
                         match: nil,
@@ -93,6 +95,7 @@ struct ASLVideoLookupService {
                 let candidates = extractVideoURLs(from: html)
                 guard !candidates.isEmpty else {
                     lastMiss = ASLSignVideo(
+                        id: UUID().uuidString,
                         input: word,
                         normalized: normalized,
                         match: bestMatch.signName,
@@ -113,6 +116,7 @@ struct ASLVideoLookupService {
                 )
 
                 return ASLSignVideo(
+                    id: UUID().uuidString,
                     input: word,
                     normalized: normalized,
                     match: bestMatch.signName,
@@ -128,6 +132,7 @@ struct ASLVideoLookupService {
             }
 
             return lastMiss ?? ASLSignVideo(
+                id: UUID().uuidString,
                 input: word,
                 normalized: normalized,
                 match: nil,
@@ -140,6 +145,7 @@ struct ASLVideoLookupService {
             )
         } catch {
             return ASLSignVideo(
+                id: UUID().uuidString,
                 input: word,
                 normalized: normalized,
                 match: nil,

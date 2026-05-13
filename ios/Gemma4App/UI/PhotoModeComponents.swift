@@ -507,27 +507,33 @@ struct PhotoModeSheet: View {
     let modelSettingsCard: AnyView
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 22) {
+        VStack(alignment: .leading, spacing: 0) {
             Capsule()
                 .fill(PhotoModePalette.border)
                 .frame(width: 88, height: 8)
                 .frame(maxWidth: .infinity)
                 .padding(.top, 10)
+                .padding(.bottom, 22)
 
-            Text("Translation mode")
-                .font(HearmeTypography.brand(30))
-                .foregroundStyle(PhotoModePalette.ink)
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 22) {
+                    Text("Translation mode")
+                        .font(HearmeTypography.brand(30))
+                        .foregroundStyle(PhotoModePalette.ink)
 
-            Text("Pick how Hearme makes the sign for each word.")
-                .font(HearmeTypography.bodyStrong(18))
-                .foregroundStyle(PhotoModePalette.muted)
+                    Text("Pick how Hearme makes the sign for each word.")
+                        .font(HearmeTypography.bodyStrong(18))
+                        .foregroundStyle(PhotoModePalette.muted)
 
-            option(icon: "🌟", title: "Better Signs", subtitle: "Enjoy high quality ASL with internet", badge: "RECOMMENDED", highlighted: selectedMode == .betterSigns, action: onBetterSignsTap)
-            option(icon: "✈️", title: "Offline Mode", subtitle: offlineSubtitle, badge: nil, highlighted: selectedMode == .offline, action: onOfflineTap)
-            modelSettingsCard
+                    option(icon: "🌟", title: "Better Signs", subtitle: "Enjoy high quality ASL with internet", badge: "RECOMMENDED", highlighted: selectedMode == .betterSigns, action: onBetterSignsTap)
+                    option(icon: "✈️", title: "Offline Mode", subtitle: offlineSubtitle, badge: nil, highlighted: selectedMode == .offline, action: onOfflineTap)
+                    modelSettingsCard
+                }
+                .padding(.bottom, 34)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
         .padding(.horizontal, 22)
-        .padding(.bottom, 34)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 34, style: .continuous)

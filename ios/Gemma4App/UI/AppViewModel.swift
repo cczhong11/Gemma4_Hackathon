@@ -118,14 +118,50 @@ final class AppViewModel: ObservableObject {
             if !analysis.categories.isEmpty {
                 isLoadingSignVideos = true
                 for category in analysis.categories {
-                    let videos = category.keywords.isEmpty ? [] : await aslVideoLookupService.lookup(words: category.keywords)
+                    var expandedWords: [String] = []
+                    for keyword in category.keywords {
+                        let trimmed = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if trimmed.uppercased().hasPrefix("FS-") {
+                            let word = String(trimmed.dropFirst(3))
+                            for char in word {
+                                expandedWords.append(String(char).lowercased())
+                            }
+                        } else {
+                            expandedWords.append(trimmed)
+                        }
+                    }
+
+                    let rawVideos = expandedWords.isEmpty ? [] : await aslVideoLookupService.lookup(words: expandedWords)
+                    
+                    var finalVideos: [ASLSignVideo] = []
+                    var videoIndex = 0
+                    for keyword in category.keywords {
+                        let trimmed = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if trimmed.uppercased().hasPrefix("FS-") {
+                            let word = String(trimmed.dropFirst(3))
+                            for _ in word {
+                                if videoIndex < rawVideos.count {
+                                    var v = rawVideos[videoIndex]
+                                    v.group = trimmed.lowercased()
+                                    finalVideos.append(v)
+                                }
+                                videoIndex += 1
+                            }
+                        } else {
+                            if videoIndex < rawVideos.count {
+                                finalVideos.append(rawVideos[videoIndex])
+                            }
+                            videoIndex += 1
+                        }
+                    }
+
                     builtCategories.append(
                         PhotoRecognitionCategory(
                             label: category.label,
                             text: category.text,
                             gloss: category.gloss,
                             keywords: category.keywords,
-                            signVideos: videos
+                            signVideos: finalVideos
                         )
                     )
                 }

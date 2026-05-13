@@ -111,6 +111,10 @@ struct CameraRecognitionView: View {
         .onChange(of: selectedPlaybackSpeed) { _ in
             updatePlayerRateIfNeeded()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .AVPlayerItemDidPlayToEndTime)) { notification in
+            guard let item = notification.object as? AVPlayerItem, item == player.currentItem else { return }
+            playNextVideo()
+        }
         .fullScreenCover(isPresented: $showingCamera) {
             CameraImagePicker(sourceType: .camera) { image in
                 viewModel.setCapturedImage(image)
@@ -496,7 +500,7 @@ struct CameraRecognitionView: View {
     private func signForWord(_ word: String) -> ASLSignVideo? {
         let normalizedWord = word.lowercased()
         return currentSignVideos.first {
-            $0.normalized == normalizedWord || $0.input.lowercased() == normalizedWord
+            $0.group == normalizedWord || $0.normalized == normalizedWord || $0.input.lowercased() == normalizedWord
         }
     }
 
@@ -536,6 +540,30 @@ struct CameraRecognitionView: View {
         } else {
             player.playImmediately(atRate: playbackRate)
             reinforcePlaybackRate()
+        }
+    }
+
+    private func playNextVideo() {
+        guard let activeID = selectedSignID ?? currentSignVideos.first(where: { $0.localVideoURL != nil })?.id,
+              let currentIndex = currentSignVideos.firstIndex(where: { $0.id == activeID }) else { return }
+
+        var nextIndex = currentIndex + 1
+        while nextIndex < currentSignVideos.count {
+            if currentSignVideos[nextIndex].localVideoURL != nil {
+                break
+            }
+            nextIndex += 1
+        }
+
+        if nextIndex < currentSignVideos.count {
+            let nextVideo = currentSignVideos[nextIndex]
+            selectedSignID = nextVideo.id
+            loadPlayer(for: nextVideo, autoplay: true)
+        } else {
+            if let firstPlayable = currentSignVideos.first(where: { $0.localVideoURL != nil }) {
+                selectedSignID = firstPlayable.id
+                loadPlayer(for: firstPlayable, autoplay: false)
+            }
         }
     }
 
@@ -612,9 +640,13 @@ struct CameraRecognitionView: View {
     }
 
     private func isSelectedWord(_ word: String) -> Bool {
-        guard let selectedSignID,
-              let sign = signForWord(word) else { return false }
-        return sign.id == selectedSignID
+        guard let selectedSignID else { return false }
+        let normalizedWord = word.lowercased()
+        let activeSign = currentSignVideos.first(where: { $0.id == selectedSignID })
+        if let group = activeSign?.group {
+            return group == normalizedWord || activeSign?.normalized == normalizedWord || activeSign?.input.lowercased() == normalizedWord
+        }
+        return activeSign?.normalized == normalizedWord || activeSign?.input.lowercased() == normalizedWord
     }
 
     private var activePlaybackLabel: String? {
