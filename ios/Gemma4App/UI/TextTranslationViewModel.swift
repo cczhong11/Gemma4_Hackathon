@@ -149,14 +149,14 @@ final class TextTranslationViewModel: ObservableObject {
 
         if Task.isCancelled { return }
 
-        let pendingUnits = Self.buildPendingUnits(from: response.tokens)
-        let flatLetters = pendingUnits.flatMap { $0.letters }
+        let pendingUnits = await buildPendingUnits(from: response.tokens)
+        let flatLookupWords = pendingUnits.flatMap { $0.lookupWords }
 
         let allResults: [ASLSignVideo]
-        if flatLetters.isEmpty {
+        if flatLookupWords.isEmpty {
             allResults = []
         } else {
-            allResults = await lookupService.lookup(words: flatLetters)
+            allResults = await lookupService.lookup(words: flatLookupWords)
         }
 
         if Task.isCancelled { return }
@@ -166,8 +166,8 @@ final class TextTranslationViewModel: ObservableObject {
         var resultCursor = 0
 
         for pending in pendingUnits {
-            let letterCount = pending.letters.count
-            let endCursor = min(resultCursor + letterCount, allResults.count)
+            let lookupCount = pending.lookupWords.count
+            let endCursor = min(resultCursor + lookupCount, allResults.count)
             let slice = Array(allResults[resultCursor..<endCursor])
             resultCursor = endCursor
 
@@ -219,30 +219,53 @@ final class TextTranslationViewModel: ObservableObject {
     private struct PendingUnit {
         let kind: GlossUnit.Kind
         let displayLabel: String
-        let letters: [String]
+        let lookupWords: [String]
     }
 
-    private static func buildPendingUnits(from tokens: [String]) -> [PendingUnit] {
-        tokens.compactMap { token in
+    private func buildPendingUnits(from tokens: [String]) async -> [PendingUnit] {
+        var pendingUnits: [PendingUnit] = []
+
+        for token in tokens {
             let trimmed = token.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !trimmed.isEmpty else { return nil }
+            guard !trimmed.isEmpty else { continue }
 
             if trimmed.uppercased().hasPrefix("FS-") {
                 let word = String(trimmed.dropFirst(3)).uppercased()
+                let normalizedWord = word.lowercased()
+                let wholeWordResult = await lookupService.lookup(words: [normalizedWord]).first
+
+                if let wholeWordResult, wholeWordResult.isExactMatch {
+                    pendingUnits.append(
+                        PendingUnit(
+                            kind: .sign(normalizedWord),
+                            displayLabel: normalizedWord.uppercased(),
+                            lookupWords: [normalizedWord]
+                        )
+                    )
+                    continue
+                }
+
                 let letters = word.map { String($0).lowercased() }
-                return PendingUnit(
-                    kind: .fingerspell(word),
-                    displayLabel: "\(word) (FS)",
-                    letters: letters
+                pendingUnits.append(
+                    PendingUnit(
+                        kind: .fingerspell(word),
+                        displayLabel: "\(word) (FS)",
+                        lookupWords: letters
+                    )
                 )
+                continue
             }
 
             let canonical = trimmed.lowercased()
-            return PendingUnit(
-                kind: .sign(canonical),
-                displayLabel: canonical.uppercased(),
-                letters: [canonical]
+            pendingUnits.append(
+                PendingUnit(
+                    kind: .sign(canonical),
+                    displayLabel: canonical.uppercased(),
+                    lookupWords: [canonical]
+                )
             )
         }
+
+        return pendingUnits
     }
 }

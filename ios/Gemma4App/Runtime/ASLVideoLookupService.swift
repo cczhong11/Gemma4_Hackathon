@@ -5,6 +5,7 @@ struct ASLSignVideo: Identifiable, Sendable {
     let input: String
     let normalized: String
     let match: String?
+    let isExactMatch: Bool
     let pageURL: URL?
     let sourceVideoURL: URL?
     let localVideoURL: URL?
@@ -56,6 +57,7 @@ struct ASLVideoLookupService {
                 input: word,
                 normalized: normalized,
                 match: nil,
+                isExactMatch: false,
                 pageURL: nil,
                 sourceVideoURL: nil,
                 localVideoURL: nil,
@@ -75,12 +77,13 @@ struct ASLVideoLookupService {
                 let payload: SearchPayload = try await fetchJSON(from: searchURL)
 
                 guard let bestMatch = bestMatch(for: lookupTerm, in: payload),
-                      let pageURL = absoluteHandspeakURL(path: bestMatch.url) else {
+                      let pageURL = absoluteHandspeakURL(path: bestMatch.result.url) else {
                     lastMiss = ASLSignVideo(
                         id: UUID().uuidString,
                         input: word,
                         normalized: normalized,
                         match: nil,
+                        isExactMatch: false,
                         pageURL: nil,
                         sourceVideoURL: nil,
                         localVideoURL: nil,
@@ -98,7 +101,8 @@ struct ASLVideoLookupService {
                         id: UUID().uuidString,
                         input: word,
                         normalized: normalized,
-                        match: bestMatch.signName,
+                        match: bestMatch.result.signName,
+                        isExactMatch: bestMatch.isExactMatch,
                         pageURL: pageURL,
                         sourceVideoURL: nil,
                         localVideoURL: nil,
@@ -119,7 +123,8 @@ struct ASLVideoLookupService {
                     id: UUID().uuidString,
                     input: word,
                     normalized: normalized,
-                    match: bestMatch.signName,
+                    match: bestMatch.result.signName,
+                    isExactMatch: bestMatch.isExactMatch,
                     pageURL: pageURL,
                     sourceVideoURL: cachedVideo.sourceURL,
                     localVideoURL: cachedVideo.localURL,
@@ -136,6 +141,7 @@ struct ASLVideoLookupService {
                 input: word,
                 normalized: normalized,
                 match: nil,
+                isExactMatch: false,
                 pageURL: nil,
                 sourceVideoURL: nil,
                 localVideoURL: nil,
@@ -149,6 +155,7 @@ struct ASLVideoLookupService {
                 input: word,
                 normalized: normalized,
                 match: nil,
+                isExactMatch: false,
                 pageURL: nil,
                 sourceVideoURL: nil,
                 localVideoURL: nil,
@@ -266,10 +273,22 @@ struct ASLVideoLookupService {
         return directory.appendingPathComponent(filename)
     }
 
-    private func bestMatch(for normalized: String, in payload: SearchPayload) -> SearchResult? {
-        payload.word
-            ?? payload.wordlist?.first(where: { $0.signName.lowercased() == normalized })
-            ?? payload.wordlist?.first
+    private func bestMatch(for normalized: String, in payload: SearchPayload) -> MatchedSearchResult? {
+        let candidates = uniqueSearchResults(from: payload)
+
+        if let exact = candidates
+            .filter({ normalizedCompactMatchTerm($0.signName) == normalized })
+            .min(by: matchOrdering) {
+            return MatchedSearchResult(result: exact, isExactMatch: true)
+        }
+
+        if let tokenMatch = candidates
+            .filter({ tokenizedMatchTerms($0.signName).contains(normalized) })
+            .min(by: matchOrdering) {
+            return MatchedSearchResult(result: tokenMatch, isExactMatch: false)
+        }
+
+        return nil
     }
 
     private func fallbackLookupTerms(for normalized: String) -> [String] {
@@ -304,11 +323,62 @@ struct ASLVideoLookupService {
             .components(separatedBy: CharacterSet.letters.inverted)
             .joined()
     }
+
+    private func normalizedCompactMatchTerm(_ value: String) -> String {
+        value
+            .lowercased()
+            .replacingOccurrences(of: #"[^\p{ASCII}]"#, with: "", options: .regularExpression)
+            .components(separatedBy: CharacterSet.letters.inverted)
+            .joined()
+    }
+
+    private func tokenizedMatchTerms(_ value: String) -> [String] {
+        value
+            .lowercased()
+            .replacingOccurrences(of: #"[^\p{ASCII}]"#, with: "", options: .regularExpression)
+            .components(separatedBy: CharacterSet.letters.inverted)
+            .filter { !$0.isEmpty }
+    }
+
+    private func uniqueSearchResults(from payload: SearchPayload) -> [SearchResult] {
+        var results: [SearchResult] = []
+        var seen = Set<Int>()
+
+        if let word = payload.word, seen.insert(word.signID).inserted {
+            results.append(word)
+        }
+
+        for item in payload.wordlist ?? [] where seen.insert(item.signID).inserted {
+            results.append(item)
+        }
+
+        return results
+    }
+
+    private func matchOrdering(_ lhs: SearchResult, _ rhs: SearchResult) -> Bool {
+        let lhsTokens = tokenizedMatchTerms(lhs.signName)
+        let rhsTokens = tokenizedMatchTerms(rhs.signName)
+
+        if lhsTokens.count != rhsTokens.count {
+            return lhsTokens.count < rhsTokens.count
+        }
+
+        if lhs.signName.count != rhs.signName.count {
+            return lhs.signName.count < rhs.signName.count
+        }
+
+        return lhs.signID < rhs.signID
+    }
 }
 
 private struct SearchPayload: Decodable {
     let word: SearchResult?
     let wordlist: [SearchResult]?
+}
+
+private struct MatchedSearchResult {
+    let result: SearchResult
+    let isExactMatch: Bool
 }
 
 private struct SearchResult: Decodable {

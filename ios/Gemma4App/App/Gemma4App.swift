@@ -31,13 +31,13 @@ private struct RootLaunchView: View {
 private struct SplashScreenView: View {
     var body: some View {
         ZStack {
-            Color.white
+            Color(red: 244 / 255, green: 238 / 255, blue: 230 / 255)
                 .ignoresSafeArea()
 
             Image("Splash")
                 .resizable()
                 .scaledToFit()
-                .ignoresSafeArea()
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
     }
 }

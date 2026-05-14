@@ -51,7 +51,6 @@ struct CameraRecognitionView: View {
                     },
                     onOfflineTap: handleOfflineModeTap,
                     modelSettingsCard: AnyView(modelSettingsCard),
-                    bottomMenu: showsBottomBar ? AnyView(sheetBottomMenu) : nil,
                     onDismiss: { isModeSheetPresented = false }
                 )
                 .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -352,21 +351,6 @@ struct CameraRecognitionView: View {
             RoundedRectangle(cornerRadius: 26, style: .continuous)
                 .stroke(PhotoModePalette.border, lineWidth: 1.5)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
-    }
-
-    private var sheetBottomMenu: some View {
-        PhotoModeBottomTabBar(
-            isTypeActive: false,
-            isPhotoActive: true,
-            onTypeTap: {
-                isModeSheetPresented = false
-                onSwitchToType()
-            },
-            onPhotoTap: { },
-            showsTopDivider: false,
-            respectsBottomSafeArea: true
-        )
         .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
     }
 

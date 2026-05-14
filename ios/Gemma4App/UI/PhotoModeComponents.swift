@@ -521,7 +521,6 @@ struct PhotoModeSheet: View {
     let onBetterSignsTap: () -> Void
     let onOfflineTap: () -> Void
     let modelSettingsCard: AnyView
-    let bottomMenu: AnyView?
     let onDismiss: () -> Void
     @State private var dragOffset: CGFloat = 0
 
@@ -562,11 +561,6 @@ struct PhotoModeSheet: View {
                     option(icon: "🌟", title: "Better Signs", subtitle: "Enjoy high quality ASL with internet", badge: "RECOMMENDED", highlighted: selectedMode == .betterSigns, action: onBetterSignsTap)
                     option(icon: "✈️", title: "Offline Mode", subtitle: offlineSubtitle, badge: nil, highlighted: selectedMode == .offline, action: onOfflineTap)
                     modelSettingsCard
-
-                    if let bottomMenu {
-                        bottomMenu
-                            .padding(.top, 4)
-                    }
                 }
                 .padding(.bottom, 34)
                 .frame(maxWidth: .infinity, alignment: .leading)
