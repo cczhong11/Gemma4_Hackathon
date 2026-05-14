@@ -84,7 +84,7 @@ struct TextPlaceholderView: View {
                 }
                 .scrollDismissesKeyboard(.immediately)
 
-                if showsBottomBar && !isModeSheetPresented {
+                if showsBottomBar && !isModeSheetPresented && !isInputFocused {
                     bottomTabBar
                 }
             }
@@ -150,6 +150,7 @@ struct TextPlaceholderView: View {
         .animation(.spring(response: 0.35, dampingFraction: 0.92), value: isModeSheetPresented)
         .animation(.spring(response: 0.35, dampingFraction: 0.92), value: isDownloadPromptPresented)
         .animation(.spring(response: 0.35, dampingFraction: 0.9), value: celebratedMode)
+        .animation(.easeInOut(duration: 0.2), value: isInputFocused)
         .onAppear {
             vm.setTranslationMode(viewModel.selectedTranslationMode)
         }
