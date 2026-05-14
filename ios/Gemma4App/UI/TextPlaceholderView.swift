@@ -545,11 +545,7 @@ struct TextPlaceholderView: View {
     }
 
     private var chipsWrap: some View {
-        LazyVGrid(
-            columns: [GridItem(.adaptive(minimum: 80), spacing: 10)],
-            alignment: .leading,
-            spacing: 10
-        ) {
+        ChipFlowLayout(spacing: 10) {
             ForEach(vm.units) { unit in
                 Button {
                     vm.jumpTo(unit: unit)
@@ -558,8 +554,9 @@ struct TextPlaceholderView: View {
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                         .textCase(.lowercase)
                         .tracking(0.5)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
                         .foregroundStyle(chipForeground(for: unit))
-                        .frame(maxWidth: .infinity)
                         .frame(minHeight: 44)
                         .padding(.horizontal, 14)
                         .background(chipBackground(for: unit))
@@ -866,6 +863,56 @@ struct TextPlaceholderView: View {
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: 1_250_000_000)
             celebratedMode = nil
+        }
+    }
+}
+
+private struct ChipFlowLayout: Layout {
+    var spacing: CGFloat = 10
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let maxWidth = proposal.width ?? .infinity
+        var rowWidth: CGFloat = 0
+        var rowHeight: CGFloat = 0
+        var totalHeight: CGFloat = 0
+        var totalWidth: CGFloat = 0
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if rowWidth > 0 && rowWidth + spacing + size.width > maxWidth {
+                totalHeight += rowHeight + spacing
+                totalWidth = max(totalWidth, rowWidth)
+                rowWidth = size.width
+                rowHeight = size.height
+            } else {
+                rowWidth += (rowWidth > 0 ? spacing : 0) + size.width
+                rowHeight = max(rowHeight, size.height)
+            }
+        }
+        totalHeight += rowHeight
+        totalWidth = max(totalWidth, rowWidth)
+        return CGSize(width: totalWidth, height: totalHeight)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var x = bounds.minX
+        var y = bounds.minY
+        var rowHeight: CGFloat = 0
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if x > bounds.minX && x + size.width > bounds.maxX {
+                x = bounds.minX
+                y += rowHeight + spacing
+                rowHeight = 0
+            }
+            subview.place(
+                at: CGPoint(x: x, y: y),
+                anchor: .topLeading,
+                proposal: ProposedViewSize(size)
+            )
+            x += size.width + spacing
+            rowHeight = max(rowHeight, size.height)
         }
     }
 }
