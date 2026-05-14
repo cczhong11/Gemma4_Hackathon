@@ -13,12 +13,6 @@ enum ASLVocabError: Error {
 }
 
 enum ASLVocab {
-    static let excluded: Set<String> = [
-        "a", "b", "d", "e", "f", "g", "h", "i", "j", "k",
-        "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w",
-        "don't want",
-    ]
-
     static func load(bundle: Bundle = .main) throws -> VocabIndex {
         guard let url = bundle.url(forResource: "signs", withExtension: "txt") else {
             throw ASLVocabError.missingResource
@@ -27,12 +21,10 @@ enum ASLVocab {
             .trimmingCharacters(in: .whitespacesAndNewlines)
         if raw.isEmpty { throw ASLVocabError.emptyFile }
 
-        let entries = raw
+        let canonical = raw
             .split(separator: ",", omittingEmptySubsequences: false)
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
-
-        let canonical = entries.filter { !excluded.contains($0) }
         if canonical.isEmpty { throw ASLVocabError.emptyFile }
 
         var lookup: [String: String] = [:]
