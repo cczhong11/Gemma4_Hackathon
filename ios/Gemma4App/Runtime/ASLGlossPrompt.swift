@@ -38,7 +38,9 @@ enum ASLGlossPrompt {
         - Questions go at the end with raised eyebrows (mark with ?)
         - Negation goes after the verb: WANT NOT, LIKE NOT
         - For multi-word signs, join with a hyphen: ICE-CREAM, THANK-YOU, HARD-OF-HEARING
-        - If a word isn't in the vocab, use FS-<WORD> for fingerspelling (e.g., FS-SARAH)
+        - Every output token MUST be the EXACT uppercase form of a word from the Available signs list, or FS-<WORD>. Do NOT add suffixes (-S, -ED, -ING) or any form that is not in the list.
+        - Use base/singular/uninflected forms: "animals" -> ANIMAL, "running" -> RUN, "walked" -> WALK, "books" -> BOOK. ASL does not pluralize or conjugate by suffix.
+        - Only use FS-<WORD> when the base/lemma form is genuinely missing from the vocab (e.g., proper nouns like FS-SARAH). If the singular/base form exists in the vocab, you MUST use it.
         - Output ONLY the ASL gloss line. No explanation, no preamble.
         """
 
@@ -61,5 +63,11 @@ enum ASLGlossPrompt {
 
         English: "Thank you for the ice cream"
         ASL gloss: ICE-CREAM THANK-YOU
+
+        English: "Today we will learn about animals"
+        ASL gloss: TODAY ANIMAL WE LEARN
+
+        English: "She walked two dogs yesterday"
+        ASL gloss: YESTERDAY DOG TWO SHE WALK
         """
 }
