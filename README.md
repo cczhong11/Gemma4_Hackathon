@@ -6,14 +6,41 @@ This repository is a monorepo containing multiple experiments and applications b
 
 The project is divided into three main components:
 
-### 1. `ios/` - Gemma4 iOS Scaffold App
-A lightweight iOS SwiftUI scaffold demonstrating how to integrate the `Gemma4Runtime` into a native iOS application.
-- **Goal:** Provide a camera-first experience to run on-device or edge-based multimodal inference (like `Gemma 4 E2B/E4B`).
-- **Features:** 
-  - A camera capture flow for taking photos.
-  - Image-to-text recognition integration to describe the content of the captured photo.
-  - A clean abstraction layer (`Gemma4Adapter`, `Gemma4Loader`) for swapping in different model inference engines.
-- **Documentation:** See `ios/plan.md` for architectural decisions and the scaffold plan.
+### 1. `ios/` - Gemma4 iOS ASL Learning App
+A SwiftUI iPhone app for turning photos or typed English into beginner-friendly ASL learning outputs, with both internet-backed and offline Gemma-powered flows.
+- **Goal:** Make ASL practice feel simple and visual by combining Gemma 4 multimodal understanding, ASL gloss generation, and playable sign-video results.
+- **Current iOS capabilities:**
+  - Photo-to-ASL flow from either the camera or photo library.
+  - OCR-first recognition for visible text in an image, so signs/photos of words can be translated directly.
+  - Multimodal image understanding fallback when the photo does not contain readable text.
+  - Extraction of 1-5 simple ASL-friendly keywords from an image.
+  - Text-to-ASL flow for typed words or full sentences.
+  - ASL gloss generation for recognized or typed text.
+  - Per-word sign lookup against Handspeak with automatic MP4 discovery from dictionary pages.
+  - Local caching of downloaded ASL videos for smoother playback after lookup.
+  - Sequential playback of sign clips with speed controls and word selection.
+  - Fingerspelling fallback when an exact ASL clip is not available.
+  - Category/tab UI when a photo contains multiple recognizable text regions.
+  - Switchable translation modes:
+    - `Better Signs`: internet-backed flow using hosted adapters plus Handspeak lookup.
+    - `Offline`: on-device Gemma flow using the locally downloaded MLX model.
+  - Offline model management in-app:
+    - check install status
+    - download the model
+    - show progress while downloading
+    - cancel downloads
+    - delete the downloaded model from the device
+  - Runtime safeguards for iOS memory pressure and multimodal inference limits.
+  - Lazy runtime initialization so the app does not fully spin up the model at launch.
+- **Main iOS areas:**
+  - `ios/Gemma4App/UI/HomeView.swift` - top-level tabbed shell
+  - `ios/Gemma4App/UI/CameraRecognitionView.swift` - photo-to-ASL experience
+  - `ios/Gemma4App/UI/TextPlaceholderView.swift` - text-to-ASL experience
+  - `ios/Gemma4App/UI/AppViewModel.swift` - shared app state and mode/model management
+  - `ios/Gemma4App/Runtime/ImageRecognitionService.swift` - OCR, image analysis, keyword extraction, gloss prep
+  - `ios/Gemma4App/Runtime/ASLVideoLookupService.swift` - Handspeak search, MP4 extraction, caching
+  - `ios/Gemma4App/Runtime/EmbeddedGemma4Runtime.swift` - app-facing local runtime wrapper
+- **Documentation:** See `ios/plan.md` for the broader architecture and `AGENTS.md` for the current repo-specific iOS debugging map.
 
 ### 2. `asl-sequence/` - ASL Translator Web App
 A Next.js web application that translates written English sentences into American Sign Language (ASL) video sequences.
@@ -41,7 +68,7 @@ A collection of prompts, system instructions, and tool definitions specifically 
 
 ### iOS HF Token Setup (`.xcconfig`, local only)
 
-The iOS ASL translation flow uses `HF_TOKEN` (Hugging Face token).  
+The iOS app's internet-backed `Better Signs` mode uses `HF_TOKEN` (Hugging Face token).
 This repo is configured so your token stays local and is not committed.
 
 1. Copy `ios/Configs/LocalSecrets.example.xcconfig` to `ios/Configs/LocalSecrets.xcconfig`.
